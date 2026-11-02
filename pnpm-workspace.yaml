@@ -1,5 +1,5 @@
 minimumReleaseAgeExclude:
-  - '@inertiajs/core@3.11.0'
-  - '@inertiajs/react@3.11.0'
-  - '@inertiajs/vite@3.11.0'
-  - '@vitejs/plugin-react@6.2.1'
+  - "@inertiajs/core@3.11.0"
+  - "@inertiajs/react@3.11.0"
+  - "@inertiajs/vite@3.11.0"
+  - "@vitejs/plugin-react@6.2.1"

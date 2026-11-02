@@ -62,6 +62,6 @@ Uma mudança de direção vira um **novo ADR** que referencia o anterior (ex. "I
 
 ## Passo 5 — depois de escrever
 
-1. Verifique que o novo ADR está livre de avisos do markdownlint (`.markdownlint.json` do repo — rodar `npx markdownlint-cli2 "docs/adr/**/*.md"` ou checar via a extensão do VS Code). Erros comuns já vistos neste projeto: bloco de código sem linguagem (` ```text `/` ```bash `), URL solta sem colchetes, tabela com separador `|---|---|` em vez de `| --- | --- |`.
+1. Verifique que o novo ADR está livre de avisos do markdownlint (`.markdownlint.json` do repo — rodar `pnpm dlx markdownlint-cli2 "docs/adr/**/*.md"` ou checar via a extensão do VS Code). Erros comuns já vistos neste projeto: bloco de código sem linguagem (` ```text `/` ```bash `), URL solta sem colchetes, tabela com separador `|---|---|` em vez de `| --- | --- |`.
 2. Se o ADR documentar algo que muda uma afirmação em `README.md` ou `CONTRIBUTING.md` (ex. uma nova decisão fixada), atualize esses arquivos também — não deixe-os divergentes do ADR mais recente.
 3. Não commite/abra PR sozinho — devolva o arquivo criado para revisão, seguindo o fluxo normal de git descrito em `CONTRIBUTING.md` (branch próprio, commit em português no padrão Commitizen, PR).

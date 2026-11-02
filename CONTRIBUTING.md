@@ -25,7 +25,7 @@ Este projeto segue **Clean Code**, **Clean Architecture** e **SOLID** como basel
 - **Sem string/valor mágico espalhado pelo código.** Nada de comparar ou atribuir strings/números literais soltos (ex. `status == "pago"`, `role = "admin"`) em múltiplos lugares. Use enums (`enum` do ActiveRecord quando fizer sentido no domínio) ou constantes/módulos de constantes nomeados, definidos uma vez, referenciados em todo lugar.
 - **Comentário só como documentação formal de API, nunca como muleta de nome ruim.** Se o código precisa de um comentário explicando "o quê" ou um "por quê" óbvio, o nome está errado — renomeie em vez de comentar. Comentários são aceitáveis como **YARD** (equivalente Ruby ao PHPDoc/JSDoc) documentando contrato público de classes/métodos, ou para explicar um "porquê" não óbvio (ex. um workaround, uma decisão não trivial).
 - Backend Ruby: siga as regras do Rubocop configuradas no projeto (`bundle exec rubocop`).
-- Frontend: TypeScript, componentes React pequenos e testáveis.
+- Frontend: TypeScript, componentes React pequenos e testáveis. Siga ESLint (`pnpm lint`) e Prettier (`pnpm format:check`) configurados no projeto — `eslint.config.mjs` inclui regras de tipagem estrita (typescript-eslint `strictTypeChecked`), React, acessibilidade (`jsx-a11y` strict) e Tailwind; Prettier (com `prettier-plugin-tailwindcss`) é quem formata/ordena classes, não o ESLint.
 - **Nunca usar o tipo `any`.** Toda variável, parâmetro, retorno de função e prop de componente precisa de um tipo real. Se o tipo correto não for óbvio, pesquise (documentação oficial da lib, Context7) em vez de recorrer a `any` ou `as any` como atalho. `unknown` + narrowing é aceitável quando o tipo genuinamente não pode ser conhecido antecipadamente (ex. parsing de JSON externo) — `any` nunca é.
 - **HTML sempre semântico.** Use o elemento certo pro que ele representa (`header`, `nav`, `main`, `section`, `article`, `footer`, `button`, `label`, etc.) em vez de `div`/`span` genérico quando existe elemento semântico apropriado — acessibilidade e SEO dependem disso, e SEO é uma feature explícita do painel admin deste projeto.
 - **Em caso de dúvida sobre como uma biblioteca/framework/API funciona, consulte a documentação oficial atual antes de implementar** — não assuma pelo que "parece familiar" de outra versão ou outra lib.
@@ -43,11 +43,13 @@ PRs precisam incluir testes para o comportamento novo/alterado, e a suíte compl
 
 ```bash
 bundle exec rspec                # testes backend
-npm run test                     # testes frontend (Vitest)
-npx playwright test              # testes e2e (quando existirem)
+pnpm test                        # testes frontend (Vitest)
+pnpm dlx playwright test         # testes e2e (quando existirem)
+pnpm lint                        # lint JS/TS (ESLint)
+pnpm format:check                # formatação JS/TS (Prettier)
 bundle exec rubocop              # lint Ruby
 bundle exec brakeman             # análise de segurança
-npx markdownlint-cli2 "**/*.md"  # lint de markdown
+pnpm dlx markdownlint-cli2 "**/*.md"  # lint de markdown
 ```
 
 ## Processo de PR
