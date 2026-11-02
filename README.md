@@ -2,7 +2,7 @@
 
 Template open source e **white-label de e-commerce de produtos digitais**, construído com [Inertia Rails](https://inertia-rails.dev/) (Ruby on Rails + React). Licenciado sob [MIT](LICENSE) — qualquer pessoa pode usar, modificar, redistribuir ou vender soluções baseadas neste código, sem precisar de permissão.
 
-> Status: fundação do projeto em construção. Ainda não há aplicação rodando — ver `docs/adr/` para o que já foi decidido.
+> Status: esqueleto da aplicação (Rails + Inertia + React + Tailwind) rodando. Ainda sem funcionalidades de produto/CMS — ver `docs/adr/` para o que já foi decidido.
 
 ## O que é
 

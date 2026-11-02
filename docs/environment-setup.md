@@ -128,14 +128,40 @@ Verificação: `pg_isready` e `psql -U ubuntu -d postgres -c "select version();"
 
 ## Pendente (Fase 2 — ambiente da aplicação)
 
-Nada abaixo foi executado ainda. Esta seção é atualizada com os comandos reais conforme cada item é de fato feito, não antes:
+Esta seção é atualizada com os comandos reais conforme cada item é de fato feito, não antes:
 
-- [ ] Scaffold da aplicação Rails + Inertia + React, usando pnpm (não npm) para o lado JS
-- [ ] RSpec, Rubocop, Brakeman, Vitest, Playwright instalados e configurados
+- [ ] RSpec, factory_bot, Capybara/Cuprite, Vitest, Playwright instalados e configurados (Rubocop e Brakeman já vêm por padrão no Rails 8, feito)
 - [ ] Gem `rails-dev-mcp` instalada e adicionada ao `.mcp.json`
 - [ ] Personal Access Token do GitHub criado e `GITHUB_PAT` exportado no shell
 - [ ] Playwright MCP, Chrome DevTools MCP, GitHub MCP e Rails Dev MCP todos conectando de verdade
-- [ ] CI do GitHub Actions validado rodando de ponta a ponta num PR real
+- [ ] CI do GitHub Actions estendido com RSpec/Vitest/Playwright/markdownlint (hoje só tem brakeman/bundler-audit/rubocop, gerados pelo Rails)
+
+### Scaffold da aplicação (Rails + Inertia + React + pnpm)
+
+Status: feito.
+
+```bash
+rails new . --skip-javascript --skip-asset-pipeline --database=postgresql --skip-test
+bundle add inertia_rails
+rails generate inertia:install --framework=react --typescript --vite --tailwind --no-interactive
+```
+
+**pnpm em vez de npm:** o gerador do `inertia_rails`/`vite_rails` usa `npm` por padrão. Depois de gerar, foi preciso:
+
+```bash
+rm -rf node_modules package-lock.json
+pnpm install   # gera pnpm-lock.yaml
+```
+
+E corrigir `bin/setup` (`npm install` → `pnpm install`). TypeScript sob pnpm precisa de um ajuste adicional — `pnpm`'s isolamento estrito de `node_modules` quebra a resolução de tipos de `@inertiajs/core` — resolvido com `.npmrc`:
+
+```ini
+public-hoist-pattern[]=@inertiajs/core
+```
+
+Ver `docs/adr/0009-pnpm-as-node-package-manager.md` para o porquê de usar pnpm.
+
+Verificação: `pnpm run check` (TypeScript) limpo, `pnpm exec vite build` compila, `bin/dev` sobe Rails (porta 3100, definida pelo gerador do Inertia) + Vite, página inicial responde HTTP 200 com `id="app"` renderizado.
 
 ## Pra replicar esse ambiente do zero
 
