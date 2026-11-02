@@ -58,23 +58,78 @@ Extensão `davidanson.vscode-markdownlint` instalada no VS Code (Remote-WSL). Re
 
 ### MCP servers — configuração
 
-Status: `.mcp.json` criado com Playwright, Chrome DevTools e GitHub. Nenhum conecta de verdade ainda (ver "Pendente" abaixo) — isso é esperado nesta etapa.
+Status: `.mcp.json` criado com Playwright, Chrome DevTools e GitHub.
 
-- **Playwright** e **Chrome DevTools**: rodam via `pnpm dlx`, dependem de pnpm instalado (pendente).
+- **Playwright** e **Chrome DevTools**: rodam via `pnpm dlx` — pnpm já instalado (ver seção "mise"), prontos pra conectar.
 - **GitHub**: roda via Docker (`docs/adr/0008`), depende de duas coisas pendentes do seu lado:
   1. Criar um Personal Access Token fine-grained em github.com/settings/tokens, escopo só neste repo, permissões Contents/Pull requests/Issues (read/write).
   2. Exportar como variável de ambiente, **nunca num arquivo do repo**: `export GITHUB_PAT="ghp_..."` no `~/.bashrc`, depois `source ~/.bashrc`. O `.mcp.json` referencia `${GITHUB_PAT}` — o valor real nunca é commitado.
 - **Rails Dev MCP** (`obie/rails-dev-mcp`) entra no `.mcp.json` só depois que a aplicação Rails existir (seção "Pendente").
 
+### CLI standalone do Claude Code
+
+Status: feito.
+
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+```
+
+Compartilha a mesma config (`~/.claude`) da extensão do VS Code — não precisou de login separado. Verificação: `claude --version` e `claude auth status`.
+
+### Navegador (Chromium) — pro Chrome DevTools MCP
+
+Status: feito.
+
+```bash
+sudo apt install -y chromium-browser
+```
+
+No Ubuntu, isso instala via snap automaticamente (pacote `chromium-browser` é só um transicional). Verificação: `chromium-browser --version`.
+
+### `sudo` sem senha, escopado (apt + postgresql)
+
+Status: feito.
+
+Para eu (IA) conseguir rodar `apt install`/`systemctl` do PostgreSQL sem interromper o usuário a cada comando, foi criado `/etc/sudoers.d/claude-code-setup`, liberando **só** `apt`/`apt-get install`/`update` e `systemctl {start,stop,restart,enable --now,status} postgresql`, mais `createuser`/`createdb`/`psql` como usuário `postgres` — nada além disso. Instalado via `visudo` (validado antes e depois de instalar, ver histórico do PR correspondente). Qualquer outro `sudo` continua pedindo senha normalmente.
+
+### Pacotes de sistema (apt)
+
+Status: feito.
+
+```bash
+sudo apt install -y build-essential libssl-dev libyaml-dev zlib1g-dev libreadline-dev libpq-dev postgresql postgresql-contrib
+```
+
+O pacote `postgresql` já inicializa, habilita e inicia o serviço automaticamente no Ubuntu — não precisou de passo manual de `systemctl enable`.
+
+### `mise`: Ruby, Node e pnpm
+
+Status: feito.
+
+```bash
+curl https://mise.run | sh
+echo 'eval "$(/home/ubuntu/.local/bin/mise activate bash)"' >> ~/.bashrc
+cd /home/ubuntu/projetos/ecommerce-inertia-ruby
+mise use ruby@4.0.9 node@24.22.2 pnpm@12.16.1
+```
+
+Gera `mise.toml` na raiz do repo, versionado, com versões exatas pinadas (não faixas como `"4"` — reprodutibilidade real). Ruby 4.x já vem com Bundler embutido como gem padrão, não precisou `gem install bundler` separado. Verificação: `ruby -v`, `node -v`, `pnpm -v` dentro da pasta do projeto.
+
+### PostgreSQL — role de desenvolvimento
+
+Status: feito.
+
+```bash
+sudo -u postgres createuser -s ubuntu
+```
+
+Verificação: `pg_isready` e `psql -U ubuntu -d postgres -c "select version();"` conectam sem senha.
+
 ## Pendente (Fase 2 — ambiente da aplicação)
 
 Nada abaixo foi executado ainda. Esta seção é atualizada com os comandos reais conforme cada item é de fato feito, não antes:
 
-- [ ] CLI standalone do Claude Code instalado no WSL (`curl -fsSL https://claude.ai/install.sh | bash`) e autenticado
-- [ ] Navegador instalado no WSL (Chromium ou Google Chrome) para o Chrome DevTools MCP
-- [ ] Pacotes de sistema via apt (`build-essential`, `libssl-dev`, `libyaml-dev`, `libpq-dev`, `postgresql`, etc.)
-- [ ] `mise` (gerenciador de versão) + Ruby + Node + **pnpm** nas versões pinadas em `mise.toml`
-- [ ] PostgreSQL rodando como serviço systemd
 - [ ] Scaffold da aplicação Rails + Inertia + React, usando pnpm (não npm) para o lado JS
 - [ ] RSpec, Rubocop, Brakeman, Vitest, Playwright instalados e configurados
 - [ ] Gem `rails-dev-mcp` instalada e adicionada ao `.mcp.json`
