@@ -56,16 +56,30 @@ Status: feito, do lado do editor.
 
 Extensão `davidanson.vscode-markdownlint` instalada no VS Code (Remote-WSL). Regras do projeto em `.markdownlint.json` na raiz do repo — sem configuração adicional necessária, a extensão lê o arquivo automaticamente.
 
-## Pendente (Etapa 2 — ambiente da aplicação)
+### MCP servers — configuração
+
+Status: `.mcp.json` criado com Playwright, Chrome DevTools e GitHub. Nenhum conecta de verdade ainda (ver "Pendente" abaixo) — isso é esperado nesta etapa.
+
+- **Playwright** e **Chrome DevTools**: rodam via `pnpm dlx`, dependem de pnpm instalado (pendente).
+- **GitHub**: roda via Docker (`docs/adr/0008`), depende de duas coisas pendentes do seu lado:
+  1. Criar um Personal Access Token fine-grained em github.com/settings/tokens, escopo só neste repo, permissões Contents/Pull requests/Issues (read/write).
+  2. Exportar como variável de ambiente, **nunca num arquivo do repo**: `export GITHUB_PAT="ghp_..."` no `~/.bashrc`, depois `source ~/.bashrc`. O `.mcp.json` referencia `${GITHUB_PAT}` — o valor real nunca é commitado.
+- **Rails Dev MCP** (`obie/rails-dev-mcp`) entra no `.mcp.json` só depois que a aplicação Rails existir (seção "Pendente").
+
+## Pendente (Fase 2 — ambiente da aplicação)
 
 Nada abaixo foi executado ainda. Esta seção é atualizada com os comandos reais conforme cada item é de fato feito, não antes:
 
+- [ ] CLI standalone do Claude Code instalado no WSL (`curl -fsSL https://claude.ai/install.sh | bash`) e autenticado
+- [ ] Navegador instalado no WSL (Chromium ou Google Chrome) para o Chrome DevTools MCP
 - [ ] Pacotes de sistema via apt (`build-essential`, `libssl-dev`, `libyaml-dev`, `libpq-dev`, `postgresql`, etc.)
-- [ ] `mise` (gerenciador de versão) + Ruby + Node nas versões pinadas em `mise.toml`
+- [ ] `mise` (gerenciador de versão) + Ruby + Node + **pnpm** nas versões pinadas em `mise.toml`
 - [ ] PostgreSQL rodando como serviço systemd
-- [ ] Scaffold da aplicação Rails + Inertia + React
+- [ ] Scaffold da aplicação Rails + Inertia + React, usando pnpm (não npm) para o lado JS
 - [ ] RSpec, Rubocop, Brakeman, Vitest, Playwright instalados e configurados
-- [ ] `.mcp.json` com Playwright MCP e GitHub MCP configurados e conectando de verdade (hoje falhariam por falta de Node/credencial)
+- [ ] Gem `rails-dev-mcp` instalada e adicionada ao `.mcp.json`
+- [ ] Personal Access Token do GitHub criado e `GITHUB_PAT` exportado no shell
+- [ ] Playwright MCP, Chrome DevTools MCP, GitHub MCP e Rails Dev MCP todos conectando de verdade
 - [ ] CI do GitHub Actions validado rodando de ponta a ponta num PR real
 
 ## Pra replicar esse ambiente do zero
