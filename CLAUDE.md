@@ -13,6 +13,7 @@ Instruções para agentes de IA (Claude Code e similares) atuando neste reposit�
 - **Nunca, em nenhuma hipótese, incluir qualquer atribuição de autoria da Claude/Anthropic** (`Co-Authored-By: Claude`, "Generated with Claude Code", e-mail `noreply@anthropic.com`, ou qualquer menção equivalente) em commit, mensagem de PR, código ou qualquer outro artefato deste repositório. Essa regra é bloqueada tecnicamente por hook local (`.githooks/commit-msg`) e por check no CI (`.github/workflows/no-ai-attribution.yml`) — ainda assim, nunca tente contornar esses bloqueios.
 - **Em caso de dúvida sobre uso de biblioteca, framework ou API** (gems Ruby, Inertia Rails, React, etc.), consulte a documentação atual via **Context7 (MCP)** antes de implementar, em vez de confiar só em conhecimento prévio — frameworks mudam rápido e a resposta "lembrada" pode estar desatualizada.
 - **Ao delegar trabalho a subagentes, sempre inclua no prompt a instrução explícita de ler `README.md`, `CONTRIBUTING.md` e os ADRs relevantes em `docs/adr/` antes de agir.** Um subagente novo não herda este arquivo sendo lido nem o contexto desta conversa — não assuma que ele vai descobrir as convenções do projeto sozinho.
+- **Depois de terminar uma mudança/implementação, sempre revisar antes de reportar como concluída.** Reler o diff, rodar lint/testes relevantes, conferir que nada ficou pela metade ou inconsistente com o resto do projeto — não declarar "feito" sem passar por essa checagem.
 
 ## Onde encontrar o quê
 

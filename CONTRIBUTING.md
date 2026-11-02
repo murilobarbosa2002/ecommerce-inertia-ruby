@@ -26,6 +26,7 @@ Este projeto segue **Clean Code**, **Clean Architecture** e **SOLID** como basel
 - **Comentário só como documentação formal de API, nunca como muleta de nome ruim.** Se o código precisa de um comentário explicando "o quê" ou um "por quê" óbvio, o nome está errado — renomeie em vez de comentar. Comentários são aceitáveis como **YARD** (equivalente Ruby ao PHPDoc/JSDoc) documentando contrato público de classes/métodos, ou para explicar um "porquê" não óbvio (ex. um workaround, uma decisão não trivial).
 - Backend Ruby: siga as regras do Rubocop configuradas no projeto (`bundle exec rubocop`).
 - Frontend: TypeScript, componentes React pequenos e testáveis.
+- **Nunca usar o tipo `any`.** Toda variável, parâmetro, retorno de função e prop de componente precisa de um tipo real. Se o tipo correto não for óbvio, pesquise (documentação oficial da lib, Context7) em vez de recorrer a `any` ou `as any` como atalho. `unknown` + narrowing é aceitável quando o tipo genuinamente não pode ser conhecido antecipadamente (ex. parsing de JSON externo) — `any` nunca é.
 - **HTML sempre semântico.** Use o elemento certo pro que ele representa (`header`, `nav`, `main`, `section`, `article`, `footer`, `button`, `label`, etc.) em vez de `div`/`span` genérico quando existe elemento semântico apropriado — acessibilidade e SEO dependem disso, e SEO é uma feature explícita do painel admin deste projeto.
 - **Em caso de dúvida sobre como uma biblioteca/framework/API funciona, consulte a documentação oficial atual antes de implementar** — não assuma pelo que "parece familiar" de outra versão ou outra lib.
 
@@ -56,8 +57,9 @@ npx markdownlint-cli2 "**/*.md"  # lint de markdown
 2. Commits em português, no padrão **Commitizen/Conventional Commits** (`tipo: descrição` — tipo em inglês por convenção da ferramenta: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `style`, `perf`, `build`, `ci`, `revert`; descrição/corpo em português), bem detalhados sobre tudo que foi feito e por quê — nunca mensagens genéricas como "ajustes" ou "fix".
 3. **Sempre abra um PR** (nunca commit direto na `main`), descrevendo o que mudou e por quê, linkando a issue relacionada se houver.
 4. **PRs pequenos e focados** — um PR resolve uma coisa. Se a mudança crescer e passar a resolver várias coisas não relacionadas, quebre em PRs menores.
-5. CI (lint, segurança, testes) precisa passar antes do review.
-6. Se o PR formalizar uma decisão de arquitetura/produto nova (não só implementação de algo já decidido), inclua o ADR correspondente no mesmo PR — ver `docs/adr/0001-record-architecture-decisions.md` e a skill `create-adr`.
+5. **Revise seu próprio diff antes de abrir o PR** — releia as mudanças, rode lint/testes relevantes localmente, confira que nada ficou pela metade. Não abra PR só na esperança de que o CI pegue os problemas.
+6. CI (lint, segurança, testes) precisa passar antes do review.
+7. Se o PR formalizar uma decisão de arquitetura/produto nova (não só implementação de algo já decidido), inclua o ADR correspondente no mesmo PR — ver `docs/adr/0001-record-architecture-decisions.md` e a skill `create-adr`.
 
 ### Padrão de nome de branch
 
