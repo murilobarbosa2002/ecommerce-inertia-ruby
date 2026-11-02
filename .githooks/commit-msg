@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Bloqueia commits que contenham qualquer atribuição de autoria da Claude/Anthropic.
+# Ativado via: git config core.hooksPath .githooks (ver CONTRIBUTING.md).
+set -euo pipefail
+
+commit_msg_file="$1"
+commit_msg="$(cat "$commit_msg_file")"
+
+forbidden_pattern='Co-Authored-By:.*(Claude|Anthropic)|Generated with.*Claude|noreply@anthropic\.com|claude\.ai/code|claude\.com/claude-code'
+
+if echo "$commit_msg" | grep -qiE "$forbidden_pattern"; then
+  echo "" >&2
+  echo "COMMIT BLOQUEADO: a mensagem contém atribuição de autoria da Claude/Anthropic." >&2
+  echo "Esse repositório nunca aceita linhas como 'Co-Authored-By: Claude', 'Generated with Claude Code' ou equivalentes." >&2
+  echo "Remova essas linhas da mensagem de commit e tente novamente." >&2
+  echo "" >&2
+  exit 1
+fi
+
+exit 0

@@ -1,0 +1,54 @@
+name: No AI Attribution
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check commit messages for AI attribution
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.sha }}
+          HEAD_REF: ${{ github.event.pull_request.head.sha }}
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.event.after }}
+        run: |
+          set -euo pipefail
+          pattern='Co-Authored-By:.*(Claude|Anthropic)|Generated with.*Claude|noreply@anthropic\.com|claude\.ai/code|claude\.com/claude-code'
+
+          if [ -n "${BASE_REF:-}" ] && [ -n "${HEAD_REF:-}" ]; then
+            range="${BASE_REF}..${HEAD_REF}"
+          elif [ -n "${BEFORE_SHA:-}" ] && [ "${BEFORE_SHA}" != "0000000000000000000000000000000000000000" ]; then
+            range="${BEFORE_SHA}..${AFTER_SHA}"
+          else
+            range="${AFTER_SHA:-HEAD}"
+          fi
+
+          echo "Verificando commits no intervalo: $range"
+          if git log --format='%H%n%B%n---' "$range" | grep -qiE "$pattern"; then
+            echo "::error::Encontrada atribuição de autoria da Claude/Anthropic em uma mensagem de commit. Isso é proibido neste repositório." >&2
+            git log --format='%H %s' "$range" | while read -r line; do echo "  $line"; done >&2
+            exit 1
+          fi
+
+      - name: Check PR title and body for AI attribution
+        if: github.event_name == 'pull_request'
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          set -euo pipefail
+          pattern='Co-Authored-By:.*(Claude|Anthropic)|Generated with.*Claude|noreply@anthropic\.com|claude\.ai/code|claude\.com/claude-code'
+
+          if printf '%s\n%s' "$PR_TITLE" "$PR_BODY" | grep -qiE "$pattern"; then
+            echo "::error::Encontrada atribuição de autoria da Claude/Anthropic no título ou corpo do PR. Isso é proibido neste repositório." >&2
+            exit 1
+          fi
