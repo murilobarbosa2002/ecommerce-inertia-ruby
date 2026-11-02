@@ -1,0 +1,16 @@
+node_modules
+public/
+log/
+tmp/
+storage/
+vendor/
+db/
+pnpm-lock.yaml
+Gemfile.lock
+
+# Markdown é formatado/lintado pelo markdownlint (.markdownlint.json), não pelo Prettier.
+*.md
+
+# Config Ruby/Rails e CI — convenção do ecossistema Ruby, fora do escopo do Prettier.
+config/
+.github/

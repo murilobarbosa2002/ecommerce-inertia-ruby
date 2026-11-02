@@ -126,6 +126,25 @@ sudo -u postgres createuser -s ubuntu
 
 Verificação: `pg_isready` e `psql -U ubuntu -d postgres -c "select version();"` conectam sem senha.
 
+### ESLint + Prettier
+
+Status: feito.
+
+```bash
+pnpm add -D eslint @eslint/js typescript-eslint eslint-plugin-react eslint-plugin-react-hooks \
+  eslint-plugin-jsx-a11y eslint-plugin-better-tailwindcss eslint-config-prettier globals \
+  prettier prettier-plugin-tailwindcss
+```
+
+**Pegadinhas de versão encontradas e resolvidas** (confirmadas via pesquisa antes de fixar, não só tentativa e erro):
+
+- **TypeScript**: o gerador do Inertia instalou TypeScript 7.0.2 (compilador nativo novo, sem API programática ainda — só chega na 7.1). `typescript-eslint` não suporta TS 7 (peer dependency trava em `<6.1.0`). Fixado em **TypeScript 6.0.3** (última estável da linha 6), não a 7.
+- **ESLint**: a major atual (10.x) quebra `eslint-plugin-react` (API removida, dá erro em runtime) e `eslint-plugin-jsx-a11y` ainda não suporta oficialmente. Fixado em **ESLint 9.39.5** — a própria ESLint marca essa linha como `maintenance` (suportada), não abandonada.
+- **ESLint vs. Prettier brigando por formatação**: as regras de formatação do `eslint-plugin-better-tailwindcss` (`enforce-consistent-class-order`, `enforce-consistent-line-wrapping`, `no-unnecessary-whitespace`) entravam em conflito com o Prettier (um reformatava, o outro reclamava, infinitamente). Desligadas essas três regras no `eslint.config.mjs` — Prettier + `prettier-plugin-tailwindcss` são quem formatam/ordenam classes; o ESLint só cuida de correção (classe inexistente/conflitante/duplicada).
+- **Markdown fora do Prettier**: `.md` já é formatado/lintado pelo `markdownlint` — `.prettierignore` exclui `*.md` pra não ter dois formatadores competindo pelo mesmo arquivo. Config Ruby/Rails (`config/`) e workflows (`.github/`) também ficam fora do escopo do Prettier — não é código JS/TS.
+
+Verificação: `pnpm lint`, `pnpm format:check`, `pnpm run check` (TypeScript) e `bin/rubocop` todos limpos.
+
 ## Pendente (Fase 2 — ambiente da aplicação)
 
 Esta seção é atualizada com os comandos reais conforme cada item é de fato feito, não antes:

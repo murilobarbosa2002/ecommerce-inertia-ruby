@@ -1,6 +1,8 @@
-export type FlashData = {
-  notice?: string
-  alert?: string
+export interface FlashData {
+  notice?: string;
+  alert?: string;
 }
 
-export type SharedProps = {}
+export interface SharedProps {
+  flash: FlashData;
+}

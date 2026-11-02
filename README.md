@@ -28,7 +28,7 @@ Racional completo de cada decisão em [`docs/adr/`](docs/adr/).
 - **Frontend:** React (via Inertia.js), TypeScript, Tailwind CSS
 - **Banco:** PostgreSQL
 - **Testes:** RSpec + Capybara/Cuprite (backend), Vitest + React Testing Library (frontend), Playwright (e2e)
-- **Qualidade:** Rubocop, Brakeman
+- **Qualidade:** Rubocop, Brakeman, ESLint, Prettier
 
 Arquitetura segue explicitamente Clean Code, Clean Architecture e SOLID — ver `docs/adr/0004-clean-architecture-solid-as-baseline.md`.
 
@@ -37,15 +37,17 @@ Arquitetura segue explicitamente Clean Code, Clean Architecture e SOLID — ver 
 Gerenciamento de versões via [mise](https://mise.jdx.dev/) (`mise.toml` no repo fixa as versões de Ruby/Node exatas). Comandos principais (preenchidos conforme o setup do ambiente avança):
 
 ```bash
-mise install                     # instala Ruby/Node nas versões pinadas
+mise install                     # instala Ruby/Node/pnpm nas versões pinadas
 bin/setup                        # setup inicial do projeto (quando existir)
 bin/dev                          # roda Rails + Vite
 bundle exec rspec                # testes backend
-npm run test                     # testes frontend (Vitest)
-npx playwright test              # testes e2e (quando existirem)
+pnpm test                        # testes frontend (Vitest)
+pnpm dlx playwright test         # testes e2e (quando existirem)
+pnpm lint                        # lint JS/TS (ESLint)
+pnpm format:check                # formatação JS/TS (Prettier)
 bundle exec rubocop              # lint Ruby
 bundle exec brakeman             # análise de segurança
-npx markdownlint-cli2 "**/*.md"  # lint de markdown
+pnpm dlx markdownlint-cli2 "**/*.md"  # lint de markdown
 ```
 
 Depois de clonar, ative os git hooks versionados do repositório (bloqueiam, entre outras coisas, qualquer commit com atribuição de autoria de IA — ver `CONTRIBUTING.md`):
