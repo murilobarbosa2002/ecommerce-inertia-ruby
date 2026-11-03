@@ -58,13 +58,14 @@ Extensão `davidanson.vscode-markdownlint` instalada no VS Code (Remote-WSL). Re
 
 ### MCP servers — configuração
 
-Status: `.mcp.json` criado com Playwright, Chrome DevTools e GitHub.
+Status: `.mcp.json` criado com Playwright, Chrome DevTools, GitHub e Tidewave.
 
 - **Playwright** e **Chrome DevTools**: rodam via `pnpm dlx` — pnpm já instalado (ver seção "mise"), prontos pra conectar.
 - **GitHub**: roda via Docker (`docs/adr/0008`), depende de duas coisas pendentes do seu lado:
   1. Criar um Personal Access Token fine-grained em github.com/settings/tokens, escopo só neste repo, permissões Contents/Pull requests/Issues (read/write).
   2. Exportar como variável de ambiente, **nunca num arquivo do repo**: `export GITHUB_PAT="ghp_..."` no `~/.bashrc`, depois `source ~/.bashrc`. O `.mcp.json` referencia `${GITHUB_PAT}` — o valor real nunca é commitado.
 - **Rails Dev MCP** (`obie/rails-dev-mcp`): **tentado e descartado.** `gem install rails-dev-mcp` instala, mas o binário quebra ao iniciar: `NoMethodError: undefined method 'argument' for class RailsDevMCP::Tools::StartDevServer`. Investigado antes de desistir (não foi só "não funcionou, pula") — o método `argument` (singular) que a gem chama não existe em nenhuma versão disponível do `fast-mcp` (testado 1.0.0, a mais próxima da data de lançamento da gem em jul/2025, e 1.6.0, a atual); `fast-mcp` 1.6.0 só tem `arguments` (plural), num módulo `Mcp::Tool`, não `FastMcp::Tool`. É bug real na gem (única versão publicada, 0.1.0, sem atualização desde o lançamento), não erro de configuração daqui. Gem desinstalada, não faz parte do `.mcp.json`. Reavaliar só se a gem receber uma versão nova.
+- **Tidewave** (`tidewave-ai/tidewave_rails`): substitui o Rails Dev MCP como ferramenta de debugging via agente de IA — decisão registrada em `docs/adr/0011`. Gem `tidewave` no `group :development` do `Gemfile` (nunca carregada em produção), com `config.tidewave.allow_remote_access = false` fixado explicitamente em `config/environments/development.rb`. Expõe endpoint HTTP local em `/tidewave/mcp` (Ruby eval, SQL, logs, introspecção de models) — registrado em `.mcp.json` como `"type": "http"` apontando pra `http://localhost:3000/tidewave/mcp`. **Só conecta com `bin/dev` rodando**: inicie o servidor de desenvolvimento antes de abrir uma sessão do Claude Code, senão essa entrada fica com conexão falha (sem travar o restante da sessão).
 
 ### CLI standalone do Claude Code
 
@@ -177,7 +178,7 @@ Esta seção é atualizada com os comandos reais conforme cada item é de fato f
 
 - [ ] Playwright instalado e configurado (entra quando houver fluxo de UI real pra testar, ver `CONTRIBUTING.md`)
 - [ ] Personal Access Token do GitHub criado e `GITHUB_PAT` exportado no shell
-- [ ] Playwright MCP, Chrome DevTools MCP e GitHub MCP conectando de verdade (Rails Dev MCP descartado, ver seção acima)
+- [ ] Playwright MCP, Chrome DevTools MCP e GitHub MCP conectando de verdade (Rails Dev MCP descartado, Tidewave já configurado — ver seção acima)
 - [ ] Husky + commitlint + lint-staged (lint/format no pre-commit, suíte completa no pre-push)
 - [ ] Zod, React Hook Form, Radix UI, tailwind-variants instalados — e um ADR pra essa decisão de stack
 
