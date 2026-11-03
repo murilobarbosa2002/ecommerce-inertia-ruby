@@ -3,6 +3,8 @@
   "type": "module",
   "packageManager": "pnpm@12.16.1",
   "devDependencies": {
+    "@commitlint/cli": "^21.2.4",
+    "@commitlint/config-conventional": "^21.2.4",
     "@eslint/js": "9.39.5",
     "@inertiajs/core": "^3.11.0",
     "@testing-library/jest-dom": "^7.0.1",
@@ -18,7 +20,9 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.14.0",
+    "husky": "^9.1.7",
     "jsdom": "^30.1.3",
+    "lint-staged": "^17.6.0",
     "prettier": "^3.9.10",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "typescript": "6.0.3",
@@ -35,7 +39,8 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "prepare": "husky"
   },
   "dependencies": {
     "@inertiajs/react": "^3.11.0",

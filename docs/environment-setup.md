@@ -28,15 +28,16 @@ gh auth setup-git   # faz o git usar essa mesma autenticação (push/pull sem pe
 
 Verificação: `gh auth status` mostra autenticado; `git push`/`git pull` via HTTPS funcionam sem pedir usuário/senha/token.
 
-### Git hooks do repositório
+### Git hooks do repositório (Husky)
 
 Status: feito.
 
 ```bash
-git config core.hooksPath .githooks
+pnpm add -D husky @commitlint/cli @commitlint/config-conventional lint-staged
+pnpm exec husky init
 ```
 
-Ativa `.githooks/commit-msg`, que bloqueia qualquer commit com atribuição de autoria de IA (ver `CONTRIBUTING.md`, seção "Sem atribuição de IA"). **Precisa ser rodado de novo em qualquer novo clone** deste repositório — não é algo que se propaga sozinho.
+Husky gerencia `pre-commit` (lint-staged: ESLint/Prettier/Rubocop nos arquivos staged), `commit-msg` (commitlint + bloqueio de atribuição de IA, que substitui o antigo `.githooks/commit-msg`) e `pre-push` (suíte completa: `bundle exec rspec` + `pnpm test`) — ver `CONTRIBUTING.md`, seção "Git hooks", para o detalhe de cada um. Ativado automaticamente pelo script `prepare` do `package.json`, que `pnpm install` roda sozinho — **não precisa de nenhum passo manual em clone novo**, diferente do esquema anterior baseado em `core.hooksPath`.
 
 ### Docker Desktop + integração WSL
 
@@ -179,7 +180,6 @@ Esta seção é atualizada com os comandos reais conforme cada item é de fato f
 - [ ] Playwright instalado e configurado (entra quando houver fluxo de UI real pra testar, ver `CONTRIBUTING.md`)
 - [ ] Personal Access Token do GitHub criado e `GITHUB_PAT` exportado no shell
 - [ ] Playwright MCP, Chrome DevTools MCP e GitHub MCP conectando de verdade (Rails Dev MCP descartado, Tidewave já configurado — ver seção acima)
-- [ ] Husky + commitlint + lint-staged (lint/format no pre-commit, suíte completa no pre-push)
 - [ ] Zod, React Hook Form, Radix UI, tailwind-variants instalados — e um ADR pra essa decisão de stack
 
 ### Scaffold da aplicação (Rails + Inertia + React + pnpm)
