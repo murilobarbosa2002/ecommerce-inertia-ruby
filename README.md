@@ -50,11 +50,7 @@ bundle exec brakeman             # análise de segurança
 pnpm dlx markdownlint-cli2 "**/*.md"  # lint de markdown
 ```
 
-Depois de clonar, ative os git hooks versionados do repositório (bloqueiam, entre outras coisas, qualquer commit com atribuição de autoria de IA — ver `CONTRIBUTING.md`):
-
-```bash
-git config core.hooksPath .githooks
-```
+`pnpm install` já ativa os git hooks do projeto (Husky) automaticamente — lint/format no pre-commit, validação de mensagem de commit (commitlint + bloqueio de atribuição de IA) e a suíte de testes completa no pre-push. Nenhum passo manual extra é necessário. Ver `CONTRIBUTING.md` para detalhes.
 
 ## Usar este template para o seu próprio negócio
 

@@ -1,11 +1,8 @@
-#!/usr/bin/env bash
+pnpm exec commitlint --edit "$1"
+
 # Bloqueia commits que contenham qualquer atribuição de autoria da Claude/Anthropic.
-# Ativado via: git config core.hooksPath .githooks (ver CONTRIBUTING.md).
-set -euo pipefail
-
-commit_msg_file="$1"
-commit_msg="$(cat "$commit_msg_file")"
-
+# Substitui o antigo .githooks/commit-msg (ver docs/adr/0011 e docs/environment-setup.md).
+commit_msg="$(cat "$1")"
 forbidden_pattern='Co-Authored-By:.*(Claude|Anthropic)|Generated with.*Claude|noreply@anthropic\.com|claude\.ai/code|claude\.com/claude-code'
 
 if echo "$commit_msg" | grep -qiE "$forbidden_pattern"; then
@@ -16,5 +13,3 @@ if echo "$commit_msg" | grep -qiE "$forbidden_pattern"; then
   echo "" >&2
   exit 1
 fi
-
-exit 0

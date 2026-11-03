@@ -69,6 +69,11 @@ end
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
+
+  # MCP server para debugging via agente de IA — Ruby eval, SQL, logs, introspecção
+  # de models. Expõe HTTP local em /tidewave/mcp; nunca carregado fora de :development
+  # (ver docs/adr/0011-tidewave-mcp-for-debugging.md).
+  gem "tidewave"
 end
 
 gem "inertia_rails", "~> 3.23"

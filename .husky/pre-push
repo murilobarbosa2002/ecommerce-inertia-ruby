@@ -1,0 +1,2 @@
+bundle exec rspec
+pnpm test

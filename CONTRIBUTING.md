@@ -72,7 +72,7 @@ pnpm dlx markdownlint-cli2 "**/*.md"  # lint de markdown
 
 ## Processo de PR
 
-0. Antes do primeiro commit, ative os git hooks versionados do repositório: `git config core.hooksPath .githooks`.
+0. `pnpm install` já ativa os git hooks do projeto (Husky — ver seção "Git hooks" abaixo); nenhum passo manual.
 1. Fork do repositório, **um branch por mudança** a partir de `main` — não misture várias mudanças não relacionadas no mesmo branch. Nome do branch segue um padrão fixo, ver "Padrão de nome de branch" abaixo.
 2. Commits em português, no padrão **Commitizen/Conventional Commits** (`tipo: descrição` — tipo em inglês por convenção da ferramenta: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `style`, `perf`, `build`, `ci`, `revert`; descrição/corpo em português), bem detalhados sobre tudo que foi feito e por quê — nunca mensagens genéricas como "ajustes" ou "fix".
 3. **Sempre abra um PR** (nunca commit direto na `main`), com descrição **detalhada o suficiente pra uma revisão de código de verdade** — não um resumo genérico. Liste os arquivos relevantes tocados e o porquê, qualquer decisão tomada durante a implementação que não estava no escopo original (ex. um bug encontrado e corrigido no caminho), e o resultado das verificações locais (lint/teste/build). Linke a issue relacionada se houver.
@@ -80,6 +80,14 @@ pnpm dlx markdownlint-cli2 "**/*.md"  # lint de markdown
 5. **Revise seu próprio diff antes de abrir o PR** — releia as mudanças, rode lint/testes relevantes localmente, confira que nada ficou pela metade. Não abra PR só na esperança de que o CI pegue os problemas.
 6. CI (lint, segurança, testes) precisa passar antes do review.
 7. Se o PR formalizar uma decisão de arquitetura/produto nova (não só implementação de algo já decidido), inclua o ADR correspondente no mesmo PR — ver `docs/adr/0001-record-architecture-decisions.md` e a skill `create-adr`.
+
+### Git hooks
+
+Husky gerencia os hooks de git, ativados automaticamente por `pnpm install` (script `prepare` do `package.json`) — sem passo manual.
+
+- **`pre-commit`** (`.husky/pre-commit`): roda [lint-staged](https://github.com/lint-staged/lint-staged) (`lint-staged.config.mjs`) — ESLint + Prettier nos arquivos `.ts`/`.tsx`/`.js`/`.jsx` staged, Prettier em `.json`/`.css`/`.yml`/`.yaml`, Rubocop (`-a`, autocorreção segura) em `.rb`. Só toca o que está staged, rápido por natureza.
+- **`commit-msg`** (`.husky/commit-msg`): roda [commitlint](https://commitlint.js.org/) (`commitlint.config.mjs`, estende `@commitlint/config-conventional`) validando o padrão Conventional Commits do passo 2 acima, e em seguida o bloqueio de atribuição de IA (ver "Sem atribuição de IA" abaixo).
+- **`pre-push`** (`.husky/pre-push`): roda a suíte completa (`bundle exec rspec` e `pnpm test`) — intencionalmente mais pesado que o pre-commit, só roda ao empurrar pra um remoto, não a cada commit local.
 
 ### Padrão de nome de branch
 
@@ -96,7 +104,7 @@ pnpm dlx markdownlint-cli2 "**/*.md"  # lint de markdown
 
 Nunca inclua qualquer atribuição de autoria de IA (`Co-Authored-By: Claude`, "Generated with Claude Code", `noreply@anthropic.com` ou equivalente) em commits, PRs ou qualquer artefato deste repositório — mesmo que a ferramenta usada para contribuir tenha gerado essa linha por padrão, remova-a antes de commitar. Isso é bloqueado tecnicamente em duas camadas:
 
-- **Hook local** (`.githooks/commit-msg`): rejeita o commit antes mesmo de ser criado. Ative com `git config core.hooksPath .githooks` (passo 0 acima).
+- **Hook local** (`.husky/commit-msg`): rejeita o commit antes mesmo de ser criado. Ativado automaticamente por `pnpm install` (ver "Git hooks" acima).
 - **CI** (`.github/workflows/no-ai-attribution.yml`): verifica commits e o corpo/título do PR, como segunda camada de proteção caso o hook local seja ignorado ou não esteja ativado.
 
 **Isso não significa que IA não possa ser usada no desenvolvimento.** Pode, e este projeto é construído com auxílio de IA — a única exigência é que ela nunca apareça como colaboradora/co-autora no repositório (questão de organização/estética, não uma restrição sobre a ferramenta usada). Código produzido com ou sem auxílio de IA passa pelos mesmos padrões deste documento, sem exceção: Clean Code/Clean Architecture/SOLID, nomes descritivos, sem string mágica, HTML semântico, testes de verdade, lint e segurança limpos.
