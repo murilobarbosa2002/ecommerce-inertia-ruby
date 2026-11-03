@@ -1,0 +1,13 @@
+{
+  // Regras ficam em .markdownlint.json (lido também pela extensão do VS
+  // Code); este arquivo só adiciona o que é específico do markdownlint-cli2.
+  "ignores": [
+    "node_modules/**",
+    "public/**",
+    "log/**",
+    "tmp/**",
+    "storage/**",
+    "vendor/**",
+    "db/**",
+  ],
+}
