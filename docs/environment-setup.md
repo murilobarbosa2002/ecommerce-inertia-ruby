@@ -64,7 +64,7 @@ Status: `.mcp.json` criado com Playwright, Chrome DevTools e GitHub.
 - **GitHub**: roda via Docker (`docs/adr/0008`), depende de duas coisas pendentes do seu lado:
   1. Criar um Personal Access Token fine-grained em github.com/settings/tokens, escopo só neste repo, permissões Contents/Pull requests/Issues (read/write).
   2. Exportar como variável de ambiente, **nunca num arquivo do repo**: `export GITHUB_PAT="ghp_..."` no `~/.bashrc`, depois `source ~/.bashrc`. O `.mcp.json` referencia `${GITHUB_PAT}` — o valor real nunca é commitado.
-- **Rails Dev MCP** (`obie/rails-dev-mcp`) entra no `.mcp.json` só depois que a aplicação Rails existir (seção "Pendente").
+- **Rails Dev MCP** (`obie/rails-dev-mcp`): **tentado e descartado.** `gem install rails-dev-mcp` instala, mas o binário quebra ao iniciar: `NoMethodError: undefined method 'argument' for class RailsDevMCP::Tools::StartDevServer`. Investigado antes de desistir (não foi só "não funcionou, pula") — o método `argument` (singular) que a gem chama não existe em nenhuma versão disponível do `fast-mcp` (testado 1.0.0, a mais próxima da data de lançamento da gem em jul/2025, e 1.6.0, a atual); `fast-mcp` 1.6.0 só tem `arguments` (plural), num módulo `Mcp::Tool`, não `FastMcp::Tool`. É bug real na gem (única versão publicada, 0.1.0, sem atualização desde o lançamento), não erro de configuração daqui. Gem desinstalada, não faz parte do `.mcp.json`. Reavaliar só se a gem receber uma versão nova.
 
 ### CLI standalone do Claude Code
 
@@ -176,10 +176,10 @@ Ruleset criado via API (`POST /repos/<owner>/<repo>/rulesets`), aplicando na bra
 Esta seção é atualizada com os comandos reais conforme cada item é de fato feito, não antes:
 
 - [ ] Playwright instalado e configurado (entra quando houver fluxo de UI real pra testar, ver `CONTRIBUTING.md`)
-- [ ] Gem `rails-dev-mcp` instalada e adicionada ao `.mcp.json`
 - [ ] Personal Access Token do GitHub criado e `GITHUB_PAT` exportado no shell
-- [ ] Playwright MCP, Chrome DevTools MCP, GitHub MCP e Rails Dev MCP todos conectando de verdade
-- [ ] CI do GitHub Actions estendido com RSpec/Vitest/markdownlint (hoje tem brakeman/bundler-audit/rubocop do Rails + o check de atribuição de IA)
+- [ ] Playwright MCP, Chrome DevTools MCP e GitHub MCP conectando de verdade (Rails Dev MCP descartado, ver seção acima)
+- [ ] Husky + commitlint + lint-staged (lint/format no pre-commit, suíte completa no pre-push)
+- [ ] Zod, React Hook Form, Radix UI, tailwind-variants instalados — e um ADR pra essa decisão de stack
 
 ### Scaffold da aplicação (Rails + Inertia + React + pnpm)
 
