@@ -215,7 +215,11 @@ public-hoist-pattern[]=@inertiajs/core
 
 Ver `docs/adr/0009-pnpm-as-node-package-manager.md` para o porquê de usar pnpm.
 
-Verificação: `pnpm run check` (TypeScript) limpo, `pnpm exec vite build` compila, `bin/dev` sobe Rails (porta 3100, definida pelo gerador do Inertia) + Vite, página inicial responde HTTP 200 com `id="app"` renderizado.
+Verificação: `pnpm run check` (TypeScript) limpo, `pnpm exec vite build` compila, `bin/dev` sobe Rails + Vite, página inicial responde HTTP 200 com `id="app"` renderizado.
+
+**Bug real encontrado e corrigido depois (não na geração original):** o `Procfile.dev` gerado lista `vite` antes de `web` — o `foreman` (usado por `bin/dev`) desloca a porta de cada processo em +100 por posição na lista, então o Rails subia na **3100**, não 3000. Isso não é "definido pelo gerador do Inertia" (erro de atribuição que ficou nesta mesma seção por um tempo) — é só ordem no Procfile. Isso quebrava silenciosamente o Tidewave MCP (`.mcp.json` aponta pra `http://localhost:3000/tidewave/mcp`, fixo) sempre que alguém seguisse o fluxo documentado (`bin/dev`), só funcionando por acidente quando testado via `bin/rails server -p 3000` direto. Corrigido invertendo a ordem no `Procfile.dev` (`web` primeiro) — confirmado com Playwright MCP navegando pra `http://localhost:3000` e recebendo a página renderizada de verdade (React montado, sem erro de console).
+
+**Outro resquício encontrado no caminho:** `app/views/layouts/application.html.erb` tinha `stylesheet_link_tag "application"` (tag do asset pipeline padrão do Rails), mas o scaffold foi gerado com `--skip-asset-pipeline` — sem Propshaft/Sprockets, essa tag sempre 404ava (`GET /stylesheets/application.css` → 404), confirmado como erro de console real ao navegar pela página via Playwright MCP. Removida a tag e o arquivo vazio `app/assets/stylesheets/application.css` que ela referenciava — o CSS real da aplicação já vem 100% do Vite (`vite_stylesheet_tag "application"`, linha seguinte, inalterada).
 
 ## Pra replicar esse ambiente do zero
 
