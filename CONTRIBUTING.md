@@ -57,7 +57,7 @@ pnpm dlx markdownlint-cli2 "**/*.md"  # lint de markdown
 0. Antes do primeiro commit, ative os git hooks versionados do repositório: `git config core.hooksPath .githooks`.
 1. Fork do repositório, **um branch por mudança** a partir de `main` — não misture várias mudanças não relacionadas no mesmo branch. Nome do branch segue um padrão fixo, ver "Padrão de nome de branch" abaixo.
 2. Commits em português, no padrão **Commitizen/Conventional Commits** (`tipo: descrição` — tipo em inglês por convenção da ferramenta: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `style`, `perf`, `build`, `ci`, `revert`; descrição/corpo em português), bem detalhados sobre tudo que foi feito e por quê — nunca mensagens genéricas como "ajustes" ou "fix".
-3. **Sempre abra um PR** (nunca commit direto na `main`), descrevendo o que mudou e por quê, linkando a issue relacionada se houver.
+3. **Sempre abra um PR** (nunca commit direto na `main`), com descrição **detalhada o suficiente pra uma revisão de código de verdade** — não um resumo genérico. Liste os arquivos relevantes tocados e o porquê, qualquer decisão tomada durante a implementação que não estava no escopo original (ex. um bug encontrado e corrigido no caminho), e o resultado das verificações locais (lint/teste/build). Linke a issue relacionada se houver.
 4. **PRs pequenos e focados** — um PR resolve uma coisa. Se a mudança crescer e passar a resolver várias coisas não relacionadas, quebre em PRs menores.
 5. **Revise seu próprio diff antes de abrir o PR** — releia as mudanças, rode lint/testes relevantes localmente, confira que nada ficou pela metade. Não abra PR só na esperança de que o CI pegue os problemas.
 6. CI (lint, segurança, testes) precisa passar antes do review.

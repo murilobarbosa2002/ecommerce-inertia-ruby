@@ -169,7 +169,7 @@ Verificação: `bundle exec rspec` (specs de request e de sistema, Chromium real
 
 Status: feito. Não é configuração da máquina, mas do repositório no GitHub — registrado aqui pela mesma lógica da seção de MCP/Docker (passo de plataforma, não só de código).
 
-Ruleset criado via API (`POST /repos/<owner>/<repo>/rulesets`), aplicando na branch padrão: exige PR antes de merge, exige os checks `check`/`lint`/`scan_ruby` verdes, bloqueia force-push e exclusão da `main`. Sem exigência de aprovação de terceiro (repo de mantenedor único) e sem bypass configurado — nem admin pula a regra, o fluxo de PR+CI já seguido por convenção agora é garantido tecnicamente, mesma lógica do hook+CI de atribuição de IA.
+Ruleset criado via API (`POST /repos/<owner>/<repo>/rulesets`), aplicando na branch padrão: exige PR antes de merge, exige os checks `check`/`lint`/`scan_ruby`/`test`/`js`/`markdownlint` verdes (atualizado via `PUT` quando os jobs de `test`/`js`/`markdownlint` foram adicionados ao CI), bloqueia force-push e exclusão da `main`. Sem exigência de aprovação de terceiro (repo de mantenedor único) e sem bypass configurado — nem admin pula a regra, o fluxo de PR+CI já seguido por convenção agora é garantido tecnicamente, mesma lógica do hook+CI de atribuição de IA.
 
 ## Pendente (Fase 2 — ambiente da aplicação)
 
