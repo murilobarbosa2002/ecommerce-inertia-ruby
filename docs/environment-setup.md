@@ -145,6 +145,26 @@ pnpm add -D eslint @eslint/js typescript-eslint eslint-plugin-react eslint-plugi
 
 Verificação: `pnpm lint`, `pnpm format:check`, `pnpm run check` (TypeScript) e `bin/rubocop` todos limpos.
 
+### RSpec + Capybara/Cuprite (backend) e Vitest + RTL (frontend)
+
+Status: feito.
+
+```bash
+# Gemfile: rspec-rails, factory_bot_rails, faker (grupo development+test);
+# shoulda-matchers, capybara, cuprite (grupo test)
+bundle install
+bin/rails generate rspec:install
+
+pnpm add -D vitest @testing-library/react @testing-library/jest-dom \
+  @testing-library/user-event jsdom @vitest/coverage-v8
+```
+
+`spec/rails_helper.rb` registra Cuprite (headless Chromium via CDP, usando o `chromium-browser` já instalado — `browser_path: "/usr/bin/chromium-browser"`) como driver de specs de sistema (`config.before(:each, type: :system) { driven_by :cuprite }`), inclui `FactoryBot::Syntax::Methods` e configura `shoulda-matchers`. `vite.config.ts` ganhou um bloco `test` (ambiente `jsdom`, setup em `app/frontend/test/setup.ts`).
+
+**Pegadinha real encontrada:** o plugin `@inertiajs/vite` transforma a opção `pages: "../pages"` num `import.meta.glob("../pages/**/*{tsx,ts,jsx,js}")` interno — isso casa com qualquer `*.test.tsx` colocado dentro de `app/frontend/pages/`, e o arquivo de teste **vaza pro build de produção** (confirmado: apareceu como chunk extra no `pnpm exec vite build`). Por isso, **testes de componente nunca ficam dentro de `app/frontend/pages/`** — vivem em `app/frontend/test/pages/<mesmo-caminho>/index.test.tsx`, importando o componente real via alias `@/pages/...`.
+
+Verificação: `bundle exec rspec` (specs de request e de sistema, Chromium real) e `pnpm test` (Vitest) passam; `pnpm exec vite build` não inclui nenhum arquivo `*.test.*` no output.
+
 ### Proteção da branch `main` no GitHub
 
 Status: feito. Não é configuração da máquina, mas do repositório no GitHub — registrado aqui pela mesma lógica da seção de MCP/Docker (passo de plataforma, não só de código).
@@ -155,11 +175,11 @@ Ruleset criado via API (`POST /repos/<owner>/<repo>/rulesets`), aplicando na bra
 
 Esta seção é atualizada com os comandos reais conforme cada item é de fato feito, não antes:
 
-- [ ] RSpec, factory_bot, Capybara/Cuprite, Vitest, Playwright instalados e configurados (Rubocop e Brakeman já vêm por padrão no Rails 8, feito)
+- [ ] Playwright instalado e configurado (entra quando houver fluxo de UI real pra testar, ver `CONTRIBUTING.md`)
 - [ ] Gem `rails-dev-mcp` instalada e adicionada ao `.mcp.json`
 - [ ] Personal Access Token do GitHub criado e `GITHUB_PAT` exportado no shell
 - [ ] Playwright MCP, Chrome DevTools MCP, GitHub MCP e Rails Dev MCP todos conectando de verdade
-- [ ] CI do GitHub Actions estendido com RSpec/Vitest/Playwright/markdownlint (hoje só tem brakeman/bundler-audit/rubocop, gerados pelo Rails)
+- [ ] CI do GitHub Actions estendido com RSpec/Vitest/markdownlint (hoje tem brakeman/bundler-audit/rubocop do Rails + o check de atribuição de IA)
 
 ### Scaffold da aplicação (Rails + Inertia + React + pnpm)
 
