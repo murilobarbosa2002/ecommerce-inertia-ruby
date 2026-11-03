@@ -7,7 +7,6 @@
         "@playwright/mcp@latest",
         "--executable-path",
         "/usr/bin/chromium-browser",
-        "--headless",
         "--no-sandbox"
       ]
     },
@@ -18,7 +17,6 @@
         "chrome-devtools-mcp@latest",
         "--executablePath",
         "/usr/bin/chromium-browser",
-        "--headless",
         "--chromeArg=--no-sandbox"
       ]
     },
