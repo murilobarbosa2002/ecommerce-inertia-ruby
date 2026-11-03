@@ -147,6 +147,16 @@ pnpm add -D eslint @eslint/js typescript-eslint eslint-plugin-react eslint-plugi
 
 Verificação: `pnpm lint`, `pnpm format:check`, `pnpm run check` (TypeScript) e `bin/rubocop` todos limpos.
 
+### Zod, React Hook Form, Radix UI e tailwind-variants
+
+Status: feito. Decisão completa em `docs/adr/0012-form-validation-and-ui-primitives-stack.md`.
+
+```bash
+pnpm add zod react-hook-form @hookform/resolvers radix-ui tailwind-variants tailwind-merge
+```
+
+Testado com um formulário temporário (Zod + `zodResolver` + `useForm` + `Checkbox` do Radix UI estilizado com `tv()`) sob Vitest/jsdom — confirmou a integração de ponta a ponta antes de remover o teste (não cobria comportamento real de app). Revelou um problema real: jsdom não implementa `ResizeObserver`/Pointer Events/`scrollIntoView`, que o Radix UI usa no mount — corrigido com polyfills no-op permanentes em `app/frontend/test/setup.ts`.
+
 ### RSpec + Capybara/Cuprite (backend) e Vitest + RTL (frontend)
 
 Status: feito.

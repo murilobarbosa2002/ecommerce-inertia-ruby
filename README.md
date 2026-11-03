@@ -25,7 +25,7 @@ Racional completo de cada decisão em [`docs/adr/`](docs/adr/).
 ## Stack
 
 - **Backend:** Ruby on Rails + [inertia_rails](https://rubygems.org/gems/inertia_rails)
-- **Frontend:** React (via Inertia.js), TypeScript, Tailwind CSS
+- **Frontend:** React (via Inertia.js), TypeScript, Tailwind CSS, Radix UI + tailwind-variants (componentes), React Hook Form + Zod (formulário/validação)
 - **Banco:** PostgreSQL
 - **Testes:** RSpec + Capybara/Cuprite (backend), Vitest + React Testing Library (frontend), Playwright (e2e)
 - **Qualidade:** Rubocop, Brakeman, ESLint, Prettier
