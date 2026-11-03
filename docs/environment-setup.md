@@ -59,12 +59,13 @@ Extensão `davidanson.vscode-markdownlint` instalada no VS Code (Remote-WSL). Re
 
 ### MCP servers — configuração
 
-Status: `.mcp.json` criado com Playwright, Chrome DevTools, GitHub e Tidewave.
+Status: `.mcp.json` criado com Playwright, Chrome DevTools, GitHub e Tidewave — os quatro confirmados conectando (`claude mcp list` → `✔ Connected` em todos; Tidewave só fica assim com `bin/dev` rodando no momento do comando).
 
 - **Playwright** e **Chrome DevTools**: rodam via `pnpm dlx` — pnpm já instalado (ver seção "mise"), prontos pra conectar.
-- **GitHub**: roda via Docker (`docs/adr/0008`), depende de duas coisas pendentes do seu lado:
-  1. Criar um Personal Access Token fine-grained em github.com/settings/tokens, escopo só neste repo, permissões Contents/Pull requests/Issues (read/write).
-  2. Exportar como variável de ambiente, **nunca num arquivo do repo**: `export GITHUB_PAT="ghp_..."` no `~/.bashrc`, depois `source ~/.bashrc`. O `.mcp.json` referencia `${GITHUB_PAT}` — o valor real nunca é commitado.
+- **GitHub**: roda via Docker (`docs/adr/0008`). Status: feito.
+  1. Personal Access Token **fine-grained** criado em github.com/settings/personal-access-tokens/new, escopo só neste repo ("Only select repositories"), permissões em **Repository permissions** (não "Account permissions", que não tem relação com o que o MCP faz): Contents/Pull requests/Issues = Read and write.
+  2. Exportado como variável de ambiente, **nunca num arquivo do repo**: `export GITHUB_PAT="github_pat_..."` no `~/.bashrc` (prefixo `github_pat_`, não `ghp_` — esse é o de token clássico), depois `source ~/.bashrc`. O `.mcp.json` referencia `${GITHUB_PAT}` — o valor real nunca é commitado.
+  3. Depois de exportar, as aprovações de MCP de projeto precisam ser renovadas: `claude` (dentro do diretório do projeto) pede aprovação dos servidores do `.mcp.json` na primeira vez; `claude mcp list` confirma `✔ Connected` em todos.
 - **Rails Dev MCP** (`obie/rails-dev-mcp`): **tentado e descartado.** `gem install rails-dev-mcp` instala, mas o binário quebra ao iniciar: `NoMethodError: undefined method 'argument' for class RailsDevMCP::Tools::StartDevServer`. Investigado antes de desistir (não foi só "não funcionou, pula") — o método `argument` (singular) que a gem chama não existe em nenhuma versão disponível do `fast-mcp` (testado 1.0.0, a mais próxima da data de lançamento da gem em jul/2025, e 1.6.0, a atual); `fast-mcp` 1.6.0 só tem `arguments` (plural), num módulo `Mcp::Tool`, não `FastMcp::Tool`. É bug real na gem (única versão publicada, 0.1.0, sem atualização desde o lançamento), não erro de configuração daqui. Gem desinstalada, não faz parte do `.mcp.json`. Reavaliar só se a gem receber uma versão nova.
 - **Tidewave** (`tidewave-ai/tidewave_rails`): substitui o Rails Dev MCP como ferramenta de debugging via agente de IA — decisão registrada em `docs/adr/0011`. Gem `tidewave` no `group :development` do `Gemfile` (nunca carregada em produção), com `config.tidewave.allow_remote_access = false` fixado explicitamente em `config/environments/development.rb`. Expõe endpoint HTTP local em `/tidewave/mcp` (Ruby eval, SQL, logs, introspecção de models) — registrado em `.mcp.json` como `"type": "http"` apontando pra `http://localhost:3000/tidewave/mcp`. **Só conecta com `bin/dev` rodando**: inicie o servidor de desenvolvimento antes de abrir uma sessão do Claude Code, senão essa entrada fica com conexão falha (sem travar o restante da sessão).
 
@@ -187,10 +188,7 @@ Ruleset criado via API (`POST /repos/<owner>/<repo>/rulesets`), aplicando na bra
 
 Esta seção é atualizada com os comandos reais conforme cada item é de fato feito, não antes:
 
-- [ ] Playwright instalado e configurado (entra quando houver fluxo de UI real pra testar, ver `CONTRIBUTING.md`)
-- [ ] Personal Access Token do GitHub criado e `GITHUB_PAT` exportado no shell
-- [ ] Playwright MCP, Chrome DevTools MCP e GitHub MCP conectando de verdade (Rails Dev MCP descartado, Tidewave já configurado — ver seção acima)
-- [ ] Zod, React Hook Form, Radix UI, tailwind-variants instalados — e um ADR pra essa decisão de stack
+- [ ] Playwright instalado como dependência de dev e usado em testes reais (entra quando houver fluxo de UI real pra testar, ver `CONTRIBUTING.md` — o Playwright MCP já conecta, ver seção "MCP servers" acima, mas isso é só a ferramenta de automação, não os testes em si)
 
 ### Scaffold da aplicação (Rails + Inertia + React + pnpm)
 
