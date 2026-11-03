@@ -3,6 +3,7 @@
 Esta pasta guarda skills (`.claude/skills/*/SKILL.md`) específicas deste projeto.
 
 - **`create-adr/`** — processo completo para criar ou atualizar um Architecture Decision Record (formato, numeração, e a exigência de ler todos os ADRs existentes antes de escrever um novo).
+- **`pr-self-review/`** — checklist de autorrevisão de PR contra os padrões já fixados em `CONTRIBUTING.md` (arquitetura, segurança, convenção de teste, git/PR) — usada antes de qualquer PR, mesmo sem ser pedida.
 
 Novas skills não são criadas antecipadamente "por si". Uma skill entra aqui quando existe um procedimento real e repetido a documentar — por exemplo, um passo a passo para "criar um novo tipo de página do CMS", seguindo os padrões arquiteturais fixados em `CONTRIBUTING.md` e em `docs/adr/`.
 
