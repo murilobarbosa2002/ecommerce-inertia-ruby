@@ -19,11 +19,11 @@ Instruções para agentes de IA (Claude Code e similares) atuando neste reposit�
 ## Onde encontrar o quê
 
 - O que é o projeto, escopo, stack, decisões fixadas, como rodar: `README.md`.
-- Processo de contribuição, padrões de código (Clean Code/Clean Architecture/SOLID), convenção de testes: `CONTRIBUTING.md`.
+- Processo de contribuição, padrões de código (Clean Code/Clean Architecture/SOLID, segurança/OWASP), convenção de testes: `CONTRIBUTING.md`.
 - Decisões de arquitetura e o porquê de cada uma: `docs/adr/`.
 - Guia de fork/adaptação para outro negócio: `docs/adapting-to-a-new-niche.md`.
 - Runbook de como o ambiente desta máquina foi configurado (o que já está feito, o que falta): `docs/environment-setup.md`.
-- Código de conduta: `CODE_OF_CONDUCT.md`. Segurança: `SECURITY.md`.
+- Código de conduta: `CODE_OF_CONDUCT.md`. Como reportar vulnerabilidade: `SECURITY.md`.
 
 ## Nota operacional desta sessão/ambiente
 

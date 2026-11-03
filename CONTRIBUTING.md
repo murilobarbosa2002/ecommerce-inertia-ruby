@@ -30,6 +30,24 @@ Este projeto segue **Clean Code**, **Clean Architecture** e **SOLID** como basel
 - **HTML sempre semântico.** Use o elemento certo pro que ele representa (`header`, `nav`, `main`, `section`, `article`, `footer`, `button`, `label`, etc.) em vez de `div`/`span` genérico quando existe elemento semântico apropriado — acessibilidade e SEO dependem disso, e SEO é uma feature explícita do painel admin deste projeto.
 - **Em caso de dúvida sobre como uma biblioteca/framework/API funciona, consulte a documentação oficial atual antes de implementar** — não assuma pelo que "parece familiar" de outra versão ou outra lib.
 
+## Segurança
+
+Segurança é baseline obrigatório, não aspiração, guiado pelo [OWASP Top 10](https://owasp.org/Top10/) (ver `docs/adr/0010-security-practices-as-baseline.md` para o racional completo):
+
+- **Validação sempre no servidor.** Validação de formulário no frontend (Zod) é UX — a autoridade final é o backend (validações do ActiveRecord + strong parameters). Nunca confie só na validação do cliente.
+- **Dado que cruza fronteira de confiança é validado em runtime, não só tipado em compile-time.** Resposta de API externa, payload de formulário, webhook — valide com Zod e infira o tipo TypeScript do schema (`z.infer`), nunca deixe tipo e validação divergirem.
+- **Query sempre parametrizada** — nunca interpolar valor vindo de usuário em SQL cru; use os métodos do ActiveRecord.
+- **Strong parameters sempre explícito** — nunca `permit!`; liste os campos esperados.
+- **Autorização não é autenticação.** Toda ação que acessa um recurso verifica que o usuário atual tem permissão sobre *aquele* recurso específico — nunca confie em `params[:id]` sozinho.
+- **CSRF e escaping automático (Rails/React) nunca são desligados** sem um ADR justificando o porquê.
+- **Dado sensível é criptografado em repouso** — `encrypts` (Active Record Encryption nativo do Rails) para PII sensível, não só senha.
+- **Senha nunca em texto puro nem criptografia reversível** — sempre hash (`has_secure_password`/bcrypt).
+- **Dado de pagamento nunca é armazenado pelo nosso banco** — sempre via token de um gateway de pagamento (nunca número de cartão, CVV, etc. tocando nosso banco).
+- **Segredo nunca commitado** — Rails credentials (`master.key` fora do git) ou variável de ambiente, nunca hardcoded.
+- **Log nunca expõe dado sensível** — estenda `config.filter_parameters` sempre que um novo campo sensível entrar no domínio (já cobre senha/e-mail/token/etc. por padrão).
+
+`brakeman` e `bundler-audit` (CI) pegam sintomas automaticamente (SQLi, XSS, dependência vulnerável) — essas regras evitam a causa, não substituem a ferramenta.
+
 ## Testes
 
 Todos os tipos de teste são esperados: unitário, integração, system/feature e, eventualmente, e2e. **Teste verde não é o critério de sucesso** — a asserção precisa de fato verificar o comportamento certo (edge cases incluídos), não só "passar". PRs com testes que não falhariam numa regressão real podem ser solicitados a melhorar a cobertura antes do merge.
