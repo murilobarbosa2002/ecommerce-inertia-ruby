@@ -2,11 +2,25 @@
   "mcpServers": {
     "playwright": {
       "command": "pnpm",
-      "args": ["dlx", "@playwright/mcp@latest"]
+      "args": [
+        "dlx",
+        "@playwright/mcp@latest",
+        "--executable-path",
+        "/usr/bin/chromium-browser",
+        "--headless",
+        "--no-sandbox"
+      ]
     },
     "chrome-devtools": {
       "command": "pnpm",
-      "args": ["dlx", "chrome-devtools-mcp@latest"]
+      "args": [
+        "dlx",
+        "chrome-devtools-mcp@latest",
+        "--executablePath",
+        "/usr/bin/chromium-browser",
+        "--headless",
+        "--chromeArg=--no-sandbox"
+      ]
     },
     "github": {
       "command": "docker",

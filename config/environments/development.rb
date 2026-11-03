@@ -78,4 +78,9 @@ Rails.application.configure do
   # localhost, mesmo que uma versão futura da gem mude esse default.
   config.tidewave.allow_remote_access = false
   config.tidewave.preferred_orm = :active_record
+  # A toolbar injeta um <script> remoto de tidewave.ai em toda página em dev
+  # (UI visual do Tidewave no navegador). Revisado e mantido ligado de
+  # propósito (default da gem) — ver docs/environment-setup.md, seção
+  # "MCP servers", bullet do Tidewave.
+  config.tidewave.toolbar = true
 end
