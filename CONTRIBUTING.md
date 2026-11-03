@@ -34,8 +34,8 @@ Este projeto segue **Clean Code**, **Clean Architecture** e **SOLID** como basel
 
 Todos os tipos de teste são esperados: unitário, integração, system/feature e, eventualmente, e2e. **Teste verde não é o critério de sucesso** — a asserção precisa de fato verificar o comportamento certo (edge cases incluídos), não só "passar". PRs com testes que não falhariam numa regressão real podem ser solicitados a melhorar a cobertura antes do merge.
 
-- Backend: RSpec (unit + request specs) + Capybara/Cuprite (system specs).
-- Frontend: Vitest + React Testing Library (componentes).
+- Backend: RSpec (unit + request specs) + Capybara/Cuprite (system specs, Chromium headless real via CDP).
+- Frontend: Vitest + React Testing Library (componentes). **Nunca coloque `*.test.tsx` dentro de `app/frontend/pages/`** — o plugin `@inertiajs/vite` trata qualquer `.tsx` ali como página e o teste vaza pro build de produção (bug real já encontrado e corrigido neste projeto). Testes de página ficam em `app/frontend/test/pages/<mesmo-caminho>/`, importando o componente via alias `@/pages/...`.
 - E2e: **Playwright** (não Cypress — melhor suporte a TypeScript, multi-browser nativo e não compete com o Vitest como test runner). Entra quando houver fluxo de UI real para testar — não antes.
 - Markdown: todo `.md` do repositório segue o `.markdownlint.json` da raiz.
 

@@ -44,6 +44,26 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  # Test framework [https://github.com/rspec/rspec-rails]
+  gem "rspec-rails", "~> 8.0"
+
+  # Test data factories [https://github.com/thoughtbot/factory_bot_rails]
+  gem "factory_bot_rails"
+
+  # Fake data for factories [https://github.com/faker-ruby/faker]
+  gem "faker"
+end
+
+group :test do
+  # One-liner matchers for common Rails functionality [https://github.com/thoughtbot/shoulda-matchers]
+  gem "shoulda-matchers"
+
+  # System specs driving a real (headless) browser [https://github.com/teamcapybara/capybara]
+  gem "capybara"
+
+  # Pure Ruby Capybara driver via Chrome DevTools Protocol [https://github.com/rubycdp/cuprite]
+  gem "cuprite"
 end
 
 group :development do
