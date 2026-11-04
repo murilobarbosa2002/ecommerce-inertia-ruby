@@ -8,7 +8,7 @@ Aceito
 
 `docs/adr/0010` já deixava isso pendente de propósito, na sua última linha: "quando autenticação/autorização forem implementadas de verdade... a escolha de biblioteca/estratégia é uma decisão de arquitetura própria (novo ADR)". Até este ADR, não existia nenhum model de conta, nenhuma rota de autenticação, nenhum mecanismo de audit log no projeto.
 
-O mantenedor pediu explicitamente: conta de admin login-only (sem autocadastro público), rate limiting e bloqueio contra força bruta, 2FA obrigatório desde já (não opcional), e um log de auditoria que cubra tanto mudança de registro (CRUD) quanto evento de negócio que não é CRUD (login, bloqueio, etc. — "tudo deve ter log"). Cada escolha de biblioteca abaixo foi pesquisada via Context7/RubyGems antes de implementar, não assumida de memória.
+O escopo desta decisão cobre: conta de admin login-only (sem autocadastro público), rate limiting e bloqueio contra força bruta, 2FA obrigatório desde já (não opcional), e um log de auditoria que cubra tanto mudança de registro (CRUD) quanto evento de negócio que não é CRUD (login, bloqueio, etc.). Cada escolha de biblioteca abaixo foi pesquisada via Context7/RubyGems antes de implementar, não assumida de memória.
 
 ## Decisão
 
@@ -25,7 +25,7 @@ O mantenedor pediu explicitamente: conta de admin login-only (sem autocadastro p
 - **PaperTrail** para histórico de mudança de registro (CRUD) — escolhido sobre o gem Audited especificamente por suportar reverter um registro pro estado anterior nativamente (Audited não suporta isso). O trade-off aceito: o "exigir comentário explicativo" que o Audited tem de fábrica (`comment_required`) não existe no PaperTrail — por isso entra uma validação própria, construída por cima da opção `meta:` do PaperTrail, replicando esse comportamento.
 - **Um model e serviço próprios** (`AuditEvent` + `AuditEvents::RecordAuditEvent`) para evento de negócio que não é mudança de registro — tentativa de login, bloqueio de conta, habilitar/desabilitar 2FA, uso de código de recuperação, etc. PaperTrail não cobre isso; forçar esses dois formatos (snapshot diferenciável de registro vs. fato pontual de negócio) num mecanismo só geraria mais complexidade do que separar.
 
-**RBAC/permissão granular por papel configurável** foi confirmada como o formato desejado pelo mantenedor, mas é uma fase separada e posterior, com ADR próprio quando chegar. Por enquanto existe um único papel de admin, sem hierarquia — qualquer admin autenticado pode criar outro admin ou desbloquear uma conta. Isso é documentado aqui como estado intencional e temporário, não um esquecimento.
+**RBAC/permissão granular por papel configurável** é o formato definido para uma fase separada e posterior, com ADR próprio quando chegar. Por enquanto existe um único papel de admin, sem hierarquia — qualquer admin autenticado pode criar outro admin ou desbloquear uma conta. Isso é documentado aqui como estado intencional e temporário, não um esquecimento.
 
 ## Consequências
 
