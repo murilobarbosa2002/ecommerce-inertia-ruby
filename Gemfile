@@ -76,6 +76,10 @@ group :development do
   gem "tidewave"
 end
 
+# Traduções oficiais do framework (ActiveRecord/ActiveModel/data/hora) pra pt-BR
+# e outros locales não inclusos no Rails por padrão [https://github.com/svenfuchs/rails-i18n]
+gem "rails-i18n", "~> 8.1"
+
 gem "inertia_rails", "~> 3.23"
 
 gem "vite_rails", "~> 3.11"

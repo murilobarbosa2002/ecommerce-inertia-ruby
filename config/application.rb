@@ -38,5 +38,10 @@ module EcommerceInertiaRuby
 
     # Don't generate system test files.
     config.generators.system_tests = nil
+
+    # Todo conteúdo visível a humano (produto e CLI) é em português — ver
+    # docs/adr/0014-i18n-default-locale-and-content-separation.md.
+    config.i18n.default_locale = :"pt-BR"
+    config.i18n.load_path += Dir[Rails.root.join("config/locales/**/*.yml")]
   end
 end
