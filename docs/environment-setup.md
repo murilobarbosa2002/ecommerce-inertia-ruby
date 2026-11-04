@@ -205,6 +205,20 @@ Status: feito. Não é configuração da máquina, mas do repositório no GitHub
 
 Ruleset criado via API (`POST /repos/<owner>/<repo>/rulesets`), aplicando na branch padrão: exige PR antes de merge, exige os checks `check`/`lint`/`scan_ruby`/`test`/`js`/`markdownlint` verdes (atualizado via `PUT` quando os jobs de `test`/`js`/`markdownlint` foram adicionados ao CI), bloqueia force-push e exclusão da `main`. Sem exigência de aprovação de terceiro (repo de mantenedor único) e sem bypass configurado — nem admin pula a regra, o fluxo de PR+CI já seguido por convenção agora é garantido tecnicamente, mesma lógica do hook+CI de atribuição de IA.
 
+### Active Record Encryption (`otp_secret` do 2FA)
+
+Status: feito.
+
+Pré-requisito pro PR de 2FA (`docs/adr/0013`): `otp_secret` é dado sensível em repouso, guardado com `encrypts` (Active Record Encryption nativo do Rails, exigido por padrão em `docs/adr/0010`) — isso exige chaves de criptografia configuradas nas credentials antes de funcionar.
+
+```bash
+bin/rails db:encryption:init
+```
+
+O comando só **imprime** as três chaves geradas (`primary_key`, `deterministic_key`, `key_derivation_salt`) — não escreve em lugar nenhum sozinho. Precisam ser adicionadas manualmente em `config/credentials.yml.enc` (`bin/rails credentials:edit`, que abre no `$EDITOR`) sob a chave `active_record_encryption:`. As chaves em si nunca vão pro git (ficam só dentro do arquivo encriptado, que só abre com `config/master.key`, esse sim fora do git).
+
+Verificação: `Rails.application.credentials.active_record_encryption.present?` retorna `true`; criar um registro com atributo `encrypts` e consultar a coluna direto no banco (`Model.connection.select_value(...)`) mostra o valor cifrado, diferente do valor em texto puro lido via o model.
+
 ## Pendente (Fase 2 — ambiente da aplicação)
 
 Esta seção é atualizada com os comandos reais conforme cada item é de fato feito, não antes:

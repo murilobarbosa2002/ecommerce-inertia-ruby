@@ -40,7 +40,11 @@ module AdminAuthentication
 
     def record_success(admin)
       AdminAuthentication::ResetFailedLoginAttempts.call(admin: admin)
-      AuditEvents::RecordAuditEvent.call(event_type: :login_succeeded, admin: admin, request: @request)
+      # password_verified, não login_succeeded — pra conta com 2FA ativo,
+      # isso é só a primeira etapa (AdminPanel::SessionsController decide se
+      # o login está completo ou se fica pendente de 2FA). login_succeeded
+      # só dispara quando uma AdminSession de verdade é criada.
+      AuditEvents::RecordAuditEvent.call(event_type: :password_verified, admin: admin, request: @request)
       admin
     end
 

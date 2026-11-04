@@ -28,6 +28,19 @@ pt-BR:
       update:
         success: "Senha redefinida com sucesso"
         failure: "Não foi possível redefinir a senha"
+    two_factors:
+      new:
+        qr_code_alt: "QR code de configuração do autenticador de dois fatores"
+        already_enabled: "A autenticação de dois fatores já está ativa"
+      create:
+        invalid_code: "Código inválido"
+      destroy:
+        success: "Autenticação de dois fatores desativada"
+        invalid_password: "Senha incorreta"
+    two_factor_authentications:
+      create:
+        invalid_code: "Código inválido"
+      expired: "Sessão de verificação expirada, faça login novamente"
   admin_panel:
     passwords_mailer:
       reset:

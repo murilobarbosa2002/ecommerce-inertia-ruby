@@ -1,6 +1,11 @@
 class Admin < ApplicationRecord
   has_secure_password
   has_many :admin_sessions, dependent: :destroy
+  has_many :admin_recovery_codes, dependent: :destroy
+
+  # Dado sensível em repouso (docs/adr/0010) — exige
+  # bin/rails db:encryption:init já executado (docs/environment-setup.md).
+  encrypts :otp_secret
 
   normalizes :email_address, with: ->(email_address) { email_address.strip.downcase }
 

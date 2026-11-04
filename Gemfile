@@ -84,6 +84,15 @@ gem "rails-i18n", "~> 8.1"
 # login) [https://github.com/rack/rack-attack]
 gem "rack-attack", "~> 6.8"
 
+# 2FA via TOTP (RFC 6238) — padrão aberto, compatível com qualquer app
+# autenticador (Google Authenticator, Authy, etc.), sem serviço externo pago
+# [https://github.com/mdp/rotp]
+gem "rotp", "~> 6.4"
+
+# Gera o QR code (SVG) do provisioning URI do TOTP, renderizado no backend
+# [https://github.com/whomwah/rqrcode]
+gem "rqrcode", "~> 3.2"
+
 gem "inertia_rails", "~> 3.23"
 
 gem "vite_rails", "~> 3.11"

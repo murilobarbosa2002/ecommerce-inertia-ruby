@@ -13,7 +13,16 @@ class AuditEvent < ApplicationRecord
     two_factor_failed: 8,
     recovery_code_used: 9,
     password_reset_requested: 10,
-    password_reset_completed: 11
+    password_reset_completed: 11,
+    # Senha correta é uma etapa, não o login completo quando 2FA está ativo
+    # (login_succeeded fica reservado pro momento em que uma AdminSession
+    # de verdade é criada) — separado de propósito pra não misturar "senha
+    # bateu" com "logou de fato" no audit log.
+    password_verified: 12,
+    # Reautenticação (senha de novo) pra confirmar uma ação sensível já
+    # autenticada (ex. desativar 2FA) — distinto de login_failed, que é
+    # especificamente sobre a tela de login.
+    reauthentication_failed: 13
   }
 
   validates :event_type, presence: true
