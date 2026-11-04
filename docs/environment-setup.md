@@ -57,6 +57,27 @@ Status: feito, do lado do editor.
 
 Extensão `davidanson.vscode-markdownlint` instalada no VS Code (Remote-WSL). Regras do projeto em `.markdownlint.json` na raiz do repo — sem configuração adicional necessária, a extensão lê o arquivo automaticamente.
 
+### Todo Tree (rastreio de pendências no código)
+
+Status: feito.
+
+Extensão `gruntfuggly.todo-tree` instalada no VS Code (Remote-WSL). Convenção de tags documentada em `CONTRIBUTING.md`, seção "Padrões de código" — `TODO`, `FIXME` e `PENDING-FRONTEND` (tag própria deste projeto, pra pendência de backend que só é resolvível quando a página/tela correspondente do frontend existir). Configuração compartilhada em `.vscode/settings.json` (cores/ícones por tag, pastas excluídas do scan).
+
+**Pegadinha real encontrada (dupla):**
+
+1. A extensão depende de um binário `ripgrep` pra escanear o código (`vscode-ripgrep`, baixado via `npm install` da própria extensão) — nesta máquina esse download nunca aconteceu (rede bloqueada pelo Portmaster no momento da instalação da extensão), e a extensão falhava silenciosamente: painel "TODOs" sempre vazio, comandos `todo-tree.refresh`/`todo-tree.showFlatView` dando "command not found" no Command Palette. A mensagem de erro real (`Failed to find vscode-ripgrep`) só aparece como notificação própria da extensão, não nos logs óbvios — é preciso checar `~/.vscode-server/data/logs/<sessão mais recente>/exthost*/remoteexthost.log` em busca de erros de ativação da extensão pra achar a causa raiz quando o sintoma é só "não funciona".
+2. Mesmo depois de instalar o `ripgrep` do sistema e apontar a extensão pra ele, o aviso continuou — a chave de configuração certa é **`todo-tree.ripgrep.ripgrep`** (aninhada um nível a mais), não `todo-tree.ripgrep` como a mensagem de erro da própria extensão sugere de forma abreviada (`"set 'todo-tree.ripgrep' to point to the executable"`). Confirmado lendo o `contributes.configuration` do `package.json` da extensão instalada (`~/.vscode-server/extensions/gruntfuggly.todo-tree-*/package.json`) — VS Code ignora silenciosamente chave de configuração desconhecida, sem avisar que o nome está errado.
+
+Resolvido instalando ripgrep como pacote de sistema (caminho estável, não depende do hash de build do VS Code Server, que muda a cada atualização):
+
+```bash
+sudo apt update && sudo apt install -y ripgrep
+```
+
+E apontando `todo-tree.ripgrep.ripgrep` pro binário instalado (`/usr/bin/rg`) em `.vscode/settings.json`.
+
+Verificação: `rg --version` funciona fora do VS Code; painel "TODOs" do Todo Tree lista os comentários `TODO`/`FIXME`/`PENDING-FRONTEND` existentes no código depois de um reload da janela.
+
 ### MCP servers — configuração
 
 Status: `.mcp.json` criado com Playwright, Chrome DevTools, GitHub e Tidewave — os quatro confirmados conectando (`claude mcp list` → `✔ Connected` em todos; Tidewave só fica assim com `bin/dev` rodando no momento do comando).
