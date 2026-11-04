@@ -6,3 +6,17 @@ pt-BR:
     attributes:
       admin:
         email_address: "E-mail"
+        password: "Senha"
+        password_confirmation: "Confirmação de senha"
+  # has_secure_password usa esta chave (fora do namespace activerecord, igual
+  # ao Rails: lib/active_model/locale/en.yml) pro erro de senha maior que os
+  # 72 bytes aceitos pelo bcrypt. rails-i18n ainda não traduz essa chave
+  # específica pra pt-BR (achado real: sem isso, aparecia como "Translation
+  # missing" pro admin em vez de uma mensagem legível).
+  errors:
+    messages:
+      password_too_long: "é muito longa"
+  admin:
+    sessions:
+      create:
+        invalid_credentials: "E-mail ou senha inválidos"

@@ -7,6 +7,14 @@ Rails.application.routes.draw do
   get "inertia-example", to: "inertia_example#index"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
+  # module: "admin_panel" porque o model Admin (app/models/admin.rb) já ocupa
+  # o nome Admin como classe — não pode também ser reaberto como módulo de
+  # namespace. URL e route helpers continuam /admin/... e admin_session_path,
+  # só a classe do controller muda pra AdminPanel::.
+  namespace :admin, module: "admin_panel" do
+    resource :session, only: %i[new create destroy], path: "login"
+  end
+
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check

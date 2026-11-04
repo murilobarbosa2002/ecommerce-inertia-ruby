@@ -80,6 +80,10 @@ end
 # e outros locales não inclusos no Rails por padrão [https://github.com/svenfuchs/rails-i18n]
 gem "rails-i18n", "~> 8.1"
 
+# Throttle/block de requests abusivos (rate limiting por IP e por e-mail no
+# login) [https://github.com/rack/rack-attack]
+gem "rack-attack", "~> 6.8"
+
 gem "inertia_rails", "~> 3.23"
 
 gem "vite_rails", "~> 3.11"

@@ -12,6 +12,7 @@ require 'rspec/rails'
 require 'capybara/cuprite'
 require_relative 'support/rake'
 require_relative 'support/admin_credentials'
+require_relative 'support/rack_attack'
 
 # Requires supporting ruby files with custom matchers and macros, etc, in
 # spec/support/ and its subdirectories. Files matching `spec/**/*_spec.rb` are
