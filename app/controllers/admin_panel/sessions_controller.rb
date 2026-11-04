@@ -25,7 +25,9 @@ module AdminPanel
     end
 
     def destroy
+      admin = Current.admin
       terminate_admin_session
+      AuditEvents::RecordAuditEvent.call(event_type: :logout, admin: admin, request: request)
       redirect_to new_admin_session_path, status: :see_other
     end
   end

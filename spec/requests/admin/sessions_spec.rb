@@ -59,5 +59,15 @@ RSpec.describe "Admin::Sessions", type: :request do
       expect { delete admin_session_path }.to change(AdminSession, :count).by(-1)
       expect(response).to redirect_to(new_admin_session_path)
     end
+
+    it "registra o evento de logout com o admin certo" do
+      admin = create(:admin)
+      post admin_session_path, params: { email_address: admin.email_address, password: AdminCredentials::VALID_PASSWORD }
+
+      expect { delete admin_session_path }.to change(AuditEvent, :count).by(1)
+
+      expect(AuditEvent.last.event_type).to eq("logout")
+      expect(AuditEvent.last.admin).to eq(admin)
+    end
   end
 end
