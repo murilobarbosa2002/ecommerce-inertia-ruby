@@ -57,6 +57,9 @@ jobs:
       PGHOST: localhost
       PGUSER: postgres
       PGPASSWORD: postgres
+      # Active Record Encryption (otp_secret do 2FA, docs/adr/0013) precisa
+      # decriptar config/credentials.yml.enc em runtime, mesmo em teste.
+      RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
     services:
       postgres:
         image: postgres:18
