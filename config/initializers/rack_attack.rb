@@ -12,4 +12,12 @@ class Rack::Attack
       req.params["email_address"].to_s.strip.downcase.presence
     end
   end
+
+  # Evita spam de e-mail/enumeração de conta via POST /admin/passwords
+  # (pedido de reset de senha) — ver docs/adr/0013.
+  throttle("admin/passwords/email", limit: 5, period: 15.minutes) do |req|
+    if req.path == "/admin/passwords" && req.post?
+      req.params["email_address"].to_s.strip.downcase.presence
+    end
+  end
 end

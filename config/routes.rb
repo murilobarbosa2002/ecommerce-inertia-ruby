@@ -13,6 +13,10 @@ Rails.application.routes.draw do
   # só a classe do controller muda pra AdminPanel::.
   namespace :admin, module: "admin_panel" do
     resource :session, only: %i[new create destroy], path: "login"
+    # param: :token (não :id) porque o identificador do recurso é o token de
+    # reset assinado (Admin#password_reset_token), não um ID de registro —
+    # mesmo padrão do gerador real do Rails 8 (resources :passwords, param: :token).
+    resources :passwords, param: :token, only: %i[new create edit update]
   end
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
