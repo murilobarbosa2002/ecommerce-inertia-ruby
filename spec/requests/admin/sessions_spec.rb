@@ -12,6 +12,17 @@ RSpec.describe "Admin::Sessions", type: :request do
       expect(admin.admin_sessions.count).to eq(1)
     end
 
+    it "registra password_verified e login_succeeded quando não há 2FA" do
+      admin = create(:admin)
+
+      expect do
+        post admin_session_path, params: { email_address: admin.email_address, password: AdminCredentials::VALID_PASSWORD }
+      end.to change(AuditEvent, :count).by(2)
+
+      event_types = AuditEvent.last(2).map(&:event_type)
+      expect(event_types).to contain_exactly("password_verified", "login_succeeded")
+    end
+
     it "rejeita senha errada com mensagem genérica" do
       admin = create(:admin)
 

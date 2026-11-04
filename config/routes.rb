@@ -17,6 +17,12 @@ Rails.application.routes.draw do
     # reset assinado (Admin#password_reset_token), não um ID de registro —
     # mesmo padrão do gerador real do Rails 8 (resources :passwords, param: :token).
     resources :passwords, param: :token, only: %i[new create edit update]
+    # Verificação do código na hora do login (admin ainda não autenticado,
+    # só provou a senha) — estado "pendente" fica em session[:pending_admin_id].
+    resource :two_factor_authentication, only: %i[new create], path: "two-factor"
+    # Configuração do 2FA em si (ativar/desativar) — exige admin já
+    # autenticado, controller separado do de cima de propósito.
+    resource :two_factor, only: %i[new create destroy], path: "two-factor-setup"
   end
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

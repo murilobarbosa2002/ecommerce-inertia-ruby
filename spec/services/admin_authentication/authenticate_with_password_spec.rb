@@ -10,6 +10,19 @@ RSpec.describe AdminAuthentication::AuthenticateWithPassword do
       expect(result).to eq(admin)
     end
 
+    it "registra password_verified, não login_succeeded, quando a senha está correta" do
+      admin = create(:admin)
+
+      expect do
+        described_class.call(email_address: admin.email_address, password: AdminCredentials::VALID_PASSWORD)
+      end.to change(AuditEvent, :count).by(1)
+
+      # password_verified, não login_succeeded: pra conta com 2FA, a senha
+      # certa não é o login completo — só o controller sabe se falta mais
+      # alguma etapa (ver AdminPanel::SessionsController#create).
+      expect(AuditEvent.last.event_type).to eq("password_verified")
+    end
+
     it "normaliza o e-mail antes de buscar (case e espaços)" do
       admin = create(:admin, email_address: "normalizado@example.com")
 

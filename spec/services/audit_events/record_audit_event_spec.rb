@@ -44,6 +44,7 @@ RSpec.describe AuditEvents::RecordAuditEvent do
         login_succeeded login_failed account_locked account_unlocked logout
         two_factor_enabled two_factor_disabled two_factor_verified two_factor_failed
         recovery_code_used password_reset_requested password_reset_completed
+        password_verified reauthentication_failed
       ]
 
       expected_event_types.each do |event_type|

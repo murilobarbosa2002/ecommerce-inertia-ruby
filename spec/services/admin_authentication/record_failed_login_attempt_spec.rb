@@ -39,5 +39,21 @@ RSpec.describe AdminAuthentication::RecordFailedLoginAttempt do
 
       expect(AuditEvent.last.event_type).to eq("account_locked")
     end
+
+    it "registra o event_type informado enquanto não atinge o limite" do
+      admin = create(:admin, failed_login_attempts: 3)
+
+      described_class.call(admin: admin, event_type: :two_factor_failed)
+
+      expect(AuditEvent.last.event_type).to eq("two_factor_failed")
+    end
+
+    it "registra account_locked ao atingir o limite, mesmo com outro event_type informado" do
+      admin = create(:admin, failed_login_attempts: described_class::MAX_ATTEMPTS - 1)
+
+      described_class.call(admin: admin, event_type: :two_factor_failed)
+
+      expect(AuditEvent.last.event_type).to eq("account_locked")
+    end
   end
 end
