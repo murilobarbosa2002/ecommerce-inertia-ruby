@@ -12,6 +12,14 @@ RSpec.describe Admin, type: :model do
       expect(duplicado).not_to be_valid
       expect(duplicado.errors[:email_address]).to include("já está em uso")
     end
+
+    it "considera e-mails com case diferente como duplicados" do
+      create(:admin, email_address: "duplicado@example.com")
+      duplicado = build(:admin, email_address: "DUPLICADO@Example.com")
+
+      expect(duplicado).not_to be_valid
+      expect(duplicado.errors[:email_address]).to include("já está em uso")
+    end
   end
 
   describe "normalização de e-mail" do
