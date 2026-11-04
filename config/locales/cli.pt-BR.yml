@@ -1,0 +1,12 @@
+# Texto de ferramentas internas de linha de comando (rake tasks), separado
+# do conteúdo real do produto (config/locales/pt-BR.yml) de propósito — ver
+# docs/adr/0014-i18n-default-locale-and-content-separation.md.
+pt-BR:
+  cli:
+    admin:
+      create:
+        description: "Cria uma conta de admin (interativo, senha mascarada — nunca via argumento de linha de comando)"
+        prompt_email: "E-mail do admin: "
+        prompt_password: "Senha do admin: "
+        prompt_password_confirmation: "Confirme a senha: "
+        success: "Admin criado: %{email_address}"

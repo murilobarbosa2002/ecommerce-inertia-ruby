@@ -1,0 +1,8 @@
+# Conteúdo real do produto (model, formulário, e-mail, página) — separado do
+# texto de ferramentas de linha de comando (config/locales/cli.pt-BR.yml) de
+# propósito. Ver docs/adr/0014-i18n-default-locale-and-content-separation.md.
+pt-BR:
+  activerecord:
+    attributes:
+      admin:
+        email_address: "E-mail"
