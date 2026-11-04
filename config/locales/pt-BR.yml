@@ -20,3 +20,18 @@ pt-BR:
     sessions:
       create:
         invalid_credentials: "E-mail ou senha inválidos"
+    passwords:
+      create:
+        instructions_sent: "Se esse e-mail existir, enviamos instruções de redefinição de senha"
+      edit:
+        invalid_or_expired: "Link de redefinição de senha inválido ou expirado"
+      update:
+        success: "Senha redefinida com sucesso"
+        failure: "Não foi possível redefinir a senha"
+  admin_panel:
+    passwords_mailer:
+      reset:
+        subject: "Redefinição de senha"
+        intro: "Você pode redefinir sua senha em"
+        link_text: "esta página de redefinição de senha"
+        expires_in: "Este link expira em %{duration}."

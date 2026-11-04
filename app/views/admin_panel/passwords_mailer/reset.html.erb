@@ -1,0 +1,7 @@
+<p>
+  <%= t("admin_panel.passwords_mailer.reset.intro") %>
+  <%= link_to t("admin_panel.passwords_mailer.reset.link_text"), edit_admin_password_url(@admin.password_reset_token) %>.
+</p>
+<p>
+  <%= t("admin_panel.passwords_mailer.reset.expires_in", duration: distance_of_time_in_words(0, @admin.password_reset_token_expires_in)) %>
+</p>
