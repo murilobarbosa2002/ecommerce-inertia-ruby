@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_03_202419) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_04_012946) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -31,5 +31,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_202419) do
     t.index [ "email_address" ], name: "index_admins_on_email_address", unique: true
   end
 
+  create_table "audit_events", force: :cascade do |t|
+    t.integer "event_type", null: false
+    t.bigint "admin_id"
+    t.inet "ip_address"
+    t.string "user_agent"
+    t.jsonb "metadata", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.index [ "admin_id" ], name: "index_audit_events_on_admin_id"
+    t.index [ "event_type" ], name: "index_audit_events_on_event_type"
+  end
+
   add_foreign_key "admin_sessions", "admins"
+  add_foreign_key "audit_events", "admins"
 end
