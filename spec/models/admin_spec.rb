@@ -20,6 +20,14 @@ RSpec.describe Admin, type: :model do
       expect(duplicado).not_to be_valid
       expect(duplicado.errors[:email_address]).to include("já está em uso")
     end
+
+    it "rejeita e-mail acima do limite do RFC 5321 (254 caracteres)" do
+      email_muito_longo = "#{'a' * 250}@a.co"
+      admin = build(:admin, email_address: email_muito_longo)
+
+      expect(admin).not_to be_valid
+      expect(admin.errors[:email_address]).to include("é muito longo (máximo: 254 caracteres)")
+    end
   end
 
   describe "normalização de e-mail" do
@@ -48,6 +56,20 @@ RSpec.describe Admin, type: :model do
 
       expect(admin.password_digest).not_to eq(AdminCredentials::VALID_PASSWORD)
       expect(admin.password_digest).to start_with("$2a$")
+    end
+
+    it "rejeita senha maior que os 72 bytes aceitos pelo bcrypt, com mensagem em pt-BR" do
+      admin = build(:admin, password: "a" * 100, password_confirmation: "a" * 100)
+
+      expect(admin).not_to be_valid
+      expect(admin.errors.full_messages).to include("Senha é muito longa")
+    end
+
+    it "traduz a mensagem de confirmação de senha não coincidente" do
+      admin = build(:admin, password: AdminCredentials::VALID_PASSWORD, password_confirmation: "diferente")
+
+      expect(admin).not_to be_valid
+      expect(admin.errors.full_messages).to include("Confirmação de senha não é igual a Senha")
     end
   end
 end
