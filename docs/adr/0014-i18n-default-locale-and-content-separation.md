@@ -6,7 +6,7 @@ Aceito
 
 ## Contexto
 
-Durante a implementação da identidade de admin (`docs/adr/0013`), o mantenedor apontou que texto literal direto no código (prompt de CLI, mensagem de sucesso) deveria estar separado em arquivo editável sem precisar tocar código Ruby/TypeScript. Isso levou à adoção de I18n do Rails pra todo texto visível a humano a partir de agora — CLI, e-mail, formulário, mensagem de erro.
+Durante a implementação da identidade de admin (`docs/adr/0013`), texto literal apareceu direto no código (prompt de CLI, mensagem de sucesso) — acoplado ao Ruby/TypeScript em vez de estar num arquivo editável separado. Isso levou à adoção de I18n do Rails pra todo texto visível a humano a partir de agora — CLI, e-mail, formulário, mensagem de erro.
 
 Até este ADR, a aplicação não tinha nenhum arquivo de locale customizado (só o stub padrão `config/locales/en.yml`, gerado pelo scaffold e nunca usado — removido por este ADR). O locale padrão era o `:en` implícito do Rails, mesmo todo o resto do projeto (docs, ADRs, convenções, todo conteúdo já escrito) sendo em português.
 
