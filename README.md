@@ -64,6 +64,8 @@ Veja [`CONTRIBUTING.md`](CONTRIBUTING.md). Reportar vulnerabilidade de seguranç
 
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — processo de contribuição, padrões de código, testes.
 - [`docs/adr/`](docs/adr/) — Architecture Decision Records (decisões de arquitetura e seus porquês).
+- [`CHANGELOG.md`](CHANGELOG.md) — o que mudou, versão a versão.
+- [`docs/bugs/`](docs/bugs/) — registro detalhado de bugs reais já encontrados (causa raiz, impacto, correção).
 - [`docs/adapting-to-a-new-niche.md`](docs/adapting-to-a-new-niche.md) — guia de fork/adaptação.
 - [`docs/environment-setup.md`](docs/environment-setup.md) — runbook de como o ambiente de desenvolvimento foi configurado, pra replicar numa máquina nova.
 - `.claude/` — configuração de agentes de IA (Claude Code) para este repositório; não é documentação do projeto para humanos.
