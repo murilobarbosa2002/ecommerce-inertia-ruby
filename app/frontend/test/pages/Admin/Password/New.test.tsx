@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import PasswordNew from "@/pages/Admin/Password/New";
+import { admin_passwords_path } from "@/routes";
 
 const { routerPostMock } = vi.hoisted(() => ({ routerPostMock: vi.fn() }));
 
@@ -25,7 +26,7 @@ describe("Admin/Password/New", () => {
     await user.click(screen.getByRole("button", { name: "Enviar instruções" }));
 
     await waitFor(() => {
-      expect(routerPostMock).toHaveBeenCalledWith("/admin/passwords", {
+      expect(routerPostMock).toHaveBeenCalledWith(admin_passwords_path(), {
         email_address: "admin@example.com",
       });
     });

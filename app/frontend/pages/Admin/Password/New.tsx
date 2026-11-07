@@ -6,6 +6,7 @@ import { z } from "zod";
 
 import AuthLayout from "@/components/admin/AuthLayout";
 import { button, fieldError, input, label, link } from "@/components/admin/ui";
+import { admin_passwords_path, new_admin_session_path } from "@/routes";
 
 const passwordRequestSchema = z.object({
   email_address: z.string().min(1).max(254),
@@ -24,7 +25,7 @@ export default function PasswordNew() {
   });
 
   const onSubmit = (data: PasswordRequestFormValues) => {
-    router.post("/admin/passwords", data);
+    router.post(admin_passwords_path(), data);
   };
 
   return (
@@ -64,7 +65,7 @@ export default function PasswordNew() {
       </form>
 
       <p className="mt-6 text-center text-sm">
-        <a href="/admin/login" className={link()}>
+        <a href={new_admin_session_path()} className={link()}>
           {t("admin.password.new.backToLogin")}
         </a>
       </p>

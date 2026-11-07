@@ -44,3 +44,6 @@ node_modules
 # Snapshots/artefatos gerados pelo Playwright MCP (ver .mcp.json)
 /.playwright-mcp
 
+# Ignore automatically generated js-routes files.
+/app/frontend/routes.js
+/app/frontend/routes.d.ts

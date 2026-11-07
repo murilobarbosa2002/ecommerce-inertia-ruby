@@ -83,4 +83,8 @@ Rails.application.configure do
   # propósito (default da gem) — ver docs/environment-setup.md, seção
   # "MCP servers", bullet do Tidewave.
   config.tidewave.toolbar = true
+
+  # Automatically update js-routes file
+  # when routes.rb is changed
+  config.middleware.use(JsRoutes::Middleware)
 end

@@ -6,6 +6,7 @@ import { z } from "zod";
 
 import AuthLayout from "@/components/admin/AuthLayout";
 import { button, fieldError, input, label } from "@/components/admin/ui";
+import { admin_password_path } from "@/routes";
 
 const passwordResetSchema = z
   .object({
@@ -30,7 +31,7 @@ export default function PasswordEdit({ token }: { token: string }) {
   });
 
   const onSubmit = (data: PasswordResetFormValues) => {
-    router.patch(`/admin/passwords/${token}`, data);
+    router.patch(admin_password_path(token), data);
   };
 
   return (
