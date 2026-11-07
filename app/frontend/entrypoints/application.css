@@ -1,4 +1,33 @@
 @import "tailwindcss";
+@import "@fontsource-variable/inter";
 
 @plugin "@tailwindcss/typography";
 @plugin "@tailwindcss/forms";
+
+/* Bug real encontrado testando no browser: o stack padrão do font-sans do
+   Tailwind (-apple-system, Segoe UI, Helvetica Neue, Noto Sans, Arial...)
+   não tem nenhuma dessas fontes instaladas neste WSL (só DejaVu/Ubuntu Sans
+   via fc-list) — o fallback do Chromium pra uma dessas fontes variáveis
+   renderizava o espaço entre palavras visivelmente largo demais, sem
+   nenhuma propriedade CSS (word-spacing, letter-spacing) indicando o
+   problema no computed style. Depender de fonte do sistema operacional é
+   frágil em qualquer ambiente, não só este — Inter (self-hosted via
+   @fontsource-variable/inter, licença OFL, sem requisição externa) garante
+   a mesma renderização em qualquer máquina/produção. */
+@theme {
+  --font-sans:
+    "Inter Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --animate-auth-card-in: auth-card-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes auth-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

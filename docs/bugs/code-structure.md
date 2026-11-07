@@ -2,6 +2,66 @@
 
 Bugs relacionados a organização de código, namespace, arquitetura e convenção de nomes. Ver `docs/bugs/README.md` para o índice geral e o template de entrada.
 
+## `namespace` com `as:` explícito prefixa "admin\_" *antes* do nome dado, quebrando o nome de helper esperado
+
+- **Data:** 2026-11-07
+- **Severidade:** alta
+- **PR:** #39
+
+### O que aconteceu
+
+Trocando `resource :session, only: %i[new create destroy], path: "login"` por uma rota customizada (`get "login", to: "sessions#new", as: :new_session`) dentro do mesmo bloco `namespace :admin do`, o helper gerado saiu como `admin_new_session_path`, não `new_admin_session_path` como o `resource` original gerava — todo o código existente (controllers, concern de autenticação, specs) que já chamava `new_admin_session_path` quebraria.
+
+### Causa raiz
+
+Dentro de `namespace :admin`, o Rails prefixa `"admin_"` **na frente literal** de qualquer `as:` explícito dado a uma rota (`as: :new_session` vira `admin_new_session`). Isso é diferente de como o roteamento RESTful de `resource`/`resources` nomeia suas rotas internamente — ali, o prefixo `new_`/`edit_` é inserido *antes* do nome namespaced como um todo (`new_` + `admin_session` = `new_admin_session`), não depois dele. As duas convenções de nomenclatura não são intercambiáveis dentro do mesmo `namespace`.
+
+### Como foi encontrado
+
+Rodando `bin/rails routes -g admin` logo depois de trocar `resource :session` por rotas customizadas — o nome do helper apareceu como `admin_new_session`, não `new_admin_session`, antes mesmo de rodar a suíte de specs.
+
+### Impacto
+
+Se não detectado antes de commitar, quebraria em runtime qualquer chamada a `new_admin_session_path`/`new_admin_two_factor_authentication_path` espalhada pelo projeto (redirects do concern de autenticação, controllers, specs) com `NoMethodError: undefined method`.
+
+### Correção
+
+Rotas customizadas de login/2FA movidas pra um bloco `scope path: "admin", module: "admin_panel" do ... end` (sem `namespace`) — `scope` não prefixa nome nenhum sozinho, permitindo escrever o nome final exato via `as:` (`as: :new_admin_session`, `as: :admin_session`, etc.), idêntico ao que o `resource` original gerava. `resources :passwords`/`resource :two_factor` continuam dentro de `namespace :admin` normalmente, já que usam nomenclatura RESTful padrão, sem esse conflito.
+
+### Verificação
+
+`bin/rails routes -g admin` confirmando os nomes de helper exatos (`new_admin_session`, `admin_session`, `new_admin_two_factor_authentication`, `admin_two_factor_authentication`) antes de rodar a suíte; `bundle exec rspec` completo confirmando que nenhum call site existente quebrou. Spec dedicado em `spec/routing/admin_routes_spec.rb` trava tanto o nome do helper quanto a URL pública final (`new_admin_session_path` resolve pra `/admin/login`, não `/admin/login/new`) — confirmado revertendo pra `resource :session`/`resource :two_factor_authentication` de propósito e vendo 4 dos 6 exemplos falharem, antes de restaurar a correção.
+
+## `usePage().props.flash` sempre retornava `undefined` — `flash` não é um prop compartilhado
+
+- **Data:** 2026-11-07
+- **Severidade:** alta
+- **PR:** #39
+
+### O que aconteceu
+
+`AuthLayout` lia a mensagem de flash via `usePage().props.flash`, e a página inteira quebrava com `TypeError: Cannot read properties of undefined (reading 'notice')` ao carregar `/admin/login/new` direto (sem redirect anterior) no browser — tela em branco.
+
+### Causa raiz
+
+`flash` não é um prop compartilhado via `inertia_share` — é um campo próprio do objeto de página do Inertia, paralelo a `props`, não aninhado dentro dele (`{ component, props, flash, ... }`). O código assumia `usePage().props.flash`; o valor real está em `usePage().flash`. Confirmado inspecionando a resposta JSON real da requisição Inertia (`X-Inertia: true`) no browser: `props` nunca tem a chave `flash`, mesmo depois de um redirect com `alert:`/`notice:` — nesse caso `flash` aparece no nível raiz do payload.
+
+### Como foi encontrado
+
+Testando a página de login num browser real (não só os specs do Vitest, que mockavam `usePage()` com a estrutura errada e por isso nunca pegaram o problema) — a tela ficou em branco já no primeiro carregamento.
+
+### Impacto
+
+Qualquer página usando `AuthLayout` quebrava completamente ao carregar (tela em branco, erro no console) sempre que não houvesse flash pra mostrar — ou seja, na maioria dos acessos diretos (sem vir de um redirect de erro).
+
+### Correção
+
+`AuthLayout` passou a ler `usePage().flash` (não `usePage().props.flash`). `SharedProps` (`app/frontend/types/index.ts`) deixou de declarar `flash` (ele nunca pertenceu a `props`) — ficou vazio até existir um prop de verdade compartilhado via `inertia_share`. `FlashData`/`flashDataType` (que já tipava corretamente o campo `flash` de `usePage()`) permaneceram como estavam.
+
+### Verificação
+
+Reproduzido no browser (tela em branco com o bug, página renderizando normal depois da correção) e via teste automatizado: `AuthLayout.test.tsx` ganhou um caso específico mockando `usePage()` sem a chave `flash` (o cenário real que quebrava) — confirmado vermelho antes da correção, verde depois.
+
 ## Namespace `Admin::` colidia com o model `Admin`
 
 - **Data:** 2026-11-04
