@@ -3,9 +3,10 @@ Rails.application.routes.draw do
   constraints(host: "127.0.0.1") do
     get "(*path)", to: redirect { |params, req| "#{req.protocol}localhost:#{req.port}/#{params[:path]}" }
   end
-  root "inertia_example#index"
-  get "inertia-example", to: "inertia_example#index"
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+
+  # Sem loja/painel públicos ainda — redireciona pro único fluxo real que
+  # existe hoje (ver docs/adr/0013). Revisar quando a loja (storefront) nascer.
+  root to: redirect("/admin/login")
 
   # module: "admin_panel" porque o model Admin (app/models/admin.rb) já ocupa
   # o nome Admin como classe — não pode também ser reaberto como módulo de
