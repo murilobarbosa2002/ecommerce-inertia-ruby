@@ -4,12 +4,8 @@ import "@/i18n";
 import { afterEach } from "vitest";
 import { cleanup } from "@testing-library/react";
 
-// @testing-library/react não limpa o DOM entre exemplos sozinho — depende de
-// detectar o framework de teste automaticamente, o que não acontece com a
-// configuração atual do Vitest (sem `test.globals: true`). Sem isso, um
-// `describe` com múltiplos `render()` em `it`s diferentes acumula elementos
-// de execuções anteriores no mesmo `document.body` (bug real encontrado
-// escrevendo o primeiro teste com mais de um `render()` no mesmo arquivo).
+// Detecção automática de framework não ativa sem `test.globals: true` —
+// sem isso, DOM de um teste vaza pro próximo `render()` do mesmo arquivo.
 afterEach(() => {
   cleanup();
 });

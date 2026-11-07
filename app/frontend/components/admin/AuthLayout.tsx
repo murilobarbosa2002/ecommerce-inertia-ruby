@@ -3,18 +3,12 @@ import { usePage } from "@inertiajs/react";
 
 import { type FlashData } from "@/types";
 import { banner } from "@/components/admin/ui";
+import Reveal from "@/components/motion/Reveal";
 
-// Layout compartilhado pelas páginas pré-autenticação do admin (login, 2FA,
-// reset de senha) — card centralizado + mensagem de flash. `flash` é um
-// campo próprio do objeto de página do Inertia (`usePage().flash`), não um
-// prop compartilhado — nunca `usePage().props.flash` (ver
-// app/frontend/types/index.ts sobre esse bug real já encontrado). Tipado via
-// `flashDataType` em app/frontend/types/globals.d.ts. `flash` só existe de
-// fato quando há notice/alert pra mostrar (ex. depois de um redirect) — numa
-// página carregada direto, o campo nem existe no objeto, apesar do tipo de
-// `@inertiajs/core` (`Page.flash: FlashData`) declarar como sempre presente
-// — confirmado testando no browser real. `as` corrige esse tipo incorreto
-// da lib, não contorna um tipo que já estaria certo.
+// `flash` é campo próprio do objeto de página do Inertia (`usePage().flash`),
+// não um prop (`usePage().props.flash` sempre undefined). Só existe quando
+// há notice/alert — `as` corrige o tipo de @inertiajs/core, que o declara
+// como sempre presente.
 export default function AuthLayout({
   title,
   description,
@@ -28,7 +22,10 @@ export default function AuthLayout({
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-linear-to-br from-slate-50 via-white to-indigo-50 px-4 py-12">
-      <div className="w-full max-w-sm animate-auth-card-in rounded-2xl border border-gray-100 bg-white p-8 shadow-xl shadow-gray-200/50">
+      <Reveal
+        direction="up"
+        className="w-full max-w-sm rounded-2xl border border-gray-100 bg-white p-8 shadow-xl shadow-gray-200/50"
+      >
         <div className="mb-6 text-center">
           <h1 className="text-xl font-semibold tracking-tight text-gray-900">
             {title}
@@ -53,7 +50,7 @@ export default function AuthLayout({
         )}
 
         {children}
-      </div>
+      </Reveal>
     </main>
   );
 }

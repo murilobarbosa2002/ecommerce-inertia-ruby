@@ -1,10 +1,6 @@
-// Conteúdo de produto visível a humano no frontend, organizado por página —
-// mesma lógica de separação já aplicada no backend (docs/adr/0014), só que
-// aqui não há arquivo separado pra "ferramenta interna" (não existe CLI no
-// frontend). `as const` preserva o tipo literal, usado pela augmentation em
-// app/frontend/types/i18next.d.ts pra validar em compile-time toda chave
-// passada a `t("...")` (ver CONTRIBUTING.md sobre a sintaxe `t($ => $.chave)`
-// dos exemplos oficiais do react-i18next não type-checkar nesta versão).
+// Organizado por página, igual ao backend (docs/adr/0014). `as const`
+// preserva o tipo literal usado por app/frontend/types/i18next.d.ts pra
+// validar toda chave passada a `t("...")` em compile-time.
 export const ptBR = {
   admin: {
     session: {
