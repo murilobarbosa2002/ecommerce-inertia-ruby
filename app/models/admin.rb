@@ -1,4 +1,7 @@
 class Admin < ApplicationRecord
+  include ChangeReasonRequired
+  tracked_by_change_reason :email_address
+
   has_secure_password
   has_many :admin_sessions, dependent: :destroy
   has_many :admin_recovery_codes, dependent: :destroy

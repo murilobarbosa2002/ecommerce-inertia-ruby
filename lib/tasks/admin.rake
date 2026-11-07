@@ -9,10 +9,14 @@ namespace :admin do
     password = $stdin.getpass(I18n.t("cli.admin.create.prompt_password"))
     password_confirmation = $stdin.getpass(I18n.t("cli.admin.create.prompt_password_confirmation"))
 
+    print I18n.t("cli.admin.create.prompt_change_reason")
+    change_reason = $stdin.gets.chomp
+
     admin = Admin.new(
       email_address: email_address,
       password: password,
-      password_confirmation: password_confirmation
+      password_confirmation: password_confirmation,
+      change_reason: change_reason
     )
 
     if admin.save

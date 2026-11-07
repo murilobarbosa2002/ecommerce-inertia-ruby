@@ -93,6 +93,11 @@ gem "rotp", "~> 6.4"
 # [https://github.com/whomwah/rqrcode]
 gem "rqrcode", "~> 3.2"
 
+# Audit de CRUD (histórico de versão por registro, com suporte nativo a
+# reverter) — escolhido sobre o gem Audited por isso (docs/adr/0013)
+# [https://github.com/paper-trail-gem/paper_trail]
+gem "paper_trail", "~> 17.0"
+
 gem "inertia_rails", "~> 3.23"
 
 gem "vite_rails", "~> 3.11"

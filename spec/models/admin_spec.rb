@@ -72,4 +72,82 @@ RSpec.describe Admin, type: :model do
       expect(admin.errors.full_messages).to include("Confirmação de senha não é igual a Senha")
     end
   end
+
+  describe "change_reason (audit de CRUD via PaperTrail, docs/adr/0013)" do
+    it "exige change_reason na criação" do
+      admin = build(:admin, change_reason: nil)
+
+      expect(admin).not_to be_valid
+      expect(admin.errors[:change_reason]).to include("não pode ficar em branco")
+    end
+
+    it "exige change_reason ao atualizar email_address (campo editorial)" do
+      admin = create(:admin)
+
+      admin.change_reason = nil
+      admin.email_address = "novo-email@example.com"
+
+      expect(admin).not_to be_valid
+      expect(admin.errors[:change_reason]).to include("não pode ficar em branco")
+    end
+
+    it "não exige change_reason ao atualizar um campo de estado operacional (ex. failed_login_attempts)" do
+      admin = create(:admin)
+      admin.change_reason = nil
+
+      expect { admin.update!(failed_login_attempts: 1) }.not_to raise_error
+    end
+
+    it "cria uma versão do PaperTrail com o change_reason preenchido ao atualizar email_address" do
+      admin = create(:admin)
+
+      expect do
+        admin.update!(email_address: "novo-email@example.com", change_reason: "Correção de digitação")
+      end.to change(PaperTrail::Version, :count).by(1)
+
+      expect(admin.versions.last.change_reason).to eq("Correção de digitação")
+    end
+
+    it "não cria versão do PaperTrail ao atualizar só um campo de estado operacional" do
+      admin = create(:admin)
+      admin.change_reason = nil
+
+      expect { admin.update!(failed_login_attempts: 1) }.not_to change(PaperTrail::Version, :count)
+    end
+
+    it "permite reverter pra versão anterior do email_address" do
+      admin = create(:admin, email_address: "original@example.com")
+      admin.update!(email_address: "alterado@example.com", change_reason: "Teste de reversão")
+
+      revertido = admin.paper_trail.previous_version
+
+      expect(revertido.email_address).to eq("original@example.com")
+    end
+
+    it "exige change_reason pra destruir" do
+      admin = create(:admin)
+      admin.change_reason = nil
+
+      expect(admin.destroy).to be false
+      expect(admin.errors[:change_reason]).to include("não pode ficar em branco")
+    end
+
+    it "permite destruir com change_reason preenchido" do
+      admin = create(:admin)
+      admin.change_reason = "Conta não é mais necessária"
+
+      expect(admin.destroy).to eq(admin)
+    end
+
+    it "não destrói sessões associadas quando o destroy é abortado por falta de change_reason" do
+      admin = create(:admin)
+      create(:admin_session, admin: admin)
+      admin.change_reason = nil
+
+      admin.destroy
+
+      expect(Admin.exists?(admin.id)).to be true
+      expect(admin.admin_sessions.count).to eq(1)
+    end
+  end
 end

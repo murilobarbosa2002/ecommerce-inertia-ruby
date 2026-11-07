@@ -4,9 +4,10 @@ RSpec.describe "admin:create", type: :task do
   subject(:run_task) { Rake::Task["admin:create"].invoke }
 
   let(:email_address) { build(:admin).email_address }
+  let(:change_reason) { "Primeiro admin do sistema" }
 
   before do
-    allow($stdin).to receive(:gets).and_return("#{email_address}\n")
+    allow($stdin).to receive(:gets).and_return("#{email_address}\n", "#{change_reason}\n")
     allow($stdin).to receive(:getpass).and_return(AdminCredentials::VALID_PASSWORD)
   end
 
@@ -19,6 +20,12 @@ RSpec.describe "admin:create", type: :task do
     run_task
 
     expect(Admin.last.authenticate(AdminCredentials::VALID_PASSWORD)).to eq(Admin.last)
+  end
+
+  it "registra o motivo digitado na versão do PaperTrail" do
+    run_task
+
+    expect(Admin.last.versions.last.change_reason).to eq(change_reason)
   end
 
   context "quando os dados são inválidos (ex. e-mail já existe)" do

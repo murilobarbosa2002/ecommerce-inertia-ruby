@@ -2,6 +2,66 @@
 
 Bugs relacionados a `AuditEvent`, PaperTrail e à precisão/cobertura do log de auditoria. Ver `docs/bugs/README.md` para o índice geral e o template de entrada.
 
+## Exigir `change_reason` em todo update do `Admin` quebrava ~35 specs de serviços internos
+
+- **Data:** 2026-11-07
+- **Severidade:** alta
+- **PR:** #38
+
+### O que aconteceu
+
+A primeira versão do concern `ChangeReasonRequired` exigia `change_reason` em qualquer `update!` do model `Admin`, sem distinguir o tipo de alteração. Rodar a suíte completa quebrou 35 specs — todo serviço interno que faz `admin.update!(...)` como parte de um fluxo automático (resetar tentativas de login, bloquear/desbloquear conta, girar o secret do 2FA) parou de funcionar, porque nenhum desses pontos tinha (ou deveria ter) um "motivo" humano pra fornecer.
+
+### Causa raiz
+
+Confusão de responsabilidade entre os dois mecanismos de audit log que a `docs/adr/0013` deliberadamente mantém separados: PaperTrail é para mudança **editorial** de registro (um admin decide mudar um dado de outro admin), `AuditEvent` é para **evento de negócio automático** (login, bloqueio, 2FA). Aplicar `has_paper_trail`/`change_reason` a todo atributo do `Admin` tratava esses dois tipos de mudança como a mesma coisa, forçando uma justificativa humana em transições que o próprio sistema já explica via `AuditEvent`.
+
+### Como foi encontrado
+
+Rodando a suíte completa (`bundle exec rspec`) depois de implementar a primeira versão do concern — 35 falhas, todas com a mesma mensagem (`A validação falhou: Motivo da alteração não pode ficar em branco`) em serviços que nunca tinham relação com edição editorial do registro.
+
+### Impacto
+
+Sem a correção, qualquer fluxo automático que atualiza o `Admin` (login, bloqueio, 2FA) ficaria completamente quebrado em produção — a aplicação não conseguiria resetar tentativas de login nem desbloquear conta, por exemplo, porque o `update!` interno sempre falharia por falta de `change_reason`.
+
+### Correção
+
+`tracked_by_change_reason(*attributes)` (novo método de classe do concern) usa a opção `only:` do PaperTrail — só os atributos explicitamente listados (hoje, só `email_address`) geram versão — e condiciona a validação de presença de `change_reason` em update a `if: -> { atributo_rastreado_changed? }`. Um update que não toca nenhum atributo rastreado não exige `change_reason` nem cria versão, preservando o `AuditEvent` como único registro desses casos.
+
+### Verificação
+
+Suíte completa: 35 falhas antes da correção (listadas no diff da implementação), 0 falhas depois. Specs dedicados em `spec/models/admin_spec.rb` cobrindo os dois lados: update em `email_address` sem `change_reason` é inválido; update em `failed_login_attempts` sem `change_reason` passa normalmente e não cria versão.
+
+## PaperTrail falhava com `Psych::DisallowedClass` ao reverter uma versão
+
+- **Data:** 2026-11-07
+- **Severidade:** alta
+- **PR:** #38
+
+### O que aconteceu
+
+`admin.paper_trail.previous_version` (usado pra reverter um registro pra como estava antes) levantava `Psych::DisallowedClass: Tried to load unspecified class: ActiveSupport::TimeWithZone` ao tentar desserializar a versão salva.
+
+### Causa raiz
+
+PaperTrail serializa as colunas `object`/`object_changes` em YAML por padrão. Rails >= 7 carrega essas colunas com `YAML.safe_load`, que só permite desserializar as classes explicitamente listadas em `ActiveRecord.yaml_column_permitted_classes` — por padrão, essa lista está vazia. Qualquer atributo `datetime` do registro versionado (ex. `created_at`/`updated_at`) é desserializado como `ActiveSupport::TimeWithZone`, que não está na lista por padrão.
+
+### Como foi encontrado
+
+Escrevendo o spec "permite reverter pra versão anterior do email_address" — a chamada a `admin.paper_trail.previous_version` falhava com a exceção, mesmo com a versão salva corretamente no banco.
+
+### Impacto
+
+A funcionalidade de reverter um registro — motivo explícito, documentado na `docs/adr/0013`, de escolher PaperTrail sobre o Audited — não funcionava de verdade pra nenhum model com atributo `datetime`, o que inclui praticamente qualquer `ActiveRecord::Base` (todos têm `created_at`/`updated_at`).
+
+### Correção
+
+`config/initializers/paper_trail.rb` configura `ActiveRecord.yaml_column_permitted_classes` com a lista recomendada pela própria documentação do PaperTrail (`ActiveRecord::Type::Time::Value`, `ActiveSupport::TimeWithZone`, `ActiveSupport::TimeZone`, `BigDecimal`, `Date`, `Symbol`, `Time`).
+
+### Verificação
+
+Confirmado removendo o initializer de propósito e vendo o spec de reversão falhar com `Psych::DisallowedClass`, depois restaurando e vendo o spec passar.
+
 ## Logout do admin não gerava evento de auditoria
 
 - **Data:** 2026-11-04
