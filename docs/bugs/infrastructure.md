@@ -2,6 +2,36 @@
 
 Bugs relacionados a banco de dados, cache, criptografia, variáveis de ambiente e deploy. Ver `docs/bugs/README.md` para o índice geral e o template de entrada.
 
+## Dado de bootstrap do RBAC só existia dentro de uma migration, nunca em `db/seeds.rb`
+
+- **Data:** 2026-11-07
+- **Severidade:** alta
+- **PR:** #45
+
+### O que aconteceu
+
+A primeira versão da migration `AddRoleToAdmins` criava a role `owner` e a permissão `manage_admins` direto no código da migration (`up`), pra poder fazer o backfill de `role_id` nos admins já existentes antes de tornar a coluna not null. Isso funciona pra um banco que já existia e passou pela migration de verdade — mas um banco **criado do zero** via `bin/rails db:schema:load`/`db:setup` (o caminho normal pra bootstrapar qualquer ambiente novo: clone local, CI, primeiro deploy em produção) carrega `db/schema.rb` direto, sem re-executar nenhuma migration antiga. Nesse caminho, a role `owner` nunca seria criada — `Admin.new(role: ...)` falharia sempre, incluindo a própria `bin/rails admin:create` (criação do primeiro admin do sistema).
+
+### Causa raiz
+
+Dado de bootstrap necessário em todo ambiente (não só "ambientes que vieram de um `db:migrate` completo desde o commit que introduziu a tabela") pertence a `db/seeds.rb`, carregado por `db:seed`/`db:setup`/`db:prepare` independente de como o schema chegou até ali — nunca só dentro do código de uma migration, que só roda nesse bootstrap específico se o histórico de migrations for reproduzido passo a passo (o que `db:schema:load` deliberadamente não faz, por design, pra ser rápido).
+
+### Como foi encontrado
+
+Rodando `bin/rails db:test:prepare` (o mesmo comando que o job `test` do CI já usa) e conferindo `Role.count` no banco de teste resultante: `0`, mesmo a migration de seed já tendo rodado no banco de desenvolvimento local segundos antes.
+
+### Impacto
+
+Qualquer ambiente novo bootstrapado via `db:schema:load`/`db:setup` (todo CI, todo clone novo do projeto, um primeiro deploy em produção) ficaria permanentemente sem a role `owner` — `bin/rails admin:create` falharia sempre com erro de validação (`role` em branco), sem nenhuma mensagem explicando o porquê, bloqueando a criação do primeiro admin do sistema inteiro.
+
+### Correção
+
+Role `owner` + permissão `manage_admins` passaram a ser seedadas (`find_or_create_by!`, idempotente) em `db/seeds.rb`, carregado em todo ambiente independente do caminho de bootstrap. A migration continua criando os mesmos registros (necessário só pra fazer o backfill de admins pré-existentes num banco real sendo atualizado), mas deixou de ser a única fonte. `bin/rails admin:create` passou a checar explicitamente que a role `owner` existe antes de tentar criar o admin, saindo com uma mensagem clara (`"Role \"owner\" não encontrada — rode bin/rails db:seed antes de criar o primeiro admin."`) em vez de um erro de validação genérico.
+
+### Verificação
+
+`spec/db/seeds_spec.rb` carrega `db/seeds.rb` de verdade (`load Rails.root.join("db/seeds.rb")`) e confirma que a role `owner` com a permissão `manage_admins` existe depois, e que rodar de novo não duplica nada (idempotência) — confirmado vermelho comentando o conteúdo de `db/seeds.rb` de propósito antes de restaurar, verde depois. `spec/tasks/admin_rake_spec.rb` ganhou um caso pro cenário "role owner não existe" (banco sem seed).
+
 ## Job `test` do CI não gerava `app/frontend/routes.js`, quebrando toda página que o importa
 
 - **Data:** 2026-11-07

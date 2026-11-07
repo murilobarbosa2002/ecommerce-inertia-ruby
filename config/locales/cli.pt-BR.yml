@@ -11,3 +11,4 @@ pt-BR:
         prompt_password_confirmation: "Confirme a senha: "
         prompt_change_reason: "Motivo da criação: "
         success: "Admin criado: %{email_address}"
+        missing_owner_role: "Role \"owner\" não encontrada — rode bin/rails db:seed antes de criar o primeiro admin."

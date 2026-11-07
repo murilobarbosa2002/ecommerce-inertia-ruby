@@ -18,6 +18,7 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 - Locale padrão `pt-BR`, incluindo as mensagens de validação que o próprio framework gera (via `rails-i18n`); conteúdo de produto e conteúdo de ferramentas internas de linha de comando organizados em arquivos de I18n separados.
 - Log de auditoria de mudança de registro (CRUD): toda alteração ou exclusão do e-mail de um admin exige um motivo explícito, guardado junto da versão; histórico de versões permite reverter o registro pro estado anterior.
 - Telas de login, verificação de dois fatores e reset de senha do admin (primeiras páginas reais do painel), com validação de formulário (Zod + React Hook Form) e mensagens traduzidas (pt-BR via i18next).
+- Controle de acesso por papel (RBAC): cada admin tem um papel (`Role`) com um conjunto de permissões configurável, em vez de acesso irrestrito pra qualquer admin autenticado. `bin/rails admin:create` passa a exigir que o banco já tenha sido inicializado (`bin/rails db:seed`) antes de criar o primeiro admin.
 
 ## Corrigido
 

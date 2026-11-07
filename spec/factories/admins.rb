@@ -4,5 +4,6 @@ FactoryBot.define do
     password { AdminCredentials::VALID_PASSWORD }
     password_confirmation { AdminCredentials::VALID_PASSWORD }
     change_reason { "Setup de teste" }
+    association :role
   end
 end

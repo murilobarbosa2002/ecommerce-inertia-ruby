@@ -39,6 +39,7 @@ Registro completo e detalhado de todo bug real encontrado neste projeto, organiz
 | 2026-11-07 | Estrutura de código | Scaffold do Inertia Rails nunca removido, `root_url` dependia dele sem documentar | Média | #41 | [code-structure.md](code-structure.md) |
 | 2026-11-07 | Infraestrutura | Gem de `:development` quebrava `bundle exec rspec` inteiro em `RAILS_ENV=test` | Alta | #42 | [infrastructure.md](infrastructure.md) |
 | 2026-11-07 | Infraestrutura | Job `test` do CI não gerava `app/frontend/routes.js`, quebrando página que o importa | Alta | #42 | [infrastructure.md](infrastructure.md) |
+| 2026-11-07 | Infraestrutura | Dado de bootstrap do RBAC só existia dentro de uma migration, nunca em `db/seeds.rb` | Alta | #45 | [infrastructure.md](infrastructure.md) |
 
 ## Categorias
 

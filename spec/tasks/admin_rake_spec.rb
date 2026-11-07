@@ -7,6 +7,9 @@ RSpec.describe "admin:create", type: :task do
   let(:change_reason) { "Primeiro admin do sistema" }
 
   before do
+    # Vem de db/seeds.rb em produção (docs/adr/0021) — a task recusa criar
+    # admin sem essa role existir, então o spec precisa garantir que existe.
+    create(:role, name: "owner")
     allow($stdin).to receive(:gets).and_return("#{email_address}\n", "#{change_reason}\n")
     allow($stdin).to receive(:getpass).and_return(AdminCredentials::VALID_PASSWORD)
   end
@@ -33,6 +36,15 @@ RSpec.describe "admin:create", type: :task do
 
     it "não cria um segundo admin e sai com erro" do
       expect { run_task }.to raise_error(RakeTaskExited).and change(Admin, :count).by(0)
+    end
+  end
+
+  context "quando a role \"owner\" não existe (banco sem bin/rails db:seed)" do
+    before { Role.find_by(name: "owner")&.destroy! }
+
+    it "não cria admin nenhum e sai com erro, sem tentar inventar a role" do
+      expect { run_task }.to raise_error(RakeTaskExited).and change(Admin, :count).by(0)
+      expect(Role.find_by(name: "owner")).to be_nil
     end
   end
 end

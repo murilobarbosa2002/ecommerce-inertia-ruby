@@ -3,6 +3,7 @@ class Admin < ApplicationRecord
   tracked_by_change_reason :email_address
 
   has_secure_password
+  belongs_to :role
   has_many :admin_sessions, dependent: :destroy
   has_many :admin_recovery_codes, dependent: :destroy
 
