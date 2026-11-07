@@ -22,6 +22,8 @@ Cada primitivo genérico (`Button`, `Input`, `Label`, `FieldError`, ...) tem sua
 
 Um primitivo nunca é aninhado dentro da pasta de outro só porque hoje aparece sempre junto na UI (ex. `Label`/`FieldError` não ficam dentro de `input/`, mesmo só sendo usados ao lado de `Input` até agora) — nesting reflete dependência de código real entre componentes, não coincidência de uso atual. `Label`/`FieldError` são genéricos o suficiente pra valer também para um futuro `Select`/`Checkbox`, por exemplo.
 
+**Exceção**: um primitivo sem variante `tv()` e sem prop própria (ex. um ícone SVG estático, como `CheckCircleIcon`/`ExclamationIcon`) tem só `<Nome>.tsx` na sua pasta — não cria `<Nome>.types.ts`/`<Nome>.variants.ts` vazios só por uniformidade. Se o componente ganhar variante ou prop própria no futuro, os arquivos correspondentes entram naquele momento.
+
 ### 2. Componente específico de uma página (não reutilizável fora dela) vive em `pages/<Segmento>/components/`
 
 O formulário completo de uma página (o `<form>...</form>` inteiro, com os primitivos de `components/shared/` montados) não é responsabilidade do arquivo da página — é extraído pro seu próprio componente dentro de uma pasta `components/` **local ao segmento** (ex. `pages/Admin/Password/components/PasswordNewForm.tsx`, `pages/Admin/Password/components/PasswordEditForm.tsx` — ambos no mesmo segmento `Password`, cada um na sua própria página). `pages/<Segmento>/components/` nunca é confundido com `components/shared/` nem com `components/admin/`: o primeiro é local a um segmento de página específico, os outros dois são compartilhados entre páginas.

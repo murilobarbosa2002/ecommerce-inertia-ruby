@@ -2,7 +2,7 @@ import { Head } from "@inertiajs/react";
 import { useTranslation } from "react-i18next";
 
 import AuthLayout from "@/components/admin/AuthLayout";
-import { link } from "@/components/admin/ui";
+import Link from "@/components/shared/link/Link";
 import { new_admin_session_path } from "@/routes";
 
 import PasswordNewForm from "./components/PasswordNewForm";
@@ -17,9 +17,9 @@ export default function PasswordNew() {
       <PasswordNewForm />
 
       <p className="mt-6 text-center text-sm">
-        <a href={new_admin_session_path()} className={link()}>
+        <Link href={new_admin_session_path()}>
           {t("admin.password.new.backToLogin")}
-        </a>
+        </Link>
       </p>
     </AuthLayout>
   );
