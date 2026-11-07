@@ -29,6 +29,8 @@ Registro completo e detalhado de todo bug real encontrado neste projeto, organiz
 | 2026-11-04 | Infraestrutura | CI sem `RAILS_MASTER_KEY` pro job de teste | Alta | #33 | [infrastructure.md](infrastructure.md) |
 | 2026-11-05 | Infraestrutura | CVEs do Rails 8.1.4 (um crítico) sinalizados pelo bundler-audit | Crítica | #36 | [infrastructure.md](infrastructure.md) |
 | 2026-11-07 | Testes e ferramentas | `markdownlint` sinalizava falso positivo no template de `docs/bugs/` | Baixa | #37 | [testing-and-tooling.md](testing-and-tooling.md) |
+| 2026-11-07 | Audit logging | Exigir `change_reason` em todo update do `Admin` quebrava specs internos | Alta | #38 | [audit-logging.md](audit-logging.md) |
+| 2026-11-07 | Audit logging | PaperTrail falhava com `Psych::DisallowedClass` ao reverter uma versão | Alta | #38 | [audit-logging.md](audit-logging.md) |
 
 ## Categorias
 

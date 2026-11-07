@@ -16,6 +16,7 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 - Autenticação de dois fatores (TOTP) obrigatória: QR code pra configurar um app autenticador (Google Authenticator, Authy, ou qualquer app compatível com TOTP), com 10 códigos de recuperação de uso único gerados na ativação.
 - Ativar 2FA exige confirmar um código válido do app autenticador antes de se tornar obrigatório; desativar 2FA exige reautenticação com a senha atual.
 - Locale padrão `pt-BR`, incluindo as mensagens de validação que o próprio framework gera (via `rails-i18n`); conteúdo de produto e conteúdo de ferramentas internas de linha de comando organizados em arquivos de I18n separados.
+- Log de auditoria de mudança de registro (CRUD): toda alteração ou exclusão do e-mail de um admin exige um motivo explícito, guardado junto da versão; histórico de versões permite reverter o registro pro estado anterior.
 
 ## Corrigido
 

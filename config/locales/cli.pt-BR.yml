@@ -9,4 +9,5 @@ pt-BR:
         prompt_email: "E-mail do admin: "
         prompt_password: "Senha do admin: "
         prompt_password_confirmation: "Confirme a senha: "
+        prompt_change_reason: "Motivo da criação: "
         success: "Admin criado: %{email_address}"
