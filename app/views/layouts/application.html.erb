@@ -1,6 +1,21 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <%# Aplica a classe "dark" na <html> antes do primeiro paint — inline e
+        síncrono de propósito, pra não esperar o bundle JS carregar (causaria
+        um flash do tema claro antes do escuro aparecer, docs/adr/0020).
+        Mesma lógica de app/frontend/hooks/useTheme.ts, duplicada aqui porque
+        um <script> inline não pode importar módulo ES antes do Vite carregar. %>
+    <script>
+      (function () {
+        var stored = localStorage.getItem("theme");
+        var isDark =
+          stored === "dark" ||
+          (!stored && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.classList.toggle("dark", isDark);
+      })();
+    </script>
+
     <%= inertia_meta_tags(default_title: content_for(:title) || "Ecommerce Inertia Ruby") %>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">

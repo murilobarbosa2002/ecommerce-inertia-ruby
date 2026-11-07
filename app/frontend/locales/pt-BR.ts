@@ -2,6 +2,12 @@
 // preserva o tipo literal usado por app/frontend/types/i18next.d.ts pra
 // validar toda chave passada a `t("...")` em compile-time.
 export const ptBR = {
+  shared: {
+    themeToggle: {
+      switchToLight: "Ativar tema claro",
+      switchToDark: "Ativar tema escuro",
+    },
+  },
   admin: {
     session: {
       new: {
