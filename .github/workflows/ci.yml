@@ -97,6 +97,9 @@ jobs:
       - name: Install Chromium (specs de sistema via Cuprite)
         run: sudo apt-get update && sudo apt-get install -y chromium-browser
 
+      - name: Generate js-routes (app/frontend/routes.js + routes.d.ts)
+        run: bin/rails js:routes
+
       - name: Prepare test database
         run: bin/rails db:test:prepare
 

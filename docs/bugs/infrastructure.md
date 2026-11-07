@@ -2,6 +2,36 @@
 
 Bugs relacionados a banco de dados, cache, criptografia, variáveis de ambiente e deploy. Ver `docs/bugs/README.md` para o índice geral e o template de entrada.
 
+## Job `test` do CI não gerava `app/frontend/routes.js`, quebrando toda página que o importa
+
+- **Data:** 2026-11-07
+- **Severidade:** alta
+- **PR:** #42
+
+### O que aconteceu
+
+O job `test` do CI falhou com `ViteRuby::MissingEntrypointError`/`UNLOADABLE_DEPENDENCY: Could not load app/frontend/routes` em 6 exemplos de `spec/requests/admin/two_factors_spec.rb`, mesmo `bundle exec rspec` completo passando localmente antes de abrir a PR.
+
+### Causa raiz
+
+`app/frontend/routes.js`/`routes.d.ts` (gerados por `js-routes`, `docs/adr/0018`) são gitignorados — só existem depois de `bin/rails js:routes` rodar. O job `js` do CI já tinha esse passo (só ele precisava, até então, dos arquivos gerados), mas o job `test` não — e localmente, o arquivo já estava gerado em disco de uma execução manual anterior, mascarando a ausência do passo em qualquer teste local. Qualquer request/system spec que exercita uma página Inertia de verdade (como as de `AdminPanel::TwoFactorsController`) aciona o build real do Vite, que agora falha pra **qualquer** página do bundle que importe `@/routes` (não só a página sob teste) se o arquivo gerado não existir.
+
+### Como foi encontrado
+
+CI da PR do js-routes (#42) falhando no job `test`, apesar do mesmo `bundle exec rspec` ter passado localmente — reproduzido localmente apagando `app/frontend/routes.js`/`routes.d.ts` de propósito (simulando um checkout limpo) antes de investigar.
+
+### Impacto
+
+Bloquearia o job `test` do CI de qualquer PR depois desta que tocasse uma página Inertia renderizada por request/system spec — só passaria num ambiente que, por acaso, já tivesse os arquivos gerados manualmente em disco, como aconteceu neste ambiente de desenvolvimento.
+
+### Correção
+
+Passo "Generate js-routes" (`bin/rails js:routes`) adicionado também ao job `test` do CI (`.github/workflows/ci.yml`), antes de `bin/rails db:test:prepare`/`bundle exec rspec` — mesmo passo que já existia só no job `js`.
+
+### Verificação
+
+Reproduzido localmente: `rm app/frontend/routes.js app/frontend/routes.d.ts` seguido de `bundle exec rspec spec/requests/admin/two_factors_spec.rb` reproduz os 6 failures exatos do CI; `bin/rails js:routes` seguido do mesmo comando volta a 8 exemplos, 0 failures. `bundle exec rspec` completo confirmado limpo (135 examples) depois de regenerar.
+
 ## Gem de ambiente `:development` quebrava `bundle exec rspec` inteiro em `RAILS_ENV=test`
 
 - **Data:** 2026-11-07
