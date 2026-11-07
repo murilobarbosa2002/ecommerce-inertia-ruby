@@ -4,6 +4,11 @@
 @plugin "@tailwindcss/typography";
 @plugin "@tailwindcss/forms";
 
+/* dark: passa a responder à classe .dark na árvore (aplicada via script
+   inline em application.html.erb + hook useTheme), não só à preferência
+   do sistema — permite toggle manual independente do SO (docs/adr/0020). */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Bug real encontrado testando no browser: o stack padrão do font-sans do
    Tailwind (-apple-system, Segoe UI, Helvetica Neue, Noto Sans, Arial...)
    não tem nenhuma dessas fontes instaladas neste WSL (só DejaVu/Ubuntu Sans

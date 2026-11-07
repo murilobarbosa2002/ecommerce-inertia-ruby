@@ -4,8 +4,10 @@ export const banner = tv({
   base: "mb-5 flex items-start gap-2.5 rounded-lg border p-3.5 text-sm",
   variants: {
     tone: {
-      notice: "border-green-200 bg-green-50 text-green-800",
-      alert: "border-red-200 bg-red-50 text-red-800",
+      notice:
+        "border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-300",
+      alert:
+        "border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-300",
     },
   },
 });
