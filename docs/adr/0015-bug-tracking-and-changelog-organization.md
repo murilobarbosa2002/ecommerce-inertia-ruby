@@ -2,7 +2,7 @@
 
 ## Status
 
-Aceito
+Aceito. A parte de changelog (onde o índice vive) foi ajustada por `docs/adr/0016-changelog-root-index-with-release-files.md` (índice em `CHANGELOG.md` na raiz, conteúdo detalhado por release continua em `docs/changelog/`). A parte de `docs/bugs/` desta ADR continua vigente, sem mudança.
 
 ## Contexto
 

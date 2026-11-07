@@ -54,6 +54,7 @@ O que foi decidido, de forma direta e concreta.
 ```
 
 - `Status` é normalmente `Aceito`. Só muda para algo como `Superseded by 00NN` quando uma decisão é formalmente substituída por um ADR novo — isso é a ÚNICA edição permitida em um ADR já existente (ver próxima seção).
+- **Se o ADR antigo bundlava mais de uma decisão e só uma parte foi substituída** (caso real: `docs/adr/0015` decidia tanto `docs/bugs/` quanto a organização do changelog; só a parte de changelog foi revista por `docs/adr/0016`), não escreva `Superseded by 00NN` puro — isso implicaria que o ADR inteiro foi substituído. Em vez disso, qualifique a linha de Status dizendo exatamente qual parte foi substituída e qual continua vigente (ex. "Aceito. A parte de X foi substituída por `docs/adr/00NN`. A parte de Y continua vigente, sem mudança.").
 - Sem emojis, sem linguagem de equipe/plural (é um mantenedor único — ver `README.md`), sem citar clientes reais ou informação privada (ver `CONTRIBUTING.md`/README sobre isso).
 
 ## Passo 4 — nunca reescreva um ADR existente para mudar a decisão

@@ -2,4 +2,92 @@
 
 Bugs relacionados a `AuditEvent`, PaperTrail e à precisão/cobertura do log de auditoria. Ver `docs/bugs/README.md` para o índice geral e o template de entrada.
 
-Nenhum bug registrado ainda.
+## Logout do admin não gerava evento de auditoria
+
+- **Data:** 2026-11-04
+- **Severidade:** média
+- **PR:** #30
+
+### O que aconteceu
+
+`AdminPanel::SessionsController#destroy` (logout) destruía a `AdminSession` sem registrar nenhum `AuditEvent`, deixando o log de auditoria sem o fim do ciclo de vida da sessão — só login e eventos de bloqueio/2FA eram registrados.
+
+### Causa raiz
+
+O audit log de eventos de negócio (PR #26) foi implementado e integrado ao login e ao fluxo de bloqueio antes do controller de sessão existir de fato (PR #28); a ação de logout não foi revisitada para incluir o evento correspondente quando foi implementada.
+
+### Como foi encontrado
+
+Revisão própria do audit log depois do login/logout estarem implementados, perguntando explicitamente "tudo que deveria ter log e ser auditável está sendo?".
+
+### Impacto
+
+Lacuna de rastreabilidade: não era possível reconstruir pelo audit log quando uma sessão de admin terminou por logout explícito (só login/bloqueio apareciam), prejudicando qualquer investigação de segurança que dependesse da auditoria.
+
+### Correção
+
+`SessionsController#destroy` passou a chamar `AuditEvents::RecordAuditEvent` com `event_type: :logout` antes de destruir a sessão.
+
+### Verificação
+
+Spec cobrindo que o logout gera exatamente um `AuditEvent` do tipo `logout`. Confirmado removendo a chamada de propósito e vendo o spec falhar antes de restaurar a correção.
+
+## `login_failed` reusado entre login normal e reautenticação pra desativar 2FA
+
+- **Data:** 2026-11-04
+- **Severidade:** média
+- **PR:** #32
+
+### O que aconteceu
+
+`AdminAuthentication::RecordFailedLoginAttempt` sempre registrava `event_type: :login_failed`, mesmo quando era chamado a partir de `TwoFactorsController#destroy` (senha errada ao tentar desativar o 2FA) — um contexto completamente diferente de "senha errada na tela de login".
+
+### Causa raiz
+
+O serviço foi desenhado originalmente só pro fluxo de login; quando a reautenticação de desativar 2FA passou a reusá-lo (pra ganhar o mesmo bloqueio de 5 tentativas, ver `docs/bugs/two-factor-authentication.md`), o `event_type` fixo foi reaproveitado sem revisão.
+
+### Como foi encontrado
+
+Revisão própria de precisão do audit log: ao listar os `event_type` existentes e os contextos que os disparam, ficou claro que dois fluxos de negócio diferentes (senha errada no login vs. senha errada reautenticando pra desativar 2FA) produziam o mesmo rótulo no log, impossível de distinguir depois só pelo `AuditEvent`.
+
+### Impacto
+
+Log de auditoria impreciso — não é uma falha de segurança em si (o bloqueio funciona do mesmo jeito), mas compromete qualquer investigação que precise diferenciar "alguém tentando entrar com a senha errada" de "um admin autenticado tentando desativar 2FA com a senha errada".
+
+### Correção
+
+`RecordFailedLoginAttempt` ganhou um parâmetro `event_type:` (default `:login_failed`, preservando o comportamento do login); `TwoFactorsController#destroy` passou a chamar com `event_type: :reauthentication_failed`, um valor novo no enum `AuditEvent`.
+
+### Verificação
+
+Spec "registra reauthentication_failed (não login_failed) com senha atual errada": confirma o `event_type` exato do `AuditEvent` gerado. Confirmado quebrando o parâmetro de propósito (voltando ao default fixo) e vendo o spec falhar antes de restaurar a correção.
+
+## `login_succeeded` disparado antes da conclusão real do login com 2FA pendente
+
+- **Data:** 2026-11-04
+- **Severidade:** média
+- **PR:** #32
+
+### O que aconteceu
+
+`AdminAuthentication::AuthenticateWithPassword` registrava `event_type: :login_succeeded` só por validar a senha corretamente — mesmo quando a conta tinha 2FA ativo e o login ainda estava pendente de verificação do segundo fator, sem nenhuma `AdminSession` real criada ainda.
+
+### Causa raiz
+
+O evento de sucesso foi desenhado pensando só no fluxo sem 2FA (senha certa = login completo); quando o 2FA foi introduzido como uma etapa adicional, o ponto onde "login" de fato se completa mudou, mas o audit log não acompanhou essa mudança.
+
+### Como foi encontrado
+
+Mesma revisão de precisão do audit log que encontrou o bug anterior: o log mostrava `login_succeeded` em um momento em que a sessão de admin ainda não existia e uma segunda etapa (2FA) ainda podia falhar — um log enganoso, parecendo login completo sem ter completado.
+
+### Impacto
+
+Log de auditoria enganoso: uma tentativa de login que falhasse na etapa de 2FA (código errado, sessão pendente expirada) já tinha registrado `login_succeeded` antes disso, dando a impressão de que o login foi bem-sucedido quando não foi.
+
+### Correção
+
+O sucesso de senha passou a registrar `event_type: :password_verified` (um fato novo e mais preciso: "a senha estava correta", não "o login terminou"). `login_succeeded` passou a ser registrado só nos pontos reais de criação de sessão: no login sem 2FA (`SessionsController#create`) e na conclusão da verificação de 2FA (`TwoFactorAuthenticationsController#create`).
+
+### Verificação
+
+Specs cobrindo os dois fluxos (`registra two_factor_verified e login_succeeded com código TOTP válido`, `registra recovery_code_used e login_succeeded com código de recuperação válido`) confirmam exatamente dois eventos por login completo com 2FA, nos nomes certos. Confirmado revertendo a mudança de propósito (voltando `login_succeeded` pro ponto antigo) e vendo os specs falharem antes de restaurar a correção.

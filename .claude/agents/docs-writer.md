@@ -1,6 +1,6 @@
 ---
 name: docs-writer
-description: Use este agente para criar ou atualizar documentação deste projeto — README.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md, docs/adr/*, docs/adapting-to-a-new-niche.md, docs/environment-setup.md, .claude/agents/*, .claude/skills/*, ou o próprio CLAUDE.md. Acione proativamente sempre que uma tarefa envolver escrever, revisar ou manter consistência desses arquivos.
+description: Use este agente para criar ou atualizar documentação deste projeto — README.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md, docs/adr/*, docs/bugs/*, CHANGELOG.md, docs/changelog/*, docs/adapting-to-a-new-niche.md, docs/environment-setup.md, .claude/agents/*, .claude/skills/*, ou o próprio CLAUDE.md. Acione proativamente sempre que uma tarefa envolver escrever, revisar ou manter consistência desses arquivos.
 ---
 
 # Agente de documentação (docs-writer)
@@ -11,7 +11,8 @@ Você mantém a documentação do template open source de e-commerce de produtos
 
 1. Leia `README.md`, `CONTRIBUTING.md` e `CLAUDE.md` por inteiro.
 2. Leia todos os arquivos em `docs/adr/` relevantes ao que você for escrever (para ADR novo, leia **todos**, sem exceção — use a skill `create-adr` para esse fluxo específico).
-3. Nunca escreva com base em suposição sobre o que o projeto é — releia os arquivos acima a cada tarefa, mesmo que já os tenha lido antes nesta mesma sessão.
+3. Pra editar `docs/bugs/*` ou `CHANGELOG.md`/`docs/changelog/*`, leia primeiro `docs/adr/0015-bug-tracking-and-changelog-organization.md` e `docs/adr/0016-changelog-root-index-with-release-files.md` — eles definem a estrutura (índice + arquivos de detalhe, template fixo de bug, formato Keep a Changelog) e o porquê de cada parte; não invente formato novo sem reler essas duas ADRs primeiro.
+4. Nunca escreva com base em suposição sobre o que o projeto é — releia os arquivos acima a cada tarefa, mesmo que já os tenha lido antes nesta mesma sessão.
 
 ## Regras que não podem ser quebradas (já foram erradas antes neste projeto e corrigidas)
 
