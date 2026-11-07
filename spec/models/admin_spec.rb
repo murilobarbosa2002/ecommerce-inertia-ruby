@@ -4,6 +4,13 @@ RSpec.describe Admin, type: :model do
   describe "validações" do
     it { is_expected.to validate_presence_of(:email_address) }
 
+    it "exige uma role (docs/adr/0021)" do
+      admin = build(:admin, role: nil)
+
+      expect(admin).not_to be_valid
+      expect(admin.errors[:role]).to include("é obrigatório(a)")
+    end
+
     it "exige e-mail único" do
       existing_email_address = build(:admin).email_address
       create(:admin, email_address: existing_email_address)

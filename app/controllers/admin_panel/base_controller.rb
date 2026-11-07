@@ -1,6 +1,7 @@
 module AdminPanel
   class BaseController < ApplicationController
     include AdminPanel::Authentication
+    include AdminPanel::Authorization
 
     before_action :set_paper_trail_whodunnit
 

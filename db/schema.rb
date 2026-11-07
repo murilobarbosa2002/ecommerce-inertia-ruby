@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_07_035803) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_07_220040) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -43,7 +43,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_07_035803) do
     t.string "otp_secret"
     t.boolean "otp_required_for_login", default: false, null: false
     t.datetime "last_otp_at"
+    t.bigint "role_id", null: false
     t.index [ "email_address" ], name: "index_admins_on_email_address", unique: true
+    t.index [ "role_id" ], name: "index_admins_on_role_id"
   end
 
   create_table "audit_events", force: :cascade do |t|
@@ -55,6 +57,31 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_07_035803) do
     t.datetime "created_at", null: false
     t.index [ "admin_id" ], name: "index_audit_events_on_admin_id"
     t.index [ "event_type" ], name: "index_audit_events_on_event_type"
+  end
+
+  create_table "permissions", force: :cascade do |t|
+    t.string "key", limit: 100, null: false
+    t.string "description", limit: 500, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index [ "key" ], name: "index_permissions_on_key", unique: true
+  end
+
+  create_table "role_permissions", force: :cascade do |t|
+    t.bigint "role_id", null: false
+    t.bigint "permission_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index [ "permission_id" ], name: "index_role_permissions_on_permission_id"
+    t.index [ "role_id", "permission_id" ], name: "index_role_permissions_on_role_id_and_permission_id", unique: true
+    t.index [ "role_id" ], name: "index_role_permissions_on_role_id"
+  end
+
+  create_table "roles", force: :cascade do |t|
+    t.string "name", limit: 100, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index [ "name" ], name: "index_roles_on_name", unique: true
   end
 
   create_table "versions", force: :cascade do |t|
@@ -71,5 +98,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_07_035803) do
 
   add_foreign_key "admin_recovery_codes", "admins"
   add_foreign_key "admin_sessions", "admins"
+  add_foreign_key "admins", "roles"
   add_foreign_key "audit_events", "admins"
+  add_foreign_key "role_permissions", "permissions"
+  add_foreign_key "role_permissions", "roles"
 end

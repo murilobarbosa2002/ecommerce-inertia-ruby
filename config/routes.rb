@@ -46,6 +46,17 @@ Rails.application.routes.draw do
     resource :two_factor, only: %i[new create destroy], path: "two-factor-setup"
   end
 
+  # Rota só de teste, sem efeito em dev/produção — spec/controllers/concerns/
+  # admin_panel/authorization_spec.rb exercita AdminPanel::Authorization de
+  # ponta a ponta (sem controller real ainda, docs/adr/0021). Mutar o route
+  # set em tempo de execução via Rails.application.routes.append/draw dentro
+  # do próprio spec (tentativa anterior) causava 404 inconsistente num boot
+  # limpo de CI — bug real só reproduzível lá, não localmente (onde o
+  # processo já tinha recarregado rotas várias vezes antes).
+  if Rails.env.test?
+    get "admin/authorization-test", to: "admin_panel/authorization_test#show"
+  end
+
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
