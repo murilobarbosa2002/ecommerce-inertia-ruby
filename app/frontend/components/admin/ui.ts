@@ -1,11 +1,7 @@
 import { tv } from "tailwind-variants";
 
-// Primitivos de estilo compartilhados pelas páginas pré-autenticação do
-// admin (login, 2FA, reset de senha) — docs/adr/0012 estabelece
-// tailwind-variants pra variante de estilo em vez de concatenação manual de
-// classe condicional. Radix UI não entra aqui de propósito: nenhum desses
-// campos tem comportamento (é texto/senha simples), só entra quando um
-// componente com comportamento de verdade for necessário.
+// Variantes compartilhadas pelas páginas pré-autenticação do admin
+// (docs/adr/0012). Sem Radix UI: nenhum desses campos tem comportamento.
 
 export const label = tv({
   base: "mb-1.5 block text-sm font-medium text-gray-700",
