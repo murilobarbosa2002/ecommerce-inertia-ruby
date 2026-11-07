@@ -105,9 +105,21 @@ jobs:
 
   js:
     runs-on: ubuntu-latest
+    env:
+      RAILS_ENV: test
+      # js-routes (docs/adr/0018) gera app/frontend/routes.js/routes.d.ts a
+      # partir de config/routes.rb — precisa carregar o ambiente Rails
+      # (:environment), que decripta credentials.yml.enc no boot (Active
+      # Record Encryption, docs/adr/0013), mesmo sem conexão de banco.
+      RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v6
@@ -122,6 +134,9 @@ jobs:
 
       - name: Install JS dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Generate js-routes (app/frontend/routes.js + routes.d.ts)
+        run: bin/rails js:routes
 
       - name: Lint (ESLint)
         run: pnpm lint

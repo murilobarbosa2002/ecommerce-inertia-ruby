@@ -37,6 +37,7 @@ Registro completo e detalhado de todo bug real encontrado neste projeto, organiz
 | 2026-11-07 | Testes e ferramentas | `vi.mock` quebrava referenciando variável externa direto no factory | Baixa | #39 | [testing-and-tooling.md](testing-and-tooling.md) |
 | 2026-11-07 | Infraestrutura | Fonte do sistema ausente quebrava espaçamento entre palavras | Média | #39 | [infrastructure.md](infrastructure.md) |
 | 2026-11-07 | Estrutura de código | Scaffold do Inertia Rails nunca removido, `root_url` dependia dele sem documentar | Média | #41 | [code-structure.md](code-structure.md) |
+| 2026-11-07 | Infraestrutura | Gem de `:development` quebrava `bundle exec rspec` inteiro em `RAILS_ENV=test` | Alta | #42 | [infrastructure.md](infrastructure.md) |
 
 ## Categorias
 

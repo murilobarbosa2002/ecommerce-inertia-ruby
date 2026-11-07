@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import TwoFactorAuthenticationNew from "@/pages/Admin/TwoFactorAuthentication/New";
+import { admin_two_factor_authentication_path } from "@/routes";
 
 const { routerPostMock } = vi.hoisted(() => ({ routerPostMock: vi.fn() }));
 
@@ -25,9 +26,12 @@ describe("Admin/TwoFactorAuthentication/New", () => {
     await user.click(screen.getByRole("button", { name: "Verificar" }));
 
     await waitFor(() => {
-      expect(routerPostMock).toHaveBeenCalledWith("/admin/two-factor", {
-        otp_code: "123456",
-      });
+      expect(routerPostMock).toHaveBeenCalledWith(
+        admin_two_factor_authentication_path(),
+        {
+          otp_code: "123456",
+        },
+      );
     });
   });
 
@@ -39,9 +43,12 @@ describe("Admin/TwoFactorAuthentication/New", () => {
     await user.click(screen.getByRole("button", { name: "Verificar" }));
 
     await waitFor(() => {
-      expect(routerPostMock).toHaveBeenCalledWith("/admin/two-factor", {
-        otp_code: "ab12cd34ef",
-      });
+      expect(routerPostMock).toHaveBeenCalledWith(
+        admin_two_factor_authentication_path(),
+        {
+          otp_code: "ab12cd34ef",
+        },
+      );
     });
   });
 

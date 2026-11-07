@@ -6,6 +6,7 @@ import { z } from "zod";
 
 import AuthLayout from "@/components/admin/AuthLayout";
 import { button, fieldError, input, label } from "@/components/admin/ui";
+import { admin_two_factor_authentication_path } from "@/routes";
 
 // otp_code aceita tanto um código TOTP de 6 dígitos quanto um código de
 // recuperação de 10 caracteres (SecureRandom.alphanumeric(10)) — por isso só
@@ -28,7 +29,7 @@ export default function TwoFactorAuthenticationNew() {
   });
 
   const onSubmit = (data: TwoFactorFormValues) => {
-    router.post("/admin/two-factor", data);
+    router.post(admin_two_factor_authentication_path(), data);
   };
 
   return (

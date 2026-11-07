@@ -19,6 +19,11 @@ export default tseslint.config(
       "vendor/**",
       "db/**",
       ".kamal/**",
+      // Gerado por js-routes (docs/adr/0018) a partir de config/routes.rb —
+      // código de terceiro, não edita-se à mão, não segue a convenção de
+      // lint do projeto.
+      "app/frontend/routes.js",
+      "app/frontend/routes.d.ts",
     ],
   },
   js.configs.recommended,

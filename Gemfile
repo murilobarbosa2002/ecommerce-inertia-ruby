@@ -53,6 +53,13 @@ group :development, :test do
 
   # Fake data for factories [https://github.com/faker-ruby/faker]
   gem "faker"
+
+  # Gera helpers de rota tipados (TypeScript) pro frontend a partir de
+  # config/routes.rb — elimina link/URL hardcoded no React (docs/adr/0018)
+  # [https://github.com/railsware/js-routes]. Em :development e :test (não só
+  # :development) porque o job de CI que gera esses arquivos roda com
+  # RAILS_ENV=test (sem banco) — a gem precisa estar carregada nos dois.
+  gem "js-routes"
 end
 
 group :test do

@@ -2,6 +2,36 @@
 
 Bugs relacionados a banco de dados, cache, criptografia, variáveis de ambiente e deploy. Ver `docs/bugs/README.md` para o índice geral e o template de entrada.
 
+## Gem de ambiente `:development` quebrava `bundle exec rspec` inteiro em `RAILS_ENV=test`
+
+- **Data:** 2026-11-07
+- **Severidade:** alta
+- **PR:** #42
+
+### O que aconteceu
+
+Depois de adicionar `js-routes` (`group :development do`) e seu initializer gerado (`config/initializers/js_routes.rb`, chama `JsRoutes.setup` incondicionalmente), `bundle exec rspec` parou de carregar — `NameError: uninitialized constant JsRoutes` ao carregar `config/environment.rb`, e todo arquivo de spec restante falhava em cascata com `FrozenError: can't modify frozen Array` (efeito colateral do boot abortado no meio, não um segundo bug independente).
+
+### Causa raiz
+
+Initializers do Rails rodam em **todo** ambiente, independente de em qual `group` do `Gemfile` a gem está. `js-routes` estava só em `group :development`, então `Bundler.require` nunca a carregava em `RAILS_ENV=test` — mas o initializer gerado automaticamente pela gem (`bin/rails generate js_routes:install`) sempre referencia a constante `JsRoutes` sem guarda nenhuma, assumindo que a gem está disponível no ambiente atual.
+
+### Como foi encontrado
+
+Rodando `bundle exec rspec` completo antes de abrir a PR do js-routes (passo de verificação já padrão do projeto) — o job `js` do CI já roda com `RAILS_ENV=test` de propósito (gera `app/frontend/routes.js`/`routes.d.ts` sem precisar de banco), então o mesmo erro apareceria lá também se não detectado antes.
+
+### Impacto
+
+Bloquearia `bundle exec rspec` (e o job `test`/`js` do CI) completamente pra qualquer PR depois desta, até alguém investigar por que 26 arquivos de spec davam erro de carregamento sem relação aparente com a mudança de cada um.
+
+### Correção
+
+`js-routes` movida pra `group :development, :test do` (bloco já existente no `Gemfile`, usado por `rspec-rails`/`factory_bot_rails`/etc.) em vez de `group :development do` (que continua só com `web-console`/`tidewave`, que de fato nunca devem carregar em teste).
+
+### Verificação
+
+Confirmado pelo próprio `bundle exec rspec`: 0 examples/26 erros de carregamento antes da correção, 135 examples/0 failures depois, sem tocar nenhum spec individual — a causa era só a declaração de group no `Gemfile`.
+
 ## Fonte do sistema ausente quebrava visualmente o espaçamento entre palavras
 
 - **Data:** 2026-11-07

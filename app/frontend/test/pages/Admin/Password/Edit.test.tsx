@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import PasswordEdit from "@/pages/Admin/Password/Edit";
+import { admin_password_path } from "@/routes";
 
 const { routerPatchMock } = vi.hoisted(() => ({ routerPatchMock: vi.fn() }));
 
@@ -30,7 +31,7 @@ describe("Admin/Password/Edit", () => {
 
     await waitFor(() => {
       expect(routerPatchMock).toHaveBeenCalledWith(
-        "/admin/passwords/um-token-assinado",
+        admin_password_path("um-token-assinado"),
         { password: "nova-senha-123", password_confirmation: "nova-senha-123" },
       );
     });

@@ -6,6 +6,7 @@ import { z } from "zod";
 
 import AuthLayout from "@/components/admin/AuthLayout";
 import { button, fieldError, input, label, link } from "@/components/admin/ui";
+import { admin_session_path, new_admin_password_path } from "@/routes";
 
 // Limites espelham a validação do servidor (app/models/admin.rb) — o
 // servidor continua sendo a autoridade final (docs/adr/0010), isto é só UX.
@@ -27,7 +28,7 @@ export default function SessionNew() {
   });
 
   const onSubmit = (data: LoginFormValues) => {
-    router.post("/admin/login", data);
+    router.post(admin_session_path(), data);
   };
 
   return (
@@ -85,7 +86,7 @@ export default function SessionNew() {
       </form>
 
       <p className="mt-6 text-center text-sm">
-        <a href="/admin/passwords/new" className={link()}>
+        <a href={new_admin_password_path()} className={link()}>
           {t("admin.session.new.forgotPassword")}
         </a>
       </p>
