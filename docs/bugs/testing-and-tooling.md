@@ -2,6 +2,66 @@
 
 Bugs relacionados a RSpec, Vitest, CI, extensões de editor e outras ferramentas de desenvolvimento. Ver `docs/bugs/README.md` para o índice geral e o template de entrada.
 
+## `@testing-library/react` não limpava o DOM entre exemplos (`afterEach(cleanup)` ausente)
+
+- **Data:** 2026-11-07
+- **Severidade:** média
+- **PR:** #39
+
+### O que aconteceu
+
+O primeiro arquivo de teste com mais de um `render()` em `it`s diferentes do mesmo `describe` (`AuthLayout.test.tsx`) teve um caso falhar com um elemento "fantasma" de uma execução anterior ainda presente no DOM — `queryByRole("status")` encontrava o `<p>` de flash renderizado por um teste anterior, não pelo teste atual.
+
+### Causa raiz
+
+`@testing-library/react` só limpa o DOM entre exemplos automaticamente (`cleanup()` via `afterEach`) quando detecta o framework de teste (Jest ou Vitest com `test.globals: true`). A configuração deste projeto (`vite.config.ts`) não ativa `test.globals`, então essa detecção automática nunca acontecia — qualquer `describe` com múltiplos `render()` acumulava elementos de execuções anteriores no mesmo `document.body`.
+
+### Como foi encontrado
+
+Escrevendo o primeiro teste de componente (`AuthLayout.test.tsx`) com mais de um `render()`/`it()` no mesmo arquivo — testes anteriores do projeto sempre renderizaram só uma vez por arquivo, então o problema nunca tinha aparecido.
+
+### Impacto
+
+Qualquer suíte futura com múltiplos `render()` no mesmo arquivo ficaria sujeita a falso positivo/negativo (elemento de um teste anterior interferindo na asserção do teste atual) sem nenhum aviso — um risco real de teste quebrado por acidente de ordem de execução, não por regressão de verdade.
+
+### Correção
+
+`app/frontend/test/setup.ts` ganhou `afterEach(() => cleanup())` explícito (importado de `@testing-library/react`), rodando pra toda a suíte, não só pro arquivo que encontrou o problema.
+
+### Verificação
+
+Confirmado removendo o `afterEach(cleanup)` de propósito e vendo o teste "does not render flash elements when flash is an empty object" falhar (elemento de um teste anterior ainda no DOM), antes de restaurar a correção.
+
+## `vi.mock` quebrava com `ReferenceError` ao referenciar variável externa direto no factory
+
+- **Data:** 2026-11-07
+- **Severidade:** baixa
+- **PR:** #39
+
+### O que aconteceu
+
+`vi.mock("@inertiajs/react", () => ({ router: { post: routerPostMock } }))`, com `routerPostMock` declarado como `const routerPostMock = vi.fn()` logo acima, falhava com `ReferenceError: Cannot access 'routerPostMock' before initialization` em todo arquivo de teste de página (`Session/New.test.tsx` e os outros 3).
+
+### Causa raiz
+
+O Vitest hoista a chamada de `vi.mock(...)` pro topo do arquivo (antes de qualquer `const`/`import`), mas só o CALL em si — o corpo do factory roda de verdade só quando o módulo mockado é importado. Quando o factory constrói um objeto literal referenciando a variável diretamente (`{ post: routerPostMock }`), essa referência é avaliada na hora que o objeto é criado; como isso acontece antes da declaração `const routerPostMock = vi.fn()` ser executada (por causa do hoisting do `vi.mock`), a variável ainda não foi inicializada.
+
+### Como foi encontrado
+
+Escrevendo os specs de submissão de formulário das 4 páginas novas — todos os 4 arquivos reproduziam o mesmo erro, pelo mesmo padrão de mock.
+
+### Impacto
+
+Nenhum em produção — é um erro que impede a suíte de teste de rodar (falha ao carregar o arquivo), não um bug de comportamento real. Mas bloqueava completamente os specs de todas as páginas novas até ser corrigido.
+
+### Correção
+
+Declarar a mock function dentro de `vi.hoisted(() => ({ routerPostMock: vi.fn() }))`, que o Vitest garante executar antes de qualquer `vi.mock`, e desestruturar o valor retornado — `const { routerPostMock } = vi.hoisted(() => ({ routerPostMock: vi.fn() }))`.
+
+### Verificação
+
+Reproduzido o erro original (sem `vi.hoisted`) nos 4 arquivos antes da correção; confirmado que todos os specs passam a carregar e rodar normalmente depois de trocar para `vi.hoisted`.
+
 ## `markdownlint` sinalizava falso positivo de heading duplicado no template de `docs/bugs/`
 
 - **Data:** 2026-11-07

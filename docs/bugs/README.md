@@ -31,6 +31,11 @@ Registro completo e detalhado de todo bug real encontrado neste projeto, organiz
 | 2026-11-07 | Testes e ferramentas | `markdownlint` sinalizava falso positivo no template de `docs/bugs/` | Baixa | #37 | [testing-and-tooling.md](testing-and-tooling.md) |
 | 2026-11-07 | Audit logging | Exigir `change_reason` em todo update do `Admin` quebrava specs internos | Alta | #38 | [audit-logging.md](audit-logging.md) |
 | 2026-11-07 | Audit logging | PaperTrail falhava com `Psych::DisallowedClass` ao reverter uma versão | Alta | #38 | [audit-logging.md](audit-logging.md) |
+| 2026-11-07 | Estrutura de código | `namespace` com `as:` prefixa "admin_" antes do nome, quebrando helper | Alta | #39 | [code-structure.md](code-structure.md) |
+| 2026-11-07 | Estrutura de código | `usePage().props.flash` sempre retornava `undefined` | Alta | #39 | [code-structure.md](code-structure.md) |
+| 2026-11-07 | Testes e ferramentas | `@testing-library/react` não limpava o DOM entre exemplos | Média | #39 | [testing-and-tooling.md](testing-and-tooling.md) |
+| 2026-11-07 | Testes e ferramentas | `vi.mock` quebrava referenciando variável externa direto no factory | Baixa | #39 | [testing-and-tooling.md](testing-and-tooling.md) |
+| 2026-11-07 | Infraestrutura | Fonte do sistema ausente quebrava espaçamento entre palavras | Média | #39 | [infrastructure.md](infrastructure.md) |
 
 ## Categorias
 

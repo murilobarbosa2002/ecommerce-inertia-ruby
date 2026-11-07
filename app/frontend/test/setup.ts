@@ -1,4 +1,18 @@
 import "@testing-library/jest-dom/vitest";
+import "@/i18n";
+
+import { afterEach } from "vitest";
+import { cleanup } from "@testing-library/react";
+
+// @testing-library/react não limpa o DOM entre exemplos sozinho — depende de
+// detectar o framework de teste automaticamente, o que não acontece com a
+// configuração atual do Vitest (sem `test.globals: true`). Sem isso, um
+// `describe` com múltiplos `render()` em `it`s diferentes acumula elementos
+// de execuções anteriores no mesmo `document.body` (bug real encontrado
+// escrevendo o primeiro teste com mais de um `render()` no mesmo arquivo).
+afterEach(() => {
+  cleanup();
+});
 
 // jsdom não implementa essas APIs de browser, mas o Radix UI (Checkbox, Dialog,
 // Select, Popover, etc.) assume que elas existem e quebram no mount sem isso.

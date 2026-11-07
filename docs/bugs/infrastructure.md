@@ -2,6 +2,36 @@
 
 Bugs relacionados a banco de dados, cache, criptografia, variáveis de ambiente e deploy. Ver `docs/bugs/README.md` para o índice geral e o template de entrada.
 
+## Fonte do sistema ausente quebrava visualmente o espaçamento entre palavras
+
+- **Data:** 2026-11-07
+- **Severidade:** média
+- **PR:** #39
+
+### O que aconteceu
+
+Testando as páginas novas num browser real, o texto renderizava com espaçamento enorme entre palavras (ex. "Esqueci   minha   senha", cada palavra visivelmente separada) — sem nenhuma propriedade CSS indicando o problema: `getComputedStyle` mostrava `wordSpacing: 0px`, `letterSpacing: normal`, `textAlign` correto, nada incomum.
+
+### Causa raiz
+
+O stack padrão do `font-sans` do Tailwind (`-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", Arial, sans-serif, ...`) não tem nenhuma dessas fontes instaladas neste WSL (`fc-list` só retorna DejaVu e Ubuntu Sans) — o Chromium cai pro fallback final da lista (fonte variável sem eixos `wght`/`wdth` padronizados), que nesta máquina renderiza com glifo de espaço anormalmente largo. Isso não aparece em nenhuma propriedade CSS computada porque é uma característica de renderização da fonte em si, não do CSS aplicado.
+
+### Como foi encontrado
+
+Captura de tela real do browser durante a verificação manual das páginas novas (a suíte automatizada do Vitest/jsdom não renderiza fonte de verdade, então nunca pegaria isso).
+
+### Impacto
+
+Qualquer página do projeto ficaria com esse espaçamento quebrado, dependendo só de quais fontes o sistema operacional/máquina de quem acessa tem instaladas — um problema que afetaria produção (qualquer visitante sem nenhuma das fontes do stack instalada) tanto quanto este ambiente de desenvolvimento, não é exclusivo deste WSL.
+
+### Correção
+
+Fonte Inter (`@fontsource-variable/inter`, self-hosted, licença OFL, sem requisição a serviço externo) adicionada como primeira opção do `--font-sans` via `@theme` do Tailwind (`app/frontend/entrypoints/application.css`), garantindo a mesma renderização independente da fonte instalada no sistema operacional de quem acessa.
+
+### Verificação
+
+Capturas de tela antes (espaçamento quebrado) e depois (texto normal) da correção, comparadas lado a lado durante a verificação manual.
+
 ## CI sem `RAILS_MASTER_KEY` pro job de teste
 
 - **Data:** 2026-11-04

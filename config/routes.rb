@@ -11,17 +11,37 @@ Rails.application.routes.draw do
   # o nome Admin como classe — não pode também ser reaberto como módulo de
   # namespace. URL e route helpers continuam /admin/... e admin_session_path,
   # só a classe do controller muda pra AdminPanel::.
+  # `scope` (não `namespace`) pras rotas de login/2FA de propósito: dentro de
+  # `namespace :admin`, a opção `as:` de uma rota é sempre prefixada com
+  # "admin_" *na frente* do nome dado (`as: :new_session` vira
+  # `admin_new_session`, não `new_admin_session`) — incompatível com o nome
+  # de helper que `resource :session` gerava (`new_admin_session_path`,
+  # "new_" antes do namespace). `scope` não prefixa nome nenhum sozinho,
+  # permitindo escrever o nome final exato via `as:`.
+  scope path: "admin", module: "admin_panel" do
+    # Rotas customizadas em vez de `resource :session` — um `resource`
+    # singular com `only: %i[new create destroy]` gera `/admin/login/new`
+    # pro formulário, o que não faz sentido numa URL pública de login.
+    get "login", to: "sessions#new", as: :new_admin_session
+    post "login", to: "sessions#create", as: :admin_session
+    delete "login", to: "sessions#destroy"
+
+    # Verificação do código na hora do login (admin ainda não autenticado,
+    # só provou a senha) — estado "pendente" fica em session[:pending_admin_id].
+    # Mesmo racional das rotas de login acima: sem `/new` na URL pública.
+    get "two-factor", to: "two_factor_authentications#new", as: :new_admin_two_factor_authentication
+    post "two-factor", to: "two_factor_authentications#create", as: :admin_two_factor_authentication
+  end
+
   namespace :admin, module: "admin_panel" do
-    resource :session, only: %i[new create destroy], path: "login"
     # param: :token (não :id) porque o identificador do recurso é o token de
     # reset assinado (Admin#password_reset_token), não um ID de registro —
     # mesmo padrão do gerador real do Rails 8 (resources :passwords, param: :token).
     resources :passwords, param: :token, only: %i[new create edit update]
-    # Verificação do código na hora do login (admin ainda não autenticado,
-    # só provou a senha) — estado "pendente" fica em session[:pending_admin_id].
-    resource :two_factor_authentication, only: %i[new create], path: "two-factor"
+
     # Configuração do 2FA em si (ativar/desativar) — exige admin já
-    # autenticado, controller separado do de cima de propósito.
+    # autenticado, controller separado do de cima de propósito. Fica como
+    # `resource` (não é uma URL de entrada pública como login/2FA de login).
     resource :two_factor, only: %i[new create destroy], path: "two-factor-setup"
   end
 

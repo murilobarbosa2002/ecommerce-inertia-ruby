@@ -1,5 +1,7 @@
 import { createInertiaApp } from "@inertiajs/react";
 
+import "@/i18n";
+
 void createInertiaApp({
   pages: "../pages",
 
