@@ -2,6 +2,36 @@
 
 Bugs relacionados a RSpec, Vitest, CI, extensões de editor e outras ferramentas de desenvolvimento. Ver `docs/bugs/README.md` para o índice geral e o template de entrada.
 
+## `Rails.application.routes.append` num spec causava 404 inconsistente só em CI, nunca localmente
+
+- **Data:** 2026-11-07
+- **Severidade:** média
+- **PR:** #45
+
+### O que aconteceu
+
+`spec/controllers/concerns/admin_panel/authorization_spec.rb` (testa `AdminPanel::Authorization`, que ainda não tem nenhum controller real consumindo) mutava o route set em tempo de execução dentro de um `around`: `Rails.application.routes.append` adicionando uma rota de teste antes de cada exemplo, `Rails.application.reload_routes!` desfazendo depois. Passava sempre localmente (rodado isolado, na suíte completa, com `--order random` em sementes diferentes), mas falhava no CI com `404` num dos dois exemplos, de forma não determinística.
+
+### Causa raiz
+
+Não totalmente confirmada (não reproduzido localmente pra investigar a fundo) — hipótese mais provável é que o route set already-finalizado num boot limpo de processo (exatamente o que o CI sempre faz; o ambiente local já tinha passado por vários reloads manuais de rota antes, durante investigação de outros bugs desta mesma sessão) lida diferente com `append`/`reload_routes!` em sequência rápida do que um processo "usado". Mutar `Rails.application.routes` em tempo de execução dentro de um spec é inerentemente frágil (estado global do processo, não por exemplo) — a lição vale independente da causa raiz exata.
+
+### Como foi encontrado
+
+CI da PR do RBAC (#45) falhando no job `test` com 404 num teste que sempre passava localmente — investigado comparando o comportamento local (sempre verde, inclusive repetido com seeds aleatórios diferentes) com o log do CI.
+
+### Impacto
+
+Teste instável (`flaky`) bloqueando o CI de qualquer PR de forma não reproduzível localmente — o tipo de falha mais cara de diagnosticar, porque "funciona na minha máquina" é literalmente verdade.
+
+### Correção
+
+Removida a manipulação de rota em tempo de execução. Em vez disso: uma rota de teste permanente guardada por `Rails.env.test?` em `config/routes.rb` (`get "admin/authorization-test"`) apontando pra um controller de teste real e permanente (`app/controllers/admin_panel/authorization_test_controller.rb`, só existe pra isso, documentado como tal). Zero mutação de estado global do Rails em tempo de execução — a rota é definida uma vez, no boot, como qualquer outra.
+
+### Verificação
+
+`bundle exec rspec spec/controllers/concerns/admin_panel/authorization_spec.rb --order random`, repetido com sementes diferentes, permanece verde — mas a prova real só vem do próprio CI voltando a passar de forma consistente depois da correção.
+
 ## `@testing-library/react` não limpava o DOM entre exemplos (`afterEach(cleanup)` ausente)
 
 - **Data:** 2026-11-07
