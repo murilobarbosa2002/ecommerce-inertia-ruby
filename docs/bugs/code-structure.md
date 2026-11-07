@@ -2,6 +2,36 @@
 
 Bugs relacionados a organização de código, namespace, arquitetura e convenção de nomes. Ver `docs/bugs/README.md` para o índice geral e o template de entrada.
 
+## Scaffold padrão do Inertia Rails nunca foi removido, e `root_url`/`root_path` dependiam dele sem documentar essa dependência real
+
+- **Data:** 2026-11-07
+- **Severidade:** média
+- **PR:** #41
+
+### O que aconteceu
+
+O controller/página/rota/teste gerados automaticamente na criação do projeto (`InertiaExampleController`, `app/frontend/pages/inertia_example/`, `root "inertia_example#index"`) continuavam no repositório sem nunca terem sido removidos, mesmo depois da Fase 3 inteira (autenticação de admin) já estar em produção. Ao tentar removê-los, uma segunda falha apareceu: `AdminPanel::Authentication#after_admin_authentication_url` e `AdminPanel::TwoFactorsController` usam `root_url`/`root_path` como destino intencional de pós-login/pós-2FA (placeholder documentado em comentário até o painel real existir, ver `docs/adr/0013`) — remover a rota `root` sem substituto quebraria esse fluxo real em produção, não só a página de exemplo.
+
+### Causa raiz
+
+Duas causas empilhadas: (1) nenhuma PR anterior tratou a remoção do scaffold padrão como item de limpeza — ele foi ficando porque nunca bloqueou nada visivelmente; (2) a rota `root` acabou servindo dois propósitos ao mesmo tempo sem isso estar explícito — era o destino do scaffold E, via `root_url`/`root_path`, o destino placeholder real do fluxo de autenticação — então remover um "sem querer" quebraria o outro.
+
+### Como foi encontrado
+
+Ao planejar a remoção do scaffold, um `grep` por `root_path`/`root_url` antes de apagar a rota revelou os usos reais em `app/controllers/concerns/admin_panel/authentication.rb` e `app/controllers/admin_panel/two_factors_controller.rb`, além dos specs que já travavam esse redirect (`spec/requests/admin/sessions_spec.rb`, `two_factors_spec.rb`, `two_factor_authentications_spec.rb`) — a remoção só foi feita depois dessa verificação, evitando quebrar o fluxo de autenticação.
+
+### Impacto
+
+Se a rota `root` tivesse sido removida sem substituto, login bem-sucedido, verificação de 2FA bem-sucedida, e ativar/desativar 2FA passariam a redirecionar para uma rota inexistente (erro de roteamento) em vez de qualquer página — quebra em produção do fluxo de autenticação inteiro, não só a perda de uma página de exemplo sem uso.
+
+### Correção
+
+Removidos `app/controllers/inertia_example_controller.rb`, `app/frontend/pages/inertia_example/`, `app/frontend/test/pages/inertia_example/`, `spec/requests/inertia_example_spec.rb`, `spec/system/inertia_example_spec.rb`, e as duas rotas (`root "inertia_example#index"`, `get "inertia-example"`) em `config/routes.rb`. A rota `root` foi mantida (não removida), agora apontando pro único fluxo real que existe hoje: `root to: redirect("/admin/login")` — preserva o placeholder de pós-autenticação (`root_url`/`root_path` continuam resolvendo normalmente) sem depender do scaffold.
+
+### Verificação
+
+`bundle exec rspec` completo (135 exemplos) e os 3 specs que já travavam redirect pra `root_path`/`root_url` (sessions/2FA) continuam verdes sem alteração neles. Novo spec dedicado `spec/requests/root_spec.rb` trava o destino público (`GET /` redireciona pra `new_admin_session_path`) — confirmado vermelho trocando o destino de propósito pra uma URL diferente, verde depois de restaurado. `pnpm test`/`pnpm check`/`pnpm lint`, `bundle exec rubocop`, `bundle exec brakeman` e `vite build` confirmados limpos sem nenhuma referência remanescente ao scaffold.
+
 ## `namespace` com `as:` explícito prefixa "admin\_" *antes* do nome dado, quebrando o nome de helper esperado
 
 - **Data:** 2026-11-07
