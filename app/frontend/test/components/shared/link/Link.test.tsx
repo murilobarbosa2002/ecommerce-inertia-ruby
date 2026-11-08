@@ -20,4 +20,10 @@ describe("Link", () => {
 
     expect(screen.getByRole("link")).toHaveClass("max-w-sm");
   });
+
+  it("não é selecionável (ação de navegação, não conteúdo)", () => {
+    render(<Link href="/admin/login">Voltar pro login</Link>);
+
+    expect(screen.getByRole("link")).toHaveClass("select-none");
+  });
 });

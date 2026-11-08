@@ -1,3 +1,7 @@
 import { type ButtonHTMLAttributes } from "react";
+import { type VariantProps } from "tailwind-variants";
 
-export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement>;
+import { type button } from "./Button.variants";
+
+export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
+  VariantProps<typeof button>;

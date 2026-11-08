@@ -26,7 +26,7 @@ export default function AuthLayout({
         direction="up"
         className="w-full max-w-sm rounded-2xl border border-gray-100 bg-white p-8 shadow-xl shadow-gray-200/50 dark:border-gray-800 dark:bg-gray-900 dark:shadow-none"
       >
-        <div className="mb-6 text-center">
+        <div className="mb-6 text-center select-none">
           <h1 className="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
             {title}
           </h1>

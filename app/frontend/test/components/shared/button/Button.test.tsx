@@ -24,4 +24,18 @@ describe("Button", () => {
 
     expect(screen.getByRole("button")).toBeDisabled();
   });
+
+  it("usa a variante primary (largura cheia) por padrão", () => {
+    render(<Button>Entrar</Button>);
+
+    expect(screen.getByRole("button")).toHaveClass("w-full");
+  });
+
+  it("intent=ghost não força largura cheia nem fundo sólido", () => {
+    render(<Button intent="ghost">Sair</Button>);
+
+    const button = screen.getByRole("button");
+    expect(button).not.toHaveClass("w-full");
+    expect(button).not.toHaveClass("bg-indigo-600");
+  });
 });
