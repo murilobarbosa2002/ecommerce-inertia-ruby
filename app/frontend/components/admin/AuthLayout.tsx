@@ -3,7 +3,6 @@ import { usePage } from "@inertiajs/react";
 
 import { type FlashData } from "@/types";
 import Banner from "@/components/shared/banner/Banner";
-import ThemeToggle from "@/components/shared/theme-toggle/ThemeToggle";
 import Reveal from "@/components/motion/Reveal";
 
 // `flash` é campo próprio do objeto de página do Inertia (`usePage().flash`),
@@ -23,15 +22,11 @@ export default function AuthLayout({
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-linear-to-br from-slate-50 via-white to-indigo-50 px-4 py-12 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950">
-      <div className="fixed top-4 right-4">
-        <ThemeToggle />
-      </div>
-
       <Reveal
         direction="up"
         className="w-full max-w-sm rounded-2xl border border-gray-100 bg-white p-8 shadow-xl shadow-gray-200/50 dark:border-gray-800 dark:bg-gray-900 dark:shadow-none"
       >
-        <div className="mb-6 text-center">
+        <div className="mb-6 text-center select-none">
           <h1 className="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
             {title}
           </h1>

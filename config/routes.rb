@@ -4,9 +4,11 @@ Rails.application.routes.draw do
     get "(*path)", to: redirect { |params, req| "#{req.protocol}localhost:#{req.port}/#{params[:path]}" }
   end
 
-  # Sem loja/painel públicos ainda — redireciona pro único fluxo real que
-  # existe hoje (ver docs/adr/0013). Revisar quando a loja (storefront) nascer.
-  root to: redirect("/admin/login")
+  # Sem loja pública ainda (ver docs/adr/0013) — root serve o dashboard do
+  # painel direto. AdminPanel::Authentication (before_action padrão de
+  # AdminPanel::BaseController) já redireciona pro login sozinho quando não
+  # autenticado, sem precisar de lógica própria aqui.
+  root to: "admin_panel/dashboards#show"
 
   # module: "admin_panel" porque o model Admin (app/models/admin.rb) já ocupa
   # o nome Admin como classe — não pode também ser reaberto como módulo de

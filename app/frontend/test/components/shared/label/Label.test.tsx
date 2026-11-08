@@ -24,4 +24,10 @@ describe("Label", () => {
 
     expect(screen.getByText("E-mail")).toHaveClass("max-w-sm");
   });
+
+  it("não é selecionável (rótulo é chrome de formulário, não conteúdo)", () => {
+    render(<Label htmlFor="email_address">E-mail</Label>);
+
+    expect(screen.getByText("E-mail")).toHaveClass("select-none");
+  });
 });

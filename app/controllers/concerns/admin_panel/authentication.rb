@@ -37,8 +37,8 @@ module AdminPanel
     end
 
     def after_admin_authentication_url
-      # Não existe painel admin de verdade ainda (ver docs/adr/0013) — root_url
-      # é um placeholder até a primeira tela do painel existir.
+      # root_url é o dashboard do painel (AdminPanel::DashboardsController,
+      # config/routes.rb) — destino real desde que o painel mínimo existe.
       session.delete(:admin_return_to_after_authenticating) || root_url
     end
 

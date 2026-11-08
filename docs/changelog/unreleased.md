@@ -19,6 +19,7 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 - Log de auditoria de mudança de registro (CRUD): toda alteração ou exclusão do e-mail de um admin exige um motivo explícito, guardado junto da versão; histórico de versões permite reverter o registro pro estado anterior.
 - Telas de login, verificação de dois fatores e reset de senha do admin (primeiras páginas reais do painel), com validação de formulário (Zod + React Hook Form) e mensagens traduzidas (pt-BR via i18next).
 - Controle de acesso por papel (RBAC): cada admin tem um papel (`Role`) com um conjunto de permissões configurável, em vez de acesso irrestrito pra qualquer admin autenticado. `bin/rails admin:create` passa a exigir que o banco já tenha sido inicializado (`bin/rails db:seed`) antes de criar o primeiro admin.
+- Primeira tela do painel autenticado (dashboard, ainda placeholder), com navegação própria (marca, alternância de tema, sair) — a raiz do site (`/`) passa a mostrar essa tela pro admin logado, em vez de só redirecionar pro login.
 
 ## Corrigido
 

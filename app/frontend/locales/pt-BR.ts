@@ -7,8 +7,18 @@ export const ptBR = {
       switchToLight: "Ativar tema claro",
       switchToDark: "Ativar tema escuro",
     },
+    panelLayout: {
+      brand: "Ecommerce Inertia Ruby",
+      signOut: "Sair",
+    },
   },
   admin: {
+    dashboard: {
+      show: {
+        title: "Painel",
+        placeholder: "Em construção — mais telas chegam nas próximas fases.",
+      },
+    },
     session: {
       new: {
         title: "Entrar",
