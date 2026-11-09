@@ -1,9 +1,7 @@
 import { useTranslation } from "react-i18next";
 
 import Button from "@/components/shared/button/Button";
-import FieldError from "@/components/shared/field-error/FieldError";
-import Input from "@/components/shared/input/Input";
-import Label from "@/components/shared/label/Label";
+import FormField from "@/components/shared/form-field/FormField";
 
 import useSessionNewForm from "../useSessionNewForm";
 
@@ -19,35 +17,29 @@ export default function SessionNewForm() {
       className="space-y-5"
       noValidate
     >
-      <div>
-        <Label htmlFor="email_address">
-          {t("admin.session.new.emailLabel")}
-        </Label>
-        <Input
-          id="email_address"
-          type="email"
-          autoComplete="email"
-          invalid={!!errors.email_address}
-          {...register("email_address")}
-        />
-        {errors.email_address && (
-          <FieldError>{t("admin.session.new.emailRequired")}</FieldError>
-        )}
-      </div>
+      <FormField
+        id="email_address"
+        type="email"
+        autoComplete="email"
+        label={t("admin.session.new.emailLabel")}
+        error={
+          errors.email_address
+            ? t("admin.session.new.emailRequired")
+            : undefined
+        }
+        register={register("email_address")}
+      />
 
-      <div>
-        <Label htmlFor="password">{t("admin.session.new.passwordLabel")}</Label>
-        <Input
-          id="password"
-          type="password"
-          autoComplete="current-password"
-          invalid={!!errors.password}
-          {...register("password")}
-        />
-        {errors.password && (
-          <FieldError>{t("admin.session.new.passwordRequired")}</FieldError>
-        )}
-      </div>
+      <FormField
+        id="password"
+        type="password"
+        autoComplete="current-password"
+        label={t("admin.session.new.passwordLabel")}
+        error={
+          errors.password ? t("admin.session.new.passwordRequired") : undefined
+        }
+        register={register("password")}
+      />
 
       <Button type="submit" disabled={isSubmitting}>
         {isSubmitting

@@ -1,6 +1,6 @@
 import { Select as RadixSelect } from "radix-ui";
 
-import ChevronDownIcon from "@/components/shared/chevron-down-icon/ChevronDownIcon";
+import ChevronDownIcon from "@/components/shared/icons/chevron-down-icon/ChevronDownIcon";
 
 import { type SelectProps } from "./Select.types";
 import { selectContent, selectItem, selectTrigger } from "./Select.variants";

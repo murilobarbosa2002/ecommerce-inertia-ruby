@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 
-import MoonIcon from "@/components/shared/moon-icon/MoonIcon";
-import SunIcon from "@/components/shared/sun-icon/SunIcon";
+import MoonIcon from "@/components/shared/icons/moon-icon/MoonIcon";
+import SunIcon from "@/components/shared/icons/sun-icon/SunIcon";
 import useTheme from "@/hooks/useTheme";
 
 import { themeToggle } from "./ThemeToggle.variants";

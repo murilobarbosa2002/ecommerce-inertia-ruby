@@ -7,11 +7,11 @@ import downloadRecoveryCodesImage from "@/lib/downloadRecoveryCodesImage";
 import downloadTextFile from "@/lib/downloadTextFile";
 import { root_path } from "@/routes";
 
+import { type RecoveryCodesProps } from "./RecoveryCodes.types";
+
 export default function TwoFactorRecoveryCodes({
   recovery_codes,
-}: {
-  recovery_codes: string[];
-}) {
+}: RecoveryCodesProps) {
   const { t } = useTranslation();
 
   const handleDownloadTxt = () => {

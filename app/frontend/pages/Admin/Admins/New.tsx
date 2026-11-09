@@ -6,12 +6,9 @@ import Link from "@/components/shared/link/Link";
 import { admin_admins_path } from "@/routes";
 
 import AdminsNewForm from "./components/AdminsNewForm";
+import { type AdminsNewProps } from "./New.types";
 
-export default function AdminsNew({
-  roles,
-}: {
-  roles: { id: number; name: string }[];
-}) {
+export default function AdminsNew({ roles }: AdminsNewProps) {
   const { t } = useTranslation();
 
   return (

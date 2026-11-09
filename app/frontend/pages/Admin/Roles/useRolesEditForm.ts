@@ -5,12 +5,9 @@ import { useForm } from "react-hook-form";
 import { admin_role_path } from "@/routes";
 
 import { rolesEditSchema, type RolesEditFormValues } from "./Edit.schema";
+import { type RoleToEdit } from "./Edit.types";
 
-export default function useRolesEditForm(role: {
-  id: number;
-  name: string;
-  permission_ids: number[];
-}) {
+export default function useRolesEditForm(role: RoleToEdit) {
   const {
     register,
     handleSubmit,

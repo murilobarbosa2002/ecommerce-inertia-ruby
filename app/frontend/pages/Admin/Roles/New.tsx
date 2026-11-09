@@ -6,12 +6,9 @@ import Link from "@/components/shared/link/Link";
 import { admin_roles_path } from "@/routes";
 
 import RolesNewForm from "./components/RolesNewForm";
+import { type RolesNewProps } from "./New.types";
 
-export default function RolesNew({
-  permissions,
-}: {
-  permissions: { id: number; key: string; description: string }[];
-}) {
+export default function RolesNew({ permissions }: RolesNewProps) {
   const { t } = useTranslation();
 
   return (

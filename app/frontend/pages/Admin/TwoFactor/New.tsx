@@ -4,14 +4,12 @@ import { useTranslation } from "react-i18next";
 import PanelLayout from "@/components/admin/PanelLayout";
 
 import TwoFactorNewForm from "./components/TwoFactorNewForm";
+import { type TwoFactorNewProps } from "./New.types";
 
 export default function TwoFactorNew({
   provisioning_uri,
   qr_code_svg,
-}: {
-  provisioning_uri: string;
-  qr_code_svg: string;
-}) {
+}: TwoFactorNewProps) {
   const { t } = useTranslation();
 
   return (

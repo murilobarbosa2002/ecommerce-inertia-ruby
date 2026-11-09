@@ -7,12 +7,9 @@ import { new_admin_two_factor_path } from "@/routes";
 
 import ChangePasswordForm from "./components/ChangePasswordForm";
 import DisableTwoFactorForm from "./components/DisableTwoFactorForm";
+import { type ProfileShowProps } from "./Show.types";
 
-export default function ProfileShow({
-  two_factor_enabled,
-}: {
-  two_factor_enabled: boolean;
-}) {
+export default function ProfileShow({ two_factor_enabled }: ProfileShowProps) {
   const { t } = useTranslation();
 
   return (

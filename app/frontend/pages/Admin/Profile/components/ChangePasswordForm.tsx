@@ -1,9 +1,7 @@
 import { useTranslation } from "react-i18next";
 
 import Button from "@/components/shared/button/Button";
-import FieldError from "@/components/shared/field-error/FieldError";
-import Input from "@/components/shared/input/Input";
-import Label from "@/components/shared/label/Label";
+import FormField from "@/components/shared/form-field/FormField";
 
 import useProfileShowForm from "../useProfileShowForm";
 
@@ -19,55 +17,44 @@ export default function ChangePasswordForm() {
       className="space-y-5"
       noValidate
     >
-      <div>
-        <Label htmlFor="current_password">
-          {t("admin.profile.currentPasswordLabel")}
-        </Label>
-        <Input
-          id="current_password"
-          type="password"
-          autoComplete="current-password"
-          invalid={!!errors.current_password}
-          {...register("current_password")}
-        />
-        {errors.current_password && (
-          <FieldError>{t("admin.profile.currentPasswordRequired")}</FieldError>
-        )}
-      </div>
+      <FormField
+        id="current_password"
+        type="password"
+        autoComplete="current-password"
+        label={t("admin.profile.currentPasswordLabel")}
+        error={
+          errors.current_password
+            ? t("admin.profile.currentPasswordRequired")
+            : undefined
+        }
+        register={register("current_password")}
+      />
 
-      <div>
-        <Label htmlFor="password">{t("admin.profile.passwordLabel")}</Label>
-        <Input
-          id="password"
-          type="password"
-          autoComplete="new-password"
-          invalid={!!errors.password}
-          {...register("password")}
-        />
-        {errors.password && (
-          <FieldError>{t("admin.profile.passwordRequired")}</FieldError>
-        )}
-      </div>
+      <FormField
+        id="password"
+        type="password"
+        autoComplete="new-password"
+        label={t("admin.profile.passwordLabel")}
+        error={
+          errors.password ? t("admin.profile.passwordRequired") : undefined
+        }
+        register={register("password")}
+      />
 
-      <div>
-        <Label htmlFor="password_confirmation">
-          {t("admin.profile.passwordConfirmationLabel")}
-        </Label>
-        <Input
-          id="password_confirmation"
-          type="password"
-          autoComplete="new-password"
-          invalid={!!errors.password_confirmation}
-          {...register("password_confirmation")}
-        />
-        {errors.password_confirmation && (
-          <FieldError>
-            {errors.password_confirmation.type === "custom"
+      <FormField
+        id="password_confirmation"
+        type="password"
+        autoComplete="new-password"
+        label={t("admin.profile.passwordConfirmationLabel")}
+        error={
+          errors.password_confirmation
+            ? errors.password_confirmation.type === "custom"
               ? t("admin.profile.passwordMismatch")
-              : t("admin.profile.passwordConfirmationRequired")}
-          </FieldError>
-        )}
-      </div>
+              : t("admin.profile.passwordConfirmationRequired")
+            : undefined
+        }
+        register={register("password_confirmation")}
+      />
 
       <Button type="submit" disabled={isSubmitting}>
         {isSubmitting

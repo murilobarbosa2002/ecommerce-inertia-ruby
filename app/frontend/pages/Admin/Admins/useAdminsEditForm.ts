@@ -5,12 +5,7 @@ import { useForm } from "react-hook-form";
 import { admin_admin_path } from "@/routes";
 
 import { adminsEditSchema, type AdminsEditFormValues } from "./Edit.schema";
-
-interface AdminToEdit {
-  id: number;
-  email_address: string;
-  role_id: number;
-}
+import { type AdminToEdit } from "./Edit.types";
 
 export default function useAdminsEditForm(admin: AdminToEdit) {
   const {
