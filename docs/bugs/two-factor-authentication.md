@@ -121,3 +121,37 @@ Nenhum em produção (a proteção contra replay está funcionando como deveria)
 ### Verificação
 
 Confirmado lendo o comportamento de `ROTP::TOTP#now` e reproduzindo o teste sem o `travel_to` (falha) e com ele (passa) — não é um teste de regressão de produção, é a correção do próprio teste.
+
+## QR code de configuração do 2FA não aparecia na tela
+
+- **Data:** 2026-11-09
+- **Severidade:** alta
+- **PR:** #51
+
+### O que aconteceu
+
+Teste manual no browser: a área onde o QR code deveria aparecer vinha em branco, mesmo a página renderizando normalmente e o resto do formulário funcionando. Duas causas raiz distintas, encontradas em duas rodadas de teste manual (a primeira correção não foi suficiente sozinha).
+
+### Causa raiz
+
+1. `TwoFactorsController#qr_code_svg` chamava `RQRCode::QRCode#as_svg` com `standalone: false` — essa opção da gem `rqrcode` faz o método devolver **só o `<path>` cru**, sem nenhuma tag `<svg>` envolvendo (é pensada pra quando quem chama já tem um `<svg>` próprio e só quer embutir o desenho dentro). `svg_attributes: { role: "img", ... }` também ficava sem efeito nenhum, porque não existe elemento `<svg>` pra aplicar esses atributos. O frontend (`Admin/TwoFactor/New.tsx`) injeta esse valor via `dangerouslySetInnerHTML` dentro de um `<div>` comum — um `<path>` solto, fora de qualquer contexto `<svg>`, não tem namespace válido e o navegador simplesmente não desenha nada.
+2. Corrigido o primeiro problema, o QR code **ainda** não aparecia — só uma área branca pequena. `viewbox: true` faz `as_svg` emitir `viewBox="0 0 W H"` no lugar de `width`/`height` explícitos. Isso funciona quando o CSS do contexto dá um tamanho ao `<svg>`, mas este é injetado cru via `dangerouslySetInnerHTML` (fora do alcance de qualquer classe Tailwind) dentro de um `<div className="w-fit ...">` — sem `width`/`height` nem CSS nenhum direcionando o elemento, o tamanho renderizado fica ambíguo entre navegadores, pequeno demais pra mostrar o desenho.
+
+Esse método já existia no backend desde a PR do 2FA original (`docs/adr/0013`), mas nunca tinha sido exercitado de ponta a ponta — a página que o consome só foi criada nesta PR, então os dois bugs ficaram invisíveis até agora.
+
+### Como foi encontrado
+
+Teste manual no browser real, fora do Vitest/jsdom (que nunca rasteriza SVG de verdade, só confirma que o elemento existe no DOM) — a área do QR code aparecia em branco nas duas rodadas, apesar do resto da página renderizar normalmente.
+
+### Impacto
+
+Bloqueava completamente o fluxo de ativar 2FA pela UI — o admin nunca consegue escanear um QR code que não existe visualmente. A URI de provisionamento em texto (alternativa manual) continuava funcionando, mas o caminho principal (escanear) ficava quebrado sem nenhum erro visível, e nenhum teste automatizado pegava isso (ver "Verificação").
+
+### Correção
+
+1. Removida a opção `standalone: false` — `as_svg` passa a usar o padrão da gem (`standalone: true`), que inclui a tag `<svg>...</svg>` completa.
+2. Removida também a opção `viewbox: true` — `as_svg` passa a usar o padrão da gem (`viewbox: false`), emitindo `width`/`height` em pixel explícitos no próprio `<svg>`, sem depender de nenhum CSS externo pra ter tamanho visível.
+
+### Verificação
+
+Teste novo em `spec/requests/admin/two_factors_spec.rb` ("gera um qr_code_svg visível") extrai o prop `qr_code_svg` do JSON embutido na resposta (`data-page`) e confirma `<svg`/`</svg>` e `width="\d+"`/`height="\d+"` — confirmado vermelho restaurando `standalone: false` e, separadamente, `viewbox: true` de propósito, verde com a correção final. O teste original (`GET .../new`, "gera um secret TOTP novo") só checava o `otp_secret` no banco, nunca o conteúdo do SVG retornado — por isso não pegava nenhum dos dois bugs; é exatamente o tipo de lacuna que só aparece testando visualmente no browser, não só com specs. Confirmação visual final (QR code de fato legível por um app autenticador) depende de teste manual no browser, que esta sessão não teve como fazer sozinha (sem MCP de browser conectado).

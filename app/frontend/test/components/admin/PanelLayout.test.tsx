@@ -9,8 +9,12 @@ const { routerDeleteMock, usePageMock } = vi.hoisted(() => ({
   routerDeleteMock: vi.fn(),
   usePageMock: vi.fn<
     () => {
-      props: { current_admin_permissions: string[] };
+      props: {
+        current_admin_permissions: string[];
+        current_admin_two_factor_enabled: boolean;
+      };
       flash?: { notice?: string; alert?: string };
+      component: string;
     }
   >(),
 }));
@@ -21,10 +25,23 @@ vi.mock("@inertiajs/react", () => ({
   usePage: () => usePageMock(),
 }));
 
+// Com 2FA ativo (igual à maioria dos testes, que não são sobre o aviso
+// obrigatório) e numa página qualquer fora do fluxo de setup — sem isso, o
+// Dialog apareceria e esconderia o resto da página via aria-hidden
+// (hideOthers do Radix), quebrando getByRole nos testes que não são sobre
+// o próprio Dialog.
+const defaultPageProps = {
+  props: {
+    current_admin_permissions: [] as string[],
+    current_admin_two_factor_enabled: true,
+  },
+  component: "Admin/Dashboard/Show",
+};
+
 describe("PanelLayout", () => {
   beforeEach(() => {
     routerDeleteMock.mockClear();
-    usePageMock.mockReturnValue({ props: { current_admin_permissions: [] } });
+    usePageMock.mockReturnValue(defaultPageProps);
   });
 
   it("renderiza a marca e o conteúdo", () => {
@@ -48,8 +65,6 @@ describe("PanelLayout", () => {
   });
 
   it("não mostra o link Gerenciar admins sem a permissão manage_admins", () => {
-    usePageMock.mockReturnValue({ props: { current_admin_permissions: [] } });
-
     render(<PanelLayout title="Painel">{null}</PanelLayout>);
 
     expect(
@@ -59,7 +74,11 @@ describe("PanelLayout", () => {
 
   it("mostra o link Gerenciar admins com a permissão manage_admins", () => {
     usePageMock.mockReturnValue({
-      props: { current_admin_permissions: ["manage_admins"] },
+      ...defaultPageProps,
+      props: {
+        ...defaultPageProps.props,
+        current_admin_permissions: ["manage_admins"],
+      },
     });
 
     render(<PanelLayout title="Painel">{null}</PanelLayout>);
@@ -69,9 +88,15 @@ describe("PanelLayout", () => {
     ).toBeInTheDocument();
   });
 
+  it("mostra o link Perfil sempre, independente de permissão", () => {
+    render(<PanelLayout title="Painel">{null}</PanelLayout>);
+
+    expect(screen.getByRole("link", { name: "Perfil" })).toBeInTheDocument();
+  });
+
   it("mostra o flash de notice quando presente", () => {
     usePageMock.mockReturnValue({
-      props: { current_admin_permissions: [] },
+      ...defaultPageProps,
       flash: { notice: "Admin criado com sucesso" },
     });
 
@@ -84,12 +109,55 @@ describe("PanelLayout", () => {
 
   it("mostra o flash de alert quando presente", () => {
     usePageMock.mockReturnValue({
-      props: { current_admin_permissions: [] },
+      ...defaultPageProps,
       flash: { alert: "E-mail já cadastrado" },
     });
 
     render(<PanelLayout title="Painel">{null}</PanelLayout>);
 
     expect(screen.getByRole("alert")).toHaveTextContent("E-mail já cadastrado");
+  });
+
+  describe("aviso obrigatório de 2FA", () => {
+    it("aparece quando o admin não tem 2FA ativo", () => {
+      usePageMock.mockReturnValue({
+        ...defaultPageProps,
+        props: {
+          ...defaultPageProps.props,
+          current_admin_two_factor_enabled: false,
+        },
+      });
+
+      render(<PanelLayout title="Painel">{null}</PanelLayout>);
+
+      expect(
+        screen.getByText("Autenticação de dois fatores obrigatória"),
+      ).toBeInTheDocument();
+    });
+
+    it("não aparece quando o admin já tem 2FA ativo", () => {
+      render(<PanelLayout title="Painel">{null}</PanelLayout>);
+
+      expect(
+        screen.queryByText("Autenticação de dois fatores obrigatória"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("não aparece nas próprias páginas de configurar o 2FA, mesmo sem 2FA ativo", () => {
+      usePageMock.mockReturnValue({
+        ...defaultPageProps,
+        props: {
+          ...defaultPageProps.props,
+          current_admin_two_factor_enabled: false,
+        },
+        component: "Admin/TwoFactor/New",
+      });
+
+      render(<PanelLayout title="Painel">{null}</PanelLayout>);
+
+      expect(
+        screen.queryByText("Autenticação de dois fatores obrigatória"),
+      ).not.toBeInTheDocument();
+    });
   });
 });

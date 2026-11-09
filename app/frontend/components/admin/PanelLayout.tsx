@@ -4,10 +4,24 @@ import { useTranslation } from "react-i18next";
 
 import Banner from "@/components/shared/banner/Banner";
 import Button from "@/components/shared/button/Button";
+import Dialog from "@/components/shared/dialog/Dialog";
 import Link from "@/components/shared/link/Link";
 import ThemeToggle from "@/components/shared/theme-toggle/ThemeToggle";
-import { admin_admins_path, admin_session_path } from "@/routes";
+import {
+  admin_admins_path,
+  admin_profile_path,
+  admin_session_path,
+  new_admin_two_factor_path,
+} from "@/routes";
 import { type FlashData, type SharedProps } from "@/types";
+
+// Páginas do próprio fluxo de ativar o 2FA — o aviso obrigatório não
+// aparece nelas, senão o próprio caminho pra resolver o aviso ficaria
+// bloqueado visualmente por ele (docs/adr/0023).
+const TWO_FACTOR_SETUP_PAGES = [
+  "Admin/TwoFactor/New",
+  "Admin/TwoFactor/RecoveryCodes",
+];
 
 export default function PanelLayout({
   title,
@@ -17,11 +31,20 @@ export default function PanelLayout({
   children: ReactNode;
 }) {
   const { t } = useTranslation();
-  const { props: pageProps, flash } = usePage<SharedProps>() as {
+  const {
+    props: pageProps,
+    flash,
+    component,
+  } = usePage<SharedProps>() as {
     props: SharedProps;
     flash?: FlashData;
+    component: string;
   };
-  const { current_admin_permissions } = pageProps;
+  const { current_admin_permissions, current_admin_two_factor_enabled } =
+    pageProps;
+  const showTwoFactorRequiredDialog =
+    !current_admin_two_factor_enabled &&
+    !TWO_FACTOR_SETUP_PAGES.includes(component);
 
   const signOut = () => {
     router.delete(admin_session_path());
@@ -43,6 +66,9 @@ export default function PanelLayout({
                 {t("shared.panelLayout.manageAdmins")}
               </Link>
             )}
+            <Link href={admin_profile_path()}>
+              {t("shared.panelLayout.profile")}
+            </Link>
             <ThemeToggle />
             <Button type="button" intent="ghost" onClick={signOut}>
               {t("shared.panelLayout.signOut")}
@@ -56,6 +82,18 @@ export default function PanelLayout({
         {flash?.alert && <Banner tone="alert">{flash.alert}</Banner>}
         {children}
       </main>
+
+      <Dialog
+        open={showTwoFactorRequiredDialog}
+        title={t("shared.panelLayout.twoFactorRequiredTitle")}
+      >
+        <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+          {t("shared.panelLayout.twoFactorRequiredDescription")}
+        </p>
+        <Link href={new_admin_two_factor_path()}>
+          {t("shared.panelLayout.twoFactorRequiredButton")}
+        </Link>
+      </Dialog>
     </div>
   );
 }

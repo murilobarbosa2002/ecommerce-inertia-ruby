@@ -1,5 +1,10 @@
 module AdminPanel
   class TwoFactorsController < AdminPanel::BaseController
+    # Sem isso, um admin sem 2FA nunca conseguiria ativar o próprio 2FA
+    # (docs/adr/0023) — create/destroy são as únicas mutações que um admin
+    # sem 2FA precisa poder fazer.
+    skip_before_action :require_two_factor_for_mutation, only: %i[create destroy]
+
     def new
       if Current.admin.otp_required_for_login?
         # Sem essa guarda, revisitar esta página com o 2FA já ativo
@@ -11,7 +16,6 @@ module AdminPanel
       end
 
       AdminTwoFactor::GenerateSecret.call(admin: Current.admin)
-      # PENDING-FRONTEND: página Inertia ainda não existe (PR7).
       render inertia: "Admin/TwoFactor/New", props: {
         provisioning_uri: provisioning_uri,
         qr_code_svg: qr_code_svg
@@ -24,8 +28,7 @@ module AdminPanel
       )
 
       if recovery_codes
-        # PENDING-FRONTEND: página Inertia ainda não existe (PR7). Códigos só
-        # existem neste retorno — nunca mais recuperáveis depois.
+        # Códigos só existem neste retorno — nunca mais recuperáveis depois.
         render inertia: "Admin/TwoFactor/RecoveryCodes", props: { recovery_codes: recovery_codes }
       else
         redirect_to new_admin_two_factor_path, alert: I18n.t("admin.two_factors.create.invalid_code")
@@ -59,10 +62,18 @@ module AdminPanel
 
     def qr_code_svg
       RQRCode::QRCode.new(provisioning_uri).as_svg(
-        standalone: false,
+        # standalone: true (padrão da gem) é o que de fato inclui a tag
+        # <svg>...</svg> — com false, rqrcode devolve só o <path> cru, sem
+        # elemento <svg> nenhum pra aplicar width/height/viewBox/
+        # svg_attributes, e o navegador não renderiza nada visível (bug
+        # real: docs/bugs/two-factor-authentication.md). viewbox: false (o
+        # oposto do que estava antes) pelo mesmo motivo: sem width/height
+        # explícitos, só viewBox, o <svg> solto (fora do alcance de classe
+        # Tailwind, injetado via dangerouslySetInnerHTML) fica sem tamanho
+        # garantido em todo navegador — width/height em pixel elimina essa
+        # ambiguidade.
         use_path: true,
         module_size: 4,
-        viewbox: true,
         svg_attributes: { role: "img", "aria-label": I18n.t("admin.two_factors.new.qr_code_alt") }
       )
     end

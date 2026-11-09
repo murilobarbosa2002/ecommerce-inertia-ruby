@@ -3,6 +3,11 @@ require "rails_helper"
 RSpec.describe "Admin::Admins", type: :request do
   def sign_in(admin)
     post admin_session_path, params: { email_address: admin.email_address, password: AdminCredentials::VALID_PASSWORD }
+    return unless admin.otp_required_for_login?
+
+    # Com 2FA ativo, a senha certa só deixa o login "pendente" — precisa
+    # confirmar o código TOTP pra criar a AdminSession de verdade.
+    post admin_two_factor_authentication_path, params: { otp_code: ROTP::TOTP.new(admin.otp_secret).now }
   end
 
   let(:manage_admins) { create(:permission, key: "manage_admins") }
@@ -23,7 +28,7 @@ RSpec.describe "Admin::Admins", type: :request do
     end
 
     it "permite GET /admin/admins pra admin com a permissão manage_admins" do
-      admin = create(:admin, role: role_with_permission)
+      admin = create(:admin, :with_two_factor_enabled, role: role_with_permission)
       sign_in(admin)
 
       get admin_admins_path
@@ -34,7 +39,7 @@ RSpec.describe "Admin::Admins", type: :request do
 
   describe "GET /admin/admins" do
     it "lista os admins existentes" do
-      admin = create(:admin, role: role_with_permission)
+      admin = create(:admin, :with_two_factor_enabled, role: role_with_permission)
       sign_in(admin)
       create(:admin, email_address: "outro@example.com", role: role_without_permission)
 
@@ -46,7 +51,7 @@ RSpec.describe "Admin::Admins", type: :request do
 
   describe "POST /admin/admins" do
     it "cria um admin novo com os dados enviados" do
-      admin = create(:admin, role: role_with_permission)
+      admin = create(:admin, :with_two_factor_enabled, role: role_with_permission)
       sign_in(admin)
 
       expect do
@@ -64,7 +69,7 @@ RSpec.describe "Admin::Admins", type: :request do
     end
 
     it "registra o motivo digitado na versão do PaperTrail" do
-      admin = create(:admin, role: role_with_permission)
+      admin = create(:admin, :with_two_factor_enabled, role: role_with_permission)
       sign_in(admin)
 
       post admin_admins_path, params: {
@@ -79,7 +84,7 @@ RSpec.describe "Admin::Admins", type: :request do
     end
 
     it "não cria e redireciona de volta quando o e-mail já existe" do
-      admin = create(:admin, role: role_with_permission)
+      admin = create(:admin, :with_two_factor_enabled, role: role_with_permission)
       sign_in(admin)
       create(:admin, email_address: "duplicado@example.com")
 
@@ -100,7 +105,7 @@ RSpec.describe "Admin::Admins", type: :request do
 
   describe "GET /admin/admins/:id/edit" do
     it "renderiza o formulário de edição do admin" do
-      admin = create(:admin, role: role_with_permission)
+      admin = create(:admin, :with_two_factor_enabled, role: role_with_permission)
       sign_in(admin)
       target = create(:admin, email_address: "editar@example.com", role: role_without_permission)
 
@@ -112,7 +117,7 @@ RSpec.describe "Admin::Admins", type: :request do
 
   describe "PATCH /admin/admins/:id" do
     it "atualiza o e-mail com motivo, registrando versão no PaperTrail" do
-      admin = create(:admin, role: role_with_permission)
+      admin = create(:admin, :with_two_factor_enabled, role: role_with_permission)
       sign_in(admin)
       target = create(:admin, email_address: "antigo@example.com", role: role_without_permission)
 
@@ -128,7 +133,7 @@ RSpec.describe "Admin::Admins", type: :request do
     end
 
     it "não atualiza e redireciona de volta sem motivo quando o e-mail muda" do
-      admin = create(:admin, role: role_with_permission)
+      admin = create(:admin, :with_two_factor_enabled, role: role_with_permission)
       sign_in(admin)
       target = create(:admin, email_address: "antigo@example.com", role: role_without_permission)
 
@@ -144,7 +149,7 @@ RSpec.describe "Admin::Admins", type: :request do
     end
 
     it "atualiza o papel com motivo, registrando versão no PaperTrail" do
-      admin = create(:admin, role: role_with_permission)
+      admin = create(:admin, :with_two_factor_enabled, role: role_with_permission)
       sign_in(admin)
       other_role = create(:role)
       target = create(:admin, role: role_without_permission)
@@ -165,7 +170,7 @@ RSpec.describe "Admin::Admins", type: :request do
     end
 
     it "não atualiza e redireciona de volta sem motivo quando o papel muda" do
-      admin = create(:admin, role: role_with_permission)
+      admin = create(:admin, :with_two_factor_enabled, role: role_with_permission)
       sign_in(admin)
       other_role = create(:role)
       target = create(:admin, role: role_without_permission)

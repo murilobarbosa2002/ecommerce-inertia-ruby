@@ -48,6 +48,10 @@ Registro completo e detalhado de todo bug real encontrado neste projeto, organiz
 | 2026-11-09 | Testes e ferramentas | `react/prop-types` aponta falso positivo quando `usePage().props` é desestruturado como `props` | Baixa | #48 | [testing-and-tooling.md](testing-and-tooling.md) |
 | 2026-11-09 | Infraestrutura | PR do Dependabot sempre falhava no job `test` por falta de `RAILS_MASTER_KEY` | Alta | #49 | [infrastructure.md](infrastructure.md) |
 | 2026-11-09 | Audit logging | Trocar o papel de um admin não gerava nenhum registro de auditoria | Alta | #50 | [audit-logging.md](audit-logging.md) |
+| 2026-11-09 | I18n e validação | Dois campos de "senha atual" na mesma página com o mesmo label | Baixa | #51 | [i18n-and-data-validation.md](i18n-and-data-validation.md) |
+| 2026-11-09 | I18n e validação | Trocar senha autenticado "passaria" sem trocar nada com um password em branco | Média | #51 | [i18n-and-data-validation.md](i18n-and-data-validation.md) |
+| 2026-11-09 | Estrutura de código | `request.get?` sozinho trata requisição HEAD como mutação | Baixa | #51 | [code-structure.md](code-structure.md) |
+| 2026-11-09 | 2FA | QR code de configuração do 2FA não aparecia na tela | Alta | #51 | [two-factor-authentication.md](two-factor-authentication.md) |
 
 ## Categorias
 

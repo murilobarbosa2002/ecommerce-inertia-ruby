@@ -10,7 +10,13 @@ const { routerPatchMock } = vi.hoisted(() => ({ routerPatchMock: vi.fn() }));
 vi.mock("@inertiajs/react", () => ({
   Head: () => null,
   router: { patch: routerPatchMock },
-  usePage: () => ({ props: { current_admin_permissions: ["manage_admins"] } }),
+  usePage: () => ({
+    props: {
+      current_admin_permissions: ["manage_admins"],
+      current_admin_two_factor_enabled: true,
+    },
+    component: "test",
+  }),
 }));
 
 const roles = [

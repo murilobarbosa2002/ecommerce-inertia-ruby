@@ -1,6 +1,8 @@
 module AdminPanel
   class SessionsController < AdminPanel::BaseController
     allow_unauthenticated_admin_access only: %i[new create]
+    # Sempre pode deslogar, com ou sem 2FA ativo (docs/adr/0023).
+    skip_before_action :require_two_factor_for_mutation, only: :destroy
 
     def new
       render inertia: "Admin/Session/New"
@@ -26,9 +28,6 @@ module AdminPanel
         AuditEvents::RecordAuditEvent.call(event_type: :login_succeeded, admin: admin, request: request)
         redirect_to after_admin_authentication_url
       else
-        # PENDING-FRONTEND: este flash não chega na UI ainda — nenhum
-        # controller compartilha `flash` com o Inertia. Ver docs/adr/0013,
-        # seção "Pendências de backend".
         redirect_to new_admin_session_path, alert: I18n.t("admin.sessions.create.invalid_credentials")
       end
     end

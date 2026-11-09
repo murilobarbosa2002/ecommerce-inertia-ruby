@@ -181,3 +181,33 @@ Nenhum efeito funcional observado neste caso específico, mas é sinal real de u
 ### Verificação
 
 Aviso desapareceu do stderr do teste depois da correção; reproduzido de novo removendo `defaultValues` de propósito antes de restaurar.
+
+## `request.get?` sozinho trata requisição HEAD como mutação
+
+- **Data:** 2026-11-09
+- **Severidade:** baixa
+- **PR:** #51
+
+### O que aconteceu
+
+O concern `AdminPanel::RequireTwoFactor` (bloqueia mutação de admin sem 2FA ativo) usava só `request.get?` pra liberar visualização — `bundle exec brakeman` passou a sinalizar `VerbConfusion`: "`HEAD` is routed like `GET` but `request.get?` will return `false`".
+
+### Causa raiz
+
+Rails roteia `HEAD` pra qualquer rota `GET` automaticamente (mesmo handler, sem corpo na resposta), mas `request.get?` checa literalmente o método HTTP `GET` — uma requisição `HEAD` real passa pelo mesmo controller/action de uma página de visualização, mas `request.get?` retorna `false` pra ela.
+
+### Como foi encontrado
+
+`bundle exec brakeman` sinalizando `VerbConfusion` logo depois de escrever o concern, antes de qualquer teste manual com `HEAD`.
+
+### Impacto
+
+Uma requisição `HEAD` numa página de visualização qualquer (ex. o dashboard) seria tratada como mutação e bloqueada pro admin sem 2FA ativo — inofensivo na prática (navegador comum nunca manda `HEAD` pra uma página), mas incorreto e exatamente o tipo de inconsistência que detecção automatizada existe pra pegar antes de virar bug real em produção.
+
+### Correção
+
+`request.get? || request.head?` na guarda do concern.
+
+### Verificação
+
+`bundle exec brakeman` limpo (0 warnings) depois da correção; teste novo em `spec/requests/admin/require_two_factor_spec.rb` fazendo `head root_path` e confirmando `200 OK`.

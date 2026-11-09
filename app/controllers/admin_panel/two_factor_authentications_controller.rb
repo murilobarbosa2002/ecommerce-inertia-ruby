@@ -4,7 +4,6 @@ module AdminPanel
     before_action :set_pending_admin
 
     def new
-      # PENDING-FRONTEND: página Inertia ainda não existe (PR7).
       render inertia: "Admin/TwoFactorAuthentication/New"
     end
 

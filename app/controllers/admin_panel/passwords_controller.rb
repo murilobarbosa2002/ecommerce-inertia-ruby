@@ -4,7 +4,6 @@ module AdminPanel
     before_action :set_admin_by_token, only: %i[edit update]
 
     def new
-      # PENDING-FRONTEND: página Inertia ainda não existe (PR7).
       render inertia: "Admin/Password/New"
     end
 
@@ -25,7 +24,6 @@ module AdminPanel
     end
 
     def edit
-      # PENDING-FRONTEND: página Inertia ainda não existe (PR7).
       render inertia: "Admin/Password/Edit", props: { token: params[:token] }
     end
 

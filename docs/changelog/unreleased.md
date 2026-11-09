@@ -21,6 +21,7 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 - Controle de acesso por papel (RBAC): cada admin tem um papel (`Role`) com um conjunto de permissões configurável, em vez de acesso irrestrito pra qualquer admin autenticado. `bin/rails admin:create` passa a exigir que o banco já tenha sido inicializado (`bin/rails db:seed`) antes de criar o primeiro admin.
 - Primeira tela do painel autenticado (dashboard, ainda placeholder), com navegação própria (marca, alternância de tema, sair) — a raiz do site (`/`) passa a mostrar essa tela pro admin logado, em vez de só redirecionar pro login.
 - Tela de gerenciar admins (listar, criar e editar), restrita a quem tem a permissão correspondente no papel — criar um admin pede motivo da criação (auditável) e tem um gerador de senha aleatória configurável (maiúsculas, números, caracteres especiais, quantidade de caracteres), com botão de copiar.
+- Telas de configurar o 2FA (QR code + confirmação do app autenticador) e de códigos de recuperação, e tela de perfil do admin (trocar a senha, ver status do 2FA e desativá-lo). Os códigos de recuperação podem ser baixados como `.txt` ou como imagem, além de aparecerem na tela.
 
 ## Corrigido
 
@@ -36,3 +37,4 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 
 - Eventos de auditoria de login foram divididos em `password_verified`/`login_succeeded`/`reauthentication_failed` para maior precisão (antes, contextos diferentes — senha certa mas 2FA pendente, reautenticação pra desativar 2FA — compartilhavam o mesmo `event_type` que outra situação já usava).
 - A raiz do site (`/`) deixou de exibir a página de exemplo padrão do Inertia Rails e passou a redirecionar para o login do admin, único fluxo real disponível até a loja/painel existirem.
+- A obrigatoriedade do 2FA pra conta admin passa a ter efeito de verdade: criar conta/logar continuam funcionando sem o 2FA ativo, mas qualquer outra ação no painel fica bloqueada até ativar — um aviso aparece assim que o admin loga, explicando o motivo e levando direto pra tela de configurar. Trocar a senha pela tela de perfil desloga todas as sessões ativas da conta, igual ao fluxo de redefinir senha por e-mail.
