@@ -10,6 +10,7 @@ import ThemeToggle from "@/components/shared/theme-toggle/ThemeToggle";
 import {
   admin_admins_path,
   admin_profile_path,
+  admin_roles_path,
   admin_session_path,
   new_admin_two_factor_path,
 } from "@/routes";
@@ -64,6 +65,11 @@ export default function PanelLayout({
             {current_admin_permissions.includes("manage_admins") && (
               <Link href={admin_admins_path()}>
                 {t("shared.panelLayout.manageAdmins")}
+              </Link>
+            )}
+            {current_admin_permissions.includes("manage_roles") && (
+              <Link href={admin_roles_path()}>
+                {t("shared.panelLayout.manageRoles")}
               </Link>
             )}
             <Link href={admin_profile_path()}>

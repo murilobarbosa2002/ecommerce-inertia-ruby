@@ -181,3 +181,37 @@ Trocar o papel de um admin é uma mudança de **permissão**, não um detalhe co
 ### Verificação
 
 Dois specs novos em `spec/requests/admin/admins_spec.rb` ("atualiza o papel com motivo, registrando versão no PaperTrail", "não atualiza e redireciona de volta sem motivo quando o papel muda") confirmados vermelhos antes da correção (nenhuma versão criada; troca de papel passava sem motivo nenhum) e verdes depois.
+
+## Revogar permissão de um papel não deixava rastro, e conceder perdia o motivo
+
+- **Data:** 2026-11-09
+- **Severidade:** alta
+- **PR:** #52
+
+### O que aconteceu
+
+Revisão deliberada da cobertura de auditoria desta própria PR (antes do primeiro commit, mesmo racional já usado pro bug de `role_id` acima) encontrou dois problemas reais na auditoria de `RolePermission` (quem ganhou/perdeu qual permissão em qual papel):
+
+1. **Revogar uma permissão não gerava nenhuma versão no PaperTrail.** Confirmado empiricamente: `role.update!(permission_ids: [...removendo um id...])` reduzia `RolePermission.count` de verdade, mas `PaperTrail::Version.where(item_type: "RolePermission").count` não mudava — o registro simplesmente desaparecia do banco sem deixar rastro nenhum (nem quem, nem quando, nem por quê).
+2. **Conceder uma permissão gerava versão, mas sem o motivo digitado.** O `change_reason` que o admin digitava (obrigatório pela validação do `Role`) era validado como presente e depois descartado — não ficava gravado em nenhuma versão. A versão do `Role` pai só é criada quando `name` muda (`has_paper_trail only: [:name]`); quando só a lista de permissões muda, o `Role` não gera versão nenhuma, e a versão do `RolePermission` não tinha `change_reason` wireado pra lugar nenhum.
+
+### Causa raiz
+
+1. O Rails tem duas estratégias de remoção pra `has_many :through`: se a associação não-through declara `dependent: :destroy`, remover um item do `through` (`permission_ids=`, `permissions=`) chama `.destroy` em cada registro removido (passa por todo o callback chain, inclusive o do PaperTrail); sem isso, o padrão é um `scope.delete_all` — `DELETE` em lote direto no banco, que nunca dispara callback nenhum. `has_many :permissions, through: :role_permissions` não tinha `dependent: :destroy` declarado (só `:role_permissions` tinha, o que não é suficiente — esse `dependent:` só afeta o que acontece quando o `Role` inteiro é destruído, não quando um membro é removido da lista).
+2. `RolePermission` tinha `has_paper_trail` sem nenhum `meta:` — nada lia o `change_reason` de lugar nenhum pra gravar na versão. A opção óbvia (duplicar `change_reason` como atributo próprio do `RolePermission`) não era necessária: o Rails resolve `belongs_to :role` pro mesmo objeto em memória que `Role#permission_ids=` está manipulando (via `inverse_of` automático), então `record.role.change_reason` já enxerga o motivo digitado sem precisar duplicá-lo.
+
+### Como foi encontrado
+
+Mesma revisão deliberada de cobertura de auditoria do bug anterior (`role_id`), desta vez aplicada à própria PR em andamento, investigando empiricamente com `bin/rails runner`/specs de investigação antes de escrever qualquer teste real: criar um papel com permissões, atualizar só a lista de permissões (sem renomear), e revogar uma permissão — checando `PaperTrail::Version` depois de cada operação.
+
+### Impacto
+
+Quem ganha ou perde uma permissão (ex. `manage_admins`, `delete_admins`) é exatamente a informação mais sensível que um sistema de RBAC precisa conseguir auditar — é a definição de "quem pode fazer o quê". Sem a correção, revogar uma permissão de um papel (ex. tirar `manage_roles` de alguém depois de um incidente) não deixava absolutamente nenhum vestígio, e conceder uma permissão registrava quem/quando mas nunca o porquê, mesmo o formulário exigindo esse motivo.
+
+### Correção
+
+`has_many :permissions, through: :role_permissions, dependent: :destroy` em `app/models/role.rb` (força o Rails a destruir cada `RolePermission` removido individualmente, com callback). `has_paper_trail meta: { change_reason: proc { |record| record.role.change_reason } }` em `app/models/role_permission.rb` (lê o motivo do `Role` pai em memória, sem duplicar o atributo).
+
+### Verificação
+
+Dois specs em `spec/requests/admin/roles_spec.rb`: o teste existente de concessão foi reforçado pra checar `change_reason`/`whodunnit` da versão, não só o `event`; um teste novo de revogação confirma que uma versão de `destroy` é criada com `whodunnit`/`change_reason` corretos mesmo o registro sendo removido do banco. Ambos confirmados vermelhos revertendo as duas linhas da correção de propósito (motivo descartado num, nenhuma versão de destroy no outro) e verdes com elas restauradas.

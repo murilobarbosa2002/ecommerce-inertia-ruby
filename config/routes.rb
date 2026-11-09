@@ -53,6 +53,12 @@ Rails.application.routes.draw do
     # teste) não é mais necessário a partir daqui.
     resources :admins, only: %i[index new create edit update]
 
+    # Gerenciar papéis e quais permissões cada um tem — gated por
+    # require_permission :manage_roles (docs/adr/0021). Toda permissão
+    # nova (reset_two_factor, manage_store_settings, etc.) só é atribuível
+    # a um papel através desta tela, nunca hardcoded/por rails console.
+    resources :roles, only: %i[index new create edit update]
+
     # Perfil do próprio admin autenticado (trocar senha) — singular, não tem
     # :id porque é sempre o Current.admin, nunca outro registro.
     resource :profile, only: %i[show update]

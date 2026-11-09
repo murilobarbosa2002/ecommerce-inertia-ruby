@@ -181,3 +181,33 @@ Guarda explícita (`params[:password].blank?`) antes de chamar `admin.update`, c
 ### Verificação
 
 Teste em `spec/requests/admin/profiles_spec.rb` ("não troca a senha quando a nova senha vem em branco") confirmado vermelho removendo a guarda de propósito, verde com ela restaurada.
+
+## Atributos do model `Role` sem tradução pt-BR, erro de validação aparecia em inglês
+
+- **Data:** 2026-11-09
+- **Severidade:** baixa
+- **PR:** #52
+
+### O que aconteceu
+
+Ao testar a mensagem de erro de `change_reason` em branco numa atualização do `Role` (ex. ao editar só a lista de permissões, sem mudar o nome), a mensagem veio como `"Change reason não pode ficar em branco"` em vez de `"Motivo da alteração não pode ficar em branco"` — metade em inglês, metade em português.
+
+### Causa raiz
+
+`config/locales/pt-BR.yml` só tinha a chave `activerecord.attributes.admin.change_reason` traduzida (adicionada quando `Admin` ganhou `tracked_by_change_reason`). Quando o mesmo concern (`ChangeReasonRequired`) foi incluído em `Role` (PR #50/PR atual), o Rails caiu no fallback de humanizar o nome do atributo em inglês (`change_reason` → `"Change reason"`) por falta de uma chave equivalente sob `activerecord.attributes.role`.
+
+### Como foi encontrado
+
+Escrevendo o teste de regressão que confirma a exigência de `change_reason` numa atualização do `Role` que só altera permissões (sem mudar `name`) — o teste comparava a mensagem completa esperada em português, não um valor genérico, e falhou mostrando o texto misto.
+
+### Impacto
+
+Baixo, mas real: qualquer admin usando a tela de papéis (PR de gerenciar papéis e permissões) veria uma mensagem de validação parcialmente em inglês — mesma classe de problema já documentado nesta categoria pra `password_too_long`, mas em código do próprio projeto, não de uma gem.
+
+### Correção
+
+Chaves `activerecord.attributes.role.name`/`change_reason` adicionadas em `config/locales/pt-BR.yml`, ao lado das equivalentes de `admin`.
+
+### Verificação
+
+Teste em `spec/requests/admin/roles_spec.rb` ("exige motivo da alteração mesmo quando só a lista de permissões muda") comparando a mensagem completa esperada — confirmado vermelho antes da tradução existir, verde depois.
