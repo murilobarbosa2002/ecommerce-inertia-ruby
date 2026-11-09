@@ -142,5 +142,43 @@ RSpec.describe "Admin::Admins", type: :request do
       expect(response).to redirect_to(edit_admin_admin_path(target))
       expect(flash[:alert]).to eq("Motivo da alteração não pode ficar em branco")
     end
+
+    it "atualiza o papel com motivo, registrando versão no PaperTrail" do
+      admin = create(:admin, role: role_with_permission)
+      sign_in(admin)
+      other_role = create(:role)
+      target = create(:admin, role: role_without_permission)
+
+      expect do
+        patch admin_admin_path(target), params: {
+          email_address: target.email_address,
+          role_id: other_role.id,
+          change_reason: "Promovido pra outro papel"
+        }
+      end.to change { target.reload.versions.count }.by(1)
+
+      expect(target.role_id).to eq(other_role.id)
+      expect(target.versions.last.change_reason).to eq("Promovido pra outro papel")
+      expect(target.versions.last.changeset["role_id"]).to eq(
+        [ role_without_permission.id, other_role.id ],
+      )
+    end
+
+    it "não atualiza e redireciona de volta sem motivo quando o papel muda" do
+      admin = create(:admin, role: role_with_permission)
+      sign_in(admin)
+      other_role = create(:role)
+      target = create(:admin, role: role_without_permission)
+
+      patch admin_admin_path(target), params: {
+        email_address: target.email_address,
+        role_id: other_role.id,
+        change_reason: ""
+      }
+
+      expect(target.reload.role_id).to eq(role_without_permission.id)
+      expect(response).to redirect_to(edit_admin_admin_path(target))
+      expect(flash[:alert]).to eq("Motivo da alteração não pode ficar em branco")
+    end
   end
 end

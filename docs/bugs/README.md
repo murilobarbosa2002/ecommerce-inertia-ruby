@@ -47,6 +47,7 @@ Registro completo e detalhado de todo bug real encontrado neste projeto, organiz
 | 2026-11-09 | Testes e ferramentas | `userEvent.setup()` substitui `navigator.clipboard` por um stub próprio | Média | #48 | [testing-and-tooling.md](testing-and-tooling.md) |
 | 2026-11-09 | Testes e ferramentas | `react/prop-types` aponta falso positivo quando `usePage().props` é desestruturado como `props` | Baixa | #48 | [testing-and-tooling.md](testing-and-tooling.md) |
 | 2026-11-09 | Infraestrutura | PR do Dependabot sempre falhava no job `test` por falta de `RAILS_MASTER_KEY` | Alta | #49 | [infrastructure.md](infrastructure.md) |
+| 2026-11-09 | Audit logging | Trocar o papel de um admin não gerava nenhum registro de auditoria | Alta | #50 | [audit-logging.md](audit-logging.md) |
 
 ## Categorias
 

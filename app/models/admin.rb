@@ -1,6 +1,6 @@
 class Admin < ApplicationRecord
   include ChangeReasonRequired
-  tracked_by_change_reason :email_address
+  tracked_by_change_reason :email_address, :role_id
 
   has_secure_password
   belongs_to :role

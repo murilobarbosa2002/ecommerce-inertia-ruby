@@ -30,6 +30,7 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 - Revisitar a tela de configuração do 2FA deixou de sobrescrever o secret já ativo, o que podia travar o login do próprio admin.
 - Unicidade de e-mail do admin passou a ignorar diferença de maiúsculas/minúsculas.
 - Atualização do Rails para `8.1.4.1`, corrigindo múltiplos CVEs (um crítico, de leitura/escrita arbitrária de arquivo) divulgados após o lançamento do `8.1.4`.
+- Trocar o papel de um admin passou a exigir motivo explícito e gerar versão no histórico, igual à troca de e-mail (antes não deixava nenhum registro).
 
 ## Alterado
 
