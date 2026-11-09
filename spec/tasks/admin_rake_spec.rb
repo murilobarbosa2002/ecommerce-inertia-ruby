@@ -52,3 +52,43 @@ RSpec.describe "admin:create", type: :task do
     end
   end
 end
+
+RSpec.describe "admin:disable_two_factor", type: :task do
+  subject(:run_task) { Rake::Task["admin:disable_two_factor"].invoke(admin.email_address) }
+
+  let(:admin) { create(:admin, :with_two_factor_enabled) }
+
+  it "desativa o 2FA e limpa os códigos de recuperação" do
+    run_task
+
+    admin.reload
+    expect(admin.otp_required_for_login?).to be false
+    expect(admin.otp_secret).to be_nil
+    expect(admin.admin_recovery_codes).to be_empty
+  end
+
+  it "registra two_factor_disabled, sem performed_by_admin (acesso de shell, não sessão)" do
+    run_task
+
+    event = AuditEvent.last
+    expect(event.event_type).to eq("two_factor_disabled")
+    expect(event.admin).to eq(admin)
+    expect(event.performed_by_admin).to be_nil
+  end
+
+  context "quando o e-mail não corresponde a nenhum admin" do
+    subject(:run_task) { Rake::Task["admin:disable_two_factor"].invoke("inexistente@example.com") }
+
+    it "sai com erro, sem alterar nenhum admin" do
+      expect { run_task }.to raise_error(RakeTaskExited)
+    end
+  end
+
+  context "quando o admin já está sem 2FA ativo" do
+    let(:admin) { create(:admin) }
+
+    it "sai com erro, sem tentar desativar de novo" do
+      expect { run_task }.to raise_error(RakeTaskExited)
+    end
+  end
+end

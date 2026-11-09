@@ -155,3 +155,33 @@ Bloqueava completamente o fluxo de ativar 2FA pela UI — o admin nunca consegue
 ### Verificação
 
 Teste novo em `spec/requests/admin/two_factors_spec.rb` ("gera um qr_code_svg visível") extrai o prop `qr_code_svg` do JSON embutido na resposta (`data-page`) e confirma `<svg`/`</svg>` e `width="\d+"`/`height="\d+"` — confirmado vermelho restaurando `standalone: false` e, separadamente, `viewbox: true` de propósito, verde com a correção final. O teste original (`GET .../new`, "gera um secret TOTP novo") só checava o `otp_secret` no banco, nunca o conteúdo do SVG retornado — por isso não pegava nenhum dos dois bugs; é exatamente o tipo de lacuna que só aparece testando visualmente no browser, não só com specs. Confirmação visual final (QR code de fato legível por um app autenticador) depende de teste manual no browser, que esta sessão não teve como fazer sozinha (sem MCP de browser conectado).
+
+## Resetar o 2FA de outro admin não validava se o alvo já estava sem 2FA ativo
+
+- **Data:** 2026-11-09
+- **Severidade:** baixa
+- **PR:** #54
+
+### O que aconteceu
+
+`AdminPanel::AdminsController#reset_two_factor` (botão "Resetar 2FA" na tela de editar admin) chamava `AdminTwoFactor::DisableTwoFactor.call(admin: target, ...)` sem checar se `target` já estava com `otp_required_for_login?` falso. A rake task de último recurso (`bin/rails admin:disable_two_factor`, implementada na mesma PR) tinha essa checagem desde o início — só o controller ficou sem.
+
+### Causa raiz
+
+`AdminTwoFactor::DisableTwoFactor` (o service reaproveitado pelos dois pontos de entrada) não valida esse caso sozinho: ele só zera `otp_required_for_login`/`otp_secret`/`last_otp_at` e destrói os códigos de recuperação — chamar isso num admin que já está assim não falha, só não muda nada de fato. Sem uma guarda explícita em cada ponto de entrada, clicar "Resetar 2FA" numa conta que já não tem 2FA ativo "funcionava" silenciosamente, sem avisar o admin que clicou que não havia nada pra resetar.
+
+### Como foi encontrado
+
+Revisão deliberada comparando os dois pontos de entrada que chamam o mesmo service (a rake task e o controller novo) antes do commit — a rake task já tinha a checagem, o controller não, uma inconsistência entre os dois caminhos pro mesmo efeito.
+
+### Impacto
+
+Baixo: nenhuma consequência de segurança ou dado incorreto (o service é idempotente, não corrompe nada), mas gerava um `AuditEvent` do tipo `two_factor_reset_by_admin` registrando um reset que nunca aconteceu de fato — poluindo o histórico de auditoria com um evento que sugere uma ação real sem ela ter ocorrido.
+
+### Correção
+
+Guarda `unless target.otp_required_for_login?` adicionada no controller, redirecionando com um alerta (`admin.admins.reset_two_factor.not_enabled`) antes de chamar o service — mesmo padrão já usado pela rake task.
+
+### Verificação
+
+Teste em `spec/requests/admin/admins_spec.rb` ("não reseta e avisa quando o admin alvo já está sem 2FA ativo"), confirmando que nenhum `AuditEvent` novo é criado. Confirmado vermelho removendo a guarda de propósito (o teste falhava mostrando que um `AuditEvent` era criado mesmo assim) e verde com ela restaurada.

@@ -26,5 +26,13 @@ RSpec.describe AdminTwoFactor::DisableTwoFactor do
       expect(AuditEvent.last.event_type).to eq("two_factor_disabled")
       expect(AuditEvent.last.admin).to eq(admin)
     end
+
+    it "registra o event_type informado, quando diferente do padrão" do
+      admin = create(:admin)
+
+      described_class.call(admin: admin, event_type: :two_factor_reset_by_admin)
+
+      expect(AuditEvent.last.event_type).to eq("two_factor_reset_by_admin")
+    end
   end
 end

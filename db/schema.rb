@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_07_220040) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_09_190738) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -55,8 +55,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_07_220040) do
     t.string "user_agent"
     t.jsonb "metadata", default: {}, null: false
     t.datetime "created_at", null: false
+    t.bigint "performed_by_admin_id"
     t.index [ "admin_id" ], name: "index_audit_events_on_admin_id"
     t.index [ "event_type" ], name: "index_audit_events_on_event_type"
+    t.index [ "performed_by_admin_id" ], name: "index_audit_events_on_performed_by_admin_id"
   end
 
   create_table "permissions", force: :cascade do |t|
@@ -100,6 +102,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_07_220040) do
   add_foreign_key "admin_sessions", "admins"
   add_foreign_key "admins", "roles"
   add_foreign_key "audit_events", "admins"
+  add_foreign_key "audit_events", "admins", column: "performed_by_admin_id", on_delete: :nullify
   add_foreign_key "role_permissions", "permissions"
   add_foreign_key "role_permissions", "roles"
 end

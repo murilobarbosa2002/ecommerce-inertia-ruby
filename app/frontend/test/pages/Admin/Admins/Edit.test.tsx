@@ -3,20 +3,27 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import AdminsEdit from "@/pages/Admin/Admins/Edit";
-import { admin_admin_path } from "@/routes";
+import { admin_admin_path, reset_two_factor_admin_admin_path } from "@/routes";
 
-const { routerPatchMock } = vi.hoisted(() => ({ routerPatchMock: vi.fn() }));
+const { routerPatchMock, routerPostMock, usePageMock } = vi.hoisted(() => ({
+  routerPatchMock: vi.fn(),
+  routerPostMock: vi.fn(),
+  usePageMock: vi.fn<
+    () => {
+      props: {
+        current_admin_permissions: string[];
+        current_admin_two_factor_enabled: boolean;
+        current_admin_id: number | null;
+      };
+      component: string;
+    }
+  >(),
+}));
 
 vi.mock("@inertiajs/react", () => ({
   Head: () => null,
-  router: { patch: routerPatchMock },
-  usePage: () => ({
-    props: {
-      current_admin_permissions: ["manage_admins"],
-      current_admin_two_factor_enabled: true,
-    },
-    component: "test",
-  }),
+  router: { patch: routerPatchMock, post: routerPostMock },
+  usePage: () => usePageMock(),
 }));
 
 const roles = [
@@ -25,9 +32,20 @@ const roles = [
 ];
 const admin = { id: 7, email_address: "editar@example.com", role_id: 1 };
 
+const defaultPageProps = {
+  props: {
+    current_admin_permissions: ["manage_admins"],
+    current_admin_two_factor_enabled: true,
+    current_admin_id: 999,
+  },
+  component: "test",
+};
+
 describe("Admin/Admins/Edit", () => {
   beforeEach(() => {
     routerPatchMock.mockClear();
+    routerPostMock.mockClear();
+    usePageMock.mockReturnValue(defaultPageProps);
   });
 
   it("vem preenchido com o e-mail e papel atuais do admin", () => {
@@ -90,5 +108,85 @@ describe("Admin/Admins/Edit", () => {
       await screen.findByText("Informe o motivo da alteração"),
     ).toBeInTheDocument();
     expect(routerPatchMock).not.toHaveBeenCalled();
+  });
+
+  describe("botão de resetar 2FA", () => {
+    it("não aparece sem a permissão reset_two_factor", () => {
+      render(<AdminsEdit admin={admin} roles={roles} />);
+
+      expect(
+        screen.queryByRole("button", { name: "Resetar 2FA" }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("não aparece na própria conta, mesmo com a permissão", () => {
+      usePageMock.mockReturnValue({
+        ...defaultPageProps,
+        props: {
+          ...defaultPageProps.props,
+          current_admin_permissions: ["manage_admins", "reset_two_factor"],
+          current_admin_id: admin.id,
+        },
+      });
+
+      render(<AdminsEdit admin={admin} roles={roles} />);
+
+      expect(
+        screen.queryByRole("button", { name: "Resetar 2FA" }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("aparece pra outro admin com a permissão reset_two_factor", () => {
+      usePageMock.mockReturnValue({
+        ...defaultPageProps,
+        props: {
+          ...defaultPageProps.props,
+          current_admin_permissions: ["manage_admins", "reset_two_factor"],
+        },
+      });
+
+      render(<AdminsEdit admin={admin} roles={roles} />);
+
+      expect(
+        screen.getByRole("button", { name: "Resetar 2FA" }),
+      ).toBeInTheDocument();
+    });
+
+    it("pede confirmação e envia a requisição quando confirmado", async () => {
+      const user = userEvent.setup();
+      const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
+      usePageMock.mockReturnValue({
+        ...defaultPageProps,
+        props: {
+          ...defaultPageProps.props,
+          current_admin_permissions: ["manage_admins", "reset_two_factor"],
+        },
+      });
+
+      render(<AdminsEdit admin={admin} roles={roles} />);
+      await user.click(screen.getByRole("button", { name: "Resetar 2FA" }));
+
+      expect(confirmSpy).toHaveBeenCalled();
+      expect(routerPostMock).toHaveBeenCalledWith(
+        reset_two_factor_admin_admin_path(admin.id),
+      );
+    });
+
+    it("não envia nada quando a confirmação é cancelada", async () => {
+      const user = userEvent.setup();
+      vi.spyOn(window, "confirm").mockReturnValue(false);
+      usePageMock.mockReturnValue({
+        ...defaultPageProps,
+        props: {
+          ...defaultPageProps.props,
+          current_admin_permissions: ["manage_admins", "reset_two_factor"],
+        },
+      });
+
+      render(<AdminsEdit admin={admin} roles={roles} />);
+      await user.click(screen.getByRole("button", { name: "Resetar 2FA" }));
+
+      expect(routerPostMock).not.toHaveBeenCalled();
+    });
   });
 });

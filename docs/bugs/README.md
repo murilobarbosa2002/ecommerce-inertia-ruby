@@ -54,6 +54,7 @@ Registro completo e detalhado de todo bug real encontrado neste projeto, organiz
 | 2026-11-09 | 2FA | QR code de configuração do 2FA não aparecia na tela | Alta | #51 | [two-factor-authentication.md](two-factor-authentication.md) |
 | 2026-11-09 | I18n e validação | Atributos do model `Role` sem tradução pt-BR, erro de validação aparecia em inglês | Baixa | #52 | [i18n-and-data-validation.md](i18n-and-data-validation.md) |
 | 2026-11-09 | Audit logging | Revogar permissão de um papel não deixava rastro, e conceder perdia o motivo | Alta | #52 | [audit-logging.md](audit-logging.md) |
+| 2026-11-09 | 2FA | Resetar o 2FA de outro admin não validava se o alvo já estava sem 2FA ativo | Baixa | #54 | [two-factor-authentication.md](two-factor-authentication.md) |
 
 ## Categorias
 

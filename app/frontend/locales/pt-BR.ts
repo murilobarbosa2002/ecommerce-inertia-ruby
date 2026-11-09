@@ -72,6 +72,9 @@ export const ptBR = {
         changeReasonRequired: "Informe o motivo da alteração",
         submit: "Salvar alterações",
         submitting: "Salvando...",
+        resetTwoFactorButton: "Resetar 2FA",
+        resetTwoFactorConfirm:
+          "Isso desativa o 2FA desse admin agora, forçando reconfiguração no próximo login. Continuar?",
         backToList: "Voltar pra lista",
       },
     },

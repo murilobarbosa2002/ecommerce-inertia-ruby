@@ -28,6 +28,10 @@ pt-BR:
         success: "Admin criado com sucesso"
       update:
         success: "Admin atualizado com sucesso"
+      reset_two_factor:
+        success: "2FA resetado — esse admin vai precisar configurar de novo no próximo login"
+        cannot_reset_self: "Não é possível resetar o próprio 2FA por aqui — use a tela de perfil"
+        not_enabled: "Esse admin já está sem 2FA ativo"
     roles:
       create:
         success: "Papel criado com sucesso"

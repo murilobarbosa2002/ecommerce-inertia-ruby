@@ -191,4 +191,82 @@ RSpec.describe "Admin::Admins", type: :request do
       expect(flash[:alert]).to eq("Motivo da alteração não pode ficar em branco")
     end
   end
+
+  describe "POST /admin/admins/:id/reset_two_factor" do
+    let(:reset_two_factor) { create(:permission, key: "reset_two_factor") }
+    let(:role_with_both_permissions) do
+      create(:role).tap { |role| role.permissions << manage_admins << reset_two_factor }
+    end
+    let(:role_with_only_reset_two_factor) do
+      create(:role).tap { |role| role.permissions << reset_two_factor }
+    end
+
+    it "bloqueia pra admin sem manage_admins, mesmo com reset_two_factor" do
+      admin = create(:admin, :with_two_factor_enabled, role: role_with_only_reset_two_factor)
+      sign_in(admin)
+      target = create(:admin, :with_two_factor_enabled, role: role_without_permission)
+
+      post reset_two_factor_admin_admin_path(target)
+
+      expect(response).to redirect_to(root_path)
+      expect(flash[:alert]).to eq("Você não tem permissão pra acessar essa página")
+      expect(target.reload.otp_required_for_login?).to be true
+    end
+
+    it "bloqueia pra admin com manage_admins mas sem reset_two_factor" do
+      admin = create(:admin, :with_two_factor_enabled, role: role_with_permission)
+      sign_in(admin)
+      target = create(:admin, :with_two_factor_enabled, role: role_without_permission)
+
+      post reset_two_factor_admin_admin_path(target)
+
+      expect(response).to redirect_to(root_path)
+      expect(flash[:alert]).to eq("Você não tem permissão pra acessar essa página")
+      expect(target.reload.otp_required_for_login?).to be true
+    end
+
+    it "reseta o 2FA de outro admin, registrando quem agiu e quem foi afetado" do
+      admin = create(:admin, :with_two_factor_enabled, role: role_with_both_permissions)
+      sign_in(admin)
+      target = create(:admin, :with_two_factor_enabled, role: role_without_permission)
+
+      post reset_two_factor_admin_admin_path(target)
+
+      expect(response).to redirect_to(edit_admin_admin_path(target))
+      expect(flash[:notice]).to eq("2FA resetado — esse admin vai precisar configurar de novo no próximo login")
+      target.reload
+      expect(target.otp_required_for_login?).to be false
+      expect(target.otp_secret).to be_nil
+      expect(target.admin_recovery_codes).to be_empty
+
+      event = AuditEvent.last
+      expect(event.event_type).to eq("two_factor_reset_by_admin")
+      expect(event.admin).to eq(target)
+      expect(event.performed_by_admin).to eq(admin)
+    end
+
+    it "não permite resetar o próprio 2FA por essa rota" do
+      admin = create(:admin, :with_two_factor_enabled, role: role_with_both_permissions)
+      sign_in(admin)
+
+      post reset_two_factor_admin_admin_path(admin)
+
+      expect(response).to redirect_to(edit_admin_admin_path(admin))
+      expect(flash[:alert]).to eq("Não é possível resetar o próprio 2FA por aqui — use a tela de perfil")
+      expect(admin.reload.otp_required_for_login?).to be true
+    end
+
+    it "não reseta e avisa quando o admin alvo já está sem 2FA ativo" do
+      admin = create(:admin, :with_two_factor_enabled, role: role_with_both_permissions)
+      sign_in(admin)
+      target = create(:admin, role: role_without_permission)
+
+      expect do
+        post reset_two_factor_admin_admin_path(target)
+      end.not_to change(AuditEvent, :count)
+
+      expect(response).to redirect_to(edit_admin_admin_path(target))
+      expect(flash[:alert]).to eq("Esse admin já está sem 2FA ativo")
+    end
+  end
 end

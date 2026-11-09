@@ -13,7 +13,12 @@ module AdminPanel
     inertia_share do
       {
         current_admin_permissions: Current.admin&.role&.permissions&.pluck(:key) || [],
-        current_admin_two_factor_enabled: Current.admin&.otp_required_for_login? || false
+        current_admin_two_factor_enabled: Current.admin&.otp_required_for_login? || false,
+        # Pra UI condicionar uma ação sobre "o admin sendo visto é o próprio
+        # admin logado" (ex. esconder o botão de resetar 2FA na própria
+        # conta) sem precisar comparar e-mail — nil nas páginas
+        # pré-autenticação, igual aos outros dois valores acima.
+        current_admin_id: Current.admin&.id
       }
     end
 
