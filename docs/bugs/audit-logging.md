@@ -151,3 +151,33 @@ O sucesso de senha passou a registrar `event_type: :password_verified` (um fato 
 ### Verificação
 
 Specs cobrindo os dois fluxos (`registra two_factor_verified e login_succeeded com código TOTP válido`, `registra recovery_code_used e login_succeeded com código de recuperação válido`) confirmam exatamente dois eventos por login completo com 2FA, nos nomes certos. Confirmado revertendo a mudança de propósito (voltando `login_succeeded` pro ponto antigo) e vendo os specs falharem antes de restaurar a correção.
+
+## Trocar o papel de um admin não gerava nenhum registro de auditoria
+
+- **Data:** 2026-11-09
+- **Severidade:** alta
+- **PR:** #50
+
+### O que aconteceu
+
+`AdminsController#update` sempre permitiu trocar o `role_id` de um admin (tela de editar, `docs/adr/0021`), mas nenhuma troca de papel gerava versão no PaperTrail nem exigia `change_reason` — só `email_address` era rastreado. Confirmado empiricamente: trocar o `role_id` de um admin numa transação de teste não incrementava `admin.versions.count`.
+
+### Causa raiz
+
+`Admin` chama `tracked_by_change_reason :email_address` (`app/models/concerns/change_reason_required.rb`), que usa a opção `only:` do PaperTrail — só os atributos explicitamente listados ali viram versão ou exigem motivo. `role_id` nunca foi adicionado a essa lista desde que o modelo de RBAC (`docs/adr/0021`) introduziu o campo, mesmo a tela de editar admin (PR que seguiu depois) já permitindo trocá-lo.
+
+### Como foi encontrado
+
+Revisão deliberada de "tudo que deveria ser auditável no projeto até agora está sendo auditado de fato?", percorrendo cada model/controller que muda estado e comparando contra o que o `AuditEvent`/PaperTrail de fato cobre — não um teste automatizado pegando, nem um erro visível na aplicação.
+
+### Impacto
+
+Trocar o papel de um admin é uma mudança de **permissão**, não um detalhe cosmético — é exatamente o tipo de ação que mais precisa de rastro (quem promoveu/rebaixou quem, quando, por quê). Sem isso, essa mudança ficava completamente invisível no histórico, mesmo o projeto já tendo infraestrutura de auditoria pronta pra esse exato caso (o mesmo mecanismo já usado pra `email_address`).
+
+### Correção
+
+`tracked_by_change_reason :email_address, :role_id` — mesma infraestrutura já existente, só a lista de atributos rastreados mudou. Trocar o papel passa a exigir `change_reason` (mesma validação condicional já usada pra `email_address`) e gera versão no PaperTrail.
+
+### Verificação
+
+Dois specs novos em `spec/requests/admin/admins_spec.rb` ("atualiza o papel com motivo, registrando versão no PaperTrail", "não atualiza e redireciona de volta sem motivo quando o papel muda") confirmados vermelhos antes da correção (nenhuma versão criada; troca de papel passava sem motivo nenhum) e verdes depois.
