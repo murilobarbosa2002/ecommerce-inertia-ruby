@@ -19,4 +19,11 @@ RSpec.describe "db/seeds.rb" do
     expect { load Rails.root.join("db/seeds.rb") }
       .not_to change(Permission, :count)
   end
+
+  it "cria a permissão reset_two_factor sem atribuí-la a nenhum papel por padrão" do
+    load Rails.root.join("db/seeds.rb")
+
+    expect(Permission.find_by(key: "reset_two_factor")).to be_present
+    expect(Role.find_by(name: "owner").permission?("reset_two_factor")).to be false
+  end
 end

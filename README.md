@@ -52,6 +52,17 @@ pnpm dlx markdownlint-cli2 "**/*.md"  # lint de markdown
 
 `pnpm install` já ativa os git hooks do projeto (Husky) automaticamente — lint/format no pre-commit, validação de mensagem de commit (commitlint + bloqueio de atribuição de IA) e a suíte de testes completa no pre-push. Nenhum passo manual extra é necessário. Ver `CONTRIBUTING.md` para detalhes.
 
+## Tarefas administrativas (CLI)
+
+Exigem acesso real de shell ao servidor — não são superfície de ataque nova, pelo mesmo racional de qualquer acesso de shell já ter controle total sobre a aplicação.
+
+```bash
+bin/rails admin:create                            # cria o primeiro admin (interativo, senha mascarada)
+bin/rails admin:disable_two_factor[email@do.admin] # último recurso: desativa o 2FA de um admin sem precisar de nenhum login
+```
+
+`admin:disable_two_factor` existe pro caso em que nem o próprio admin (perdeu autenticador e códigos de recuperação) nem nenhum outro admin com a permissão `reset_two_factor` (tela de gerenciar admins) conseguem mais acessar a conta — mesmo limite de qualquer sistema de 2FA, sempre existe um caminho fora da aplicação.
+
 ## Usar este template para o seu próprio negócio
 
 Veja [`docs/adapting-to-a-new-niche.md`](docs/adapting-to-a-new-niche.md) para o passo a passo de fork/adaptação.

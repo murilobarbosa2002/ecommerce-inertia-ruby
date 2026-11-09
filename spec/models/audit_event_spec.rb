@@ -7,6 +7,7 @@ RSpec.describe AuditEvent, type: :model do
 
   describe "associações" do
     it { is_expected.to belong_to(:admin).optional }
+    it { is_expected.to belong_to(:performed_by_admin).class_name("Admin").optional }
   end
 
   describe "event_type" do
@@ -15,7 +16,7 @@ RSpec.describe AuditEvent, type: :model do
         login_succeeded login_failed account_locked account_unlocked logout
         two_factor_enabled two_factor_disabled two_factor_verified two_factor_failed
         recovery_code_used password_reset_requested password_reset_completed
-        password_verified reauthentication_failed password_changed
+        password_verified reauthentication_failed password_changed two_factor_reset_by_admin
       ]
     end
 

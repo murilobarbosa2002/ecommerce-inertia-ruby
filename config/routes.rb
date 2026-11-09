@@ -51,7 +51,14 @@ Rails.application.routes.draw do
     # :manage_admins (docs/adr/0021). Primeiro consumidor real da permissão;
     # AdminPanel::AuthorizationTestController (controller fictício só de
     # teste) não é mais necessário a partir daqui.
-    resources :admins, only: %i[index new create edit update]
+    resources :admins, only: %i[index new create edit update] do
+      # Ação própria, gated por require_permission :reset_two_factor
+      # (distinta de :manage_admins, que gera o resto do controller) —
+      # fluxo de recuperação de conta pra outro admin, nunca o próprio.
+      member do
+        post :reset_two_factor
+      end
+    end
 
     # Gerenciar papéis e quais permissões cada um tem — gated por
     # require_permission :manage_roles (docs/adr/0021). Toda permissão

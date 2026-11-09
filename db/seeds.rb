@@ -29,3 +29,12 @@ owner_role = Role.find_or_create_by!(name: "owner") do |role|
 end
 owner_role.permissions << manage_admins unless owner_role.permissions.include?(manage_admins)
 owner_role.permissions << manage_roles unless owner_role.permissions.include?(manage_roles)
+
+# reset_two_factor existe (pra ser atribuível pela tela de papéis), mas
+# nunca é atribuída a nenhum papel por padrão — nem ao "owner". Resetar o
+# 2FA de outro admin é sensível o bastante pra exigir uma concessão
+# deliberada através da tela de papéis (manage_roles), não um padrão
+# automático de bootstrap.
+Permission.find_or_create_by!(key: "reset_two_factor") do |permission|
+  permission.description = "Resetar o 2FA de outro admin (fluxo de recuperação de conta)"
+end

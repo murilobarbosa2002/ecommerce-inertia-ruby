@@ -12,3 +12,8 @@ pt-BR:
         prompt_change_reason: "Motivo da criação: "
         success: "Admin criado: %{email_address}"
         missing_owner_role: "Role \"owner\" não encontrada — rode bin/rails db:seed antes de criar o primeiro admin."
+      disable_two_factor:
+        description: "Último recurso: desativa o 2FA de um admin via acesso de shell, sem precisar de nenhum login"
+        not_found: "Nenhum admin encontrado com o e-mail %{email_address}"
+        not_enabled: "O admin %{email_address} já está sem 2FA ativo"
+        success: "2FA desativado: %{email_address}"

@@ -23,6 +23,37 @@ RSpec.describe AuditEvents::RecordAuditEvent do
       expect(AuditEvent.last.admin).to eq(admin)
     end
 
+    describe "performed_by_admin" do
+      after { Current.reset }
+
+      it "lê de Current.admin automaticamente, sem precisar ser passado" do
+        actor = create(:admin)
+        Current.admin_session = create(:admin_session, admin: actor)
+
+        described_class.call(event_type: :login_succeeded, admin: actor)
+
+        expect(AuditEvent.last.performed_by_admin).to eq(actor)
+      end
+
+      it "distingue quem agiu (performed_by_admin) de quem é o evento (admin) quando são admins diferentes" do
+        actor = create(:admin)
+        target = create(:admin)
+        Current.admin_session = create(:admin_session, admin: actor)
+
+        described_class.call(event_type: :two_factor_reset_by_admin, admin: target)
+
+        audit_event = AuditEvent.last
+        expect(audit_event.admin).to eq(target)
+        expect(audit_event.performed_by_admin).to eq(actor)
+      end
+
+      it "fica nil quando não há admin autenticado (ex. rake task)" do
+        described_class.call(event_type: :two_factor_disabled, admin: create(:admin))
+
+        expect(AuditEvent.last.performed_by_admin).to be_nil
+      end
+    end
+
     it "extrai ip e user agent da request quando informada" do
       request = instance_double(ActionDispatch::Request, remote_ip: "203.0.113.5", user_agent: "RSpec/1.0")
 
@@ -44,7 +75,7 @@ RSpec.describe AuditEvents::RecordAuditEvent do
         login_succeeded login_failed account_locked account_unlocked logout
         two_factor_enabled two_factor_disabled two_factor_verified two_factor_failed
         recovery_code_used password_reset_requested password_reset_completed
-        password_verified reauthentication_failed
+        password_verified reauthentication_failed two_factor_reset_by_admin
       ]
 
       expected_event_types.each do |event_type|
