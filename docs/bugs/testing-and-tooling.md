@@ -271,3 +271,63 @@ Mesmo efeito do bug anterior (nenhuma tag visível), mas sem nenhum sinal de que
 ### Verificação
 
 Confirmado reabrindo a extensão depois da correção da chave e vendo as tags existentes aparecerem na árvore, com o binário já instalado desde o bug anterior.
+
+## `userEvent.setup()` substitui `navigator.clipboard` por um stub próprio, escondendo o mock de `writeText`
+
+- **Data:** 2026-11-09
+- **Severidade:** média
+- **PR:** #48
+
+### O que aconteceu
+
+Testando o botão "Copiar" do `PasswordGenerator`, um mock de `navigator.clipboard.writeText` definido via `Object.defineProperty` antes de `userEvent.setup()` sempre aparecia como "nunca chamado" (0 chamadas), mesmo com o botão sendo clicado de verdade e o DOM mostrando o estado "Copiado!" corretamente.
+
+### Causa raiz
+
+`userEvent.setup()` substitui `navigator.clipboard` pelo stub de clipboard dele mesmo, por padrão (`writeToClipboard: true` nesse modo) — qualquer `Object.defineProperty(navigator, "clipboard", ...)` feito antes do `setup()` é sobrescrito por ele, silenciosamente.
+
+### Como foi encontrado
+
+Isolamento sistemático com um arquivo de teste temporário: confirmado que `navigator === window.navigator === globalThis.navigator` (não é problema de realm diferente), confirmado que definir a propriedade imediatamente antes do `render()` funcionava, e que a referência deixava de bater só depois de introduzir `userEvent.setup()` antes do `defineProperty`. Causa raiz confirmada lendo a documentação do `@testing-library/user-event` via Context7.
+
+### Impacto
+
+Teste que parecia estar verificando o comportamento de copiar pro clipboard, mas na prática nunca exercitava o mock — passaria igual com `writeText` quebrado ou removido, sem nenhuma cobertura real.
+
+### Correção
+
+`userEvent.setup({ writeToClipboard: false })` desliga o stub automático; o `Object.defineProperty` do mock de clipboard passou a ser definido depois do `setup()`, não antes. Regra documentada em `CONTRIBUTING.md`, seção "Testes".
+
+### Verificação
+
+Confirmado vermelho (mock com 0 chamadas) na ordem antiga, verde na ordem corrigida com `writeToClipboard: false`.
+
+## `react/prop-types` aponta falso positivo quando `usePage().props` é desestruturado como `props`
+
+- **Data:** 2026-11-09
+- **Severidade:** baixa
+- **PR:** #48
+
+### O que aconteceu
+
+Ao cabear `usePage().props` dentro de `PanelLayout`, `pnpm lint` passou a reportar `'current_admin_permissions' is missing in props validation` e `'current_admin_permissions.includes' is missing in props validation` (regra `react/prop-types`) — mesmo essa chave não tendo nenhuma relação com as props reais do componente `PanelLayout` (`title`, `children`).
+
+### Causa raiz
+
+`eslint-plugin-react`'s `react/prop-types` identifica qualquer variável local chamada `props` dentro de um componente como sendo as props do próprio componente, independente de onde ela de fato venha — nesse caso, `const { props } = usePage()` não tem relação alguma com as props do React.
+
+### Como foi encontrado
+
+Rodando `pnpm lint` depois de cabear o `usePage()` no `PanelLayout`, antes de abrir o PR — os dois erros reportados apontavam pra uma propriedade (`current_admin_permissions`) que não existe nas props do componente, o que não fazia sentido até investigar a causa na regra do plugin.
+
+### Impacto
+
+Nenhum em produção — é um falso positivo de lint, mas bloquearia qualquer PR que cabeasse `usePage().props` dessa forma, sem indicar a causa real na própria mensagem de erro.
+
+### Correção
+
+A desestruturação foi renomeada (`const { props: pageProps } = usePage()`), evitando o nome `props` como variável local dentro do componente. Regra documentada em `CONTRIBUTING.md`, seção "Testes".
+
+### Verificação
+
+`pnpm lint` limpo depois da renomeação; confirmado que o erro reaparece revertendo só o nome da variável pra `props`.

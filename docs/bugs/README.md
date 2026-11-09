@@ -41,6 +41,11 @@ Registro completo e detalhado de todo bug real encontrado neste projeto, organiz
 | 2026-11-07 | Infraestrutura | Job `test` do CI não gerava `app/frontend/routes.js`, quebrando página que o importa | Alta | #42 | [infrastructure.md](infrastructure.md) |
 | 2026-11-07 | Infraestrutura | Dado de bootstrap do RBAC só existia dentro de uma migration, nunca em `db/seeds.rb` | Alta | #45 | [infrastructure.md](infrastructure.md) |
 | 2026-11-07 | Testes e ferramentas | `Rails.application.routes.append` num spec causava 404 inconsistente só em CI | Média | #45 | [testing-and-tooling.md](testing-and-tooling.md) |
+| 2026-11-09 | Estrutura de código | `PanelLayout` não exibia nenhum flash de notice/alert | Alta | #48 | [code-structure.md](code-structure.md) |
+| 2026-11-09 | I18n e validação | Campo de quantidade de caracteres do gerador de senha não validava o valor digitado | Média | #48 | [i18n-and-data-validation.md](i18n-and-data-validation.md) |
+| 2026-11-09 | Estrutura de código | `Select` (Radix) avisava "changing from uncontrolled to controlled" por falta de `defaultValues` | Baixa | #48 | [code-structure.md](code-structure.md) |
+| 2026-11-09 | Testes e ferramentas | `userEvent.setup()` substitui `navigator.clipboard` por um stub próprio | Média | #48 | [testing-and-tooling.md](testing-and-tooling.md) |
+| 2026-11-09 | Testes e ferramentas | `react/prop-types` aponta falso positivo quando `usePage().props` é desestruturado como `props` | Baixa | #48 | [testing-and-tooling.md](testing-and-tooling.md) |
 
 ## Categorias
 

@@ -91,3 +91,33 @@ Regra fixada em `CONTRIBUTING.md`: dado de teste arbitrário (senha, nome, etc.)
 ### Verificação
 
 Confirmado com o experimento descrito em "Como foi encontrado" — quebrando a tradução de propósito e comparando o comportamento das duas versões do teste antes de fixar a regra.
+
+## Campo de quantidade de caracteres do gerador de senha não validava o valor digitado
+
+- **Data:** 2026-11-09
+- **Severidade:** média
+- **PR:** #48
+
+### O que aconteceu
+
+No gerador de senha aleatória (`PasswordGenerator`), o campo "Quantidade de caracteres" só tinha os atributos `min`/`max` do HTML (`type="number"`), que não impedem digitar um valor fora do intervalo nem deixar o campo vazio. Digitar um valor maior que 72 gerava uma senha maior do que o que o bcrypt de fato usa; limpar o campo e gerar produzia uma senha de comprimento zero, silenciosamente.
+
+### Causa raiz
+
+`min`/`max` em `<input type="number">` são só dicas de UI (afetam os botões de incremento/decremento e o estado de validade do form), não bloqueiam digitação direta nem campo vazio — o valor bruto do campo (`event.target.value`) chegava direto em `generatePassword({ length, ... })` sem nenhuma validação de fato aplicada no componente.
+
+### Como foi encontrado
+
+Autorrevisão do diff antes de abrir o PR: ao reler `PasswordGenerator.tsx`, o comentário que justifica `MAX_LENGTH = 72` ("evita gerar senha maior do que o que o backend de fato usa") não correspondia a nenhuma validação de fato aplicada no valor digitado.
+
+### Impacto
+
+Um admin poderia copiar uma senha de, por exemplo, 500 caracteres, acreditando que todos contribuem pra força da senha — mas `has_secure_password`/bcrypt usa só os primeiros 72 bytes pra hash, tornando o resto decorativo sem nenhum aviso. Limpar o campo e gerar produzia uma senha vazia sem erro nenhum.
+
+### Correção
+
+O valor digitado passou a ser mantido como string livre num estado próprio (`lengthInput`), sem clamping a cada tecla — clampar a cada tecla corrompia a digitação de números com mais de um dígito (o primeiro dígito isolado já cai fora do intervalo e seria clampado antes do segundo dígito chegar). O clamp (`Math.min(MAX_LENGTH, Math.max(MIN_LENGTH, ...))`) e o fallback pro caso de `NaN` (campo vazio) passaram a acontecer só no momento de gerar a senha (`handleGenerate`), não a cada `onChange`.
+
+### Verificação
+
+Dois casos novos em `PasswordGenerator.test.tsx` (comprimento acima de 72 clampado pra 72; campo vazio não gera senha de comprimento zero), confirmados vermelhos revertendo o clamp antes de restaurar a correção.
