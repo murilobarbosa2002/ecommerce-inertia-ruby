@@ -52,6 +52,10 @@ Rails.application.routes.draw do
     # AdminPanel::AuthorizationTestController (controller fictício só de
     # teste) não é mais necessário a partir daqui.
     resources :admins, only: %i[index new create edit update]
+
+    # Perfil do próprio admin autenticado (trocar senha) — singular, não tem
+    # :id porque é sempre o Current.admin, nunca outro registro.
+    resource :profile, only: %i[show update]
   end
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

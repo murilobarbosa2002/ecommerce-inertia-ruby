@@ -11,6 +11,11 @@ export const ptBR = {
       brand: "Ecommerce Inertia Ruby",
       signOut: "Sair",
       manageAdmins: "Gerenciar admins",
+      profile: "Perfil",
+      twoFactorRequiredTitle: "Autenticação de dois fatores obrigatória",
+      twoFactorRequiredDescription:
+        "Por segurança, toda conta admin precisa ter a autenticação de dois fatores ativa. Configure agora pra continuar usando o painel.",
+      twoFactorRequiredButton: "Configurar agora",
     },
     passwordGenerator: {
       includeUppercase: "Maiúsculas",
@@ -111,6 +116,50 @@ export const ptBR = {
         submit: "Verificar",
         submitting: "Verificando...",
       },
+    },
+    twoFactor: {
+      new: {
+        title: "Configurar autenticação de dois fatores",
+        description:
+          "Escaneie o QR code com seu aplicativo autenticador (Google Authenticator, Authy, etc.) e digite o código gerado pra confirmar.",
+        qrCodeInstructions:
+          "Não consegue escanear? Digite o código manualmente no app:",
+        codeLabel: "Código de confirmação",
+        codeRequired: "Informe o código",
+        submit: "Ativar",
+        submitting: "Ativando...",
+      },
+      recoveryCodes: {
+        title: "Guarde seus códigos de recuperação",
+        description:
+          "Use um desses códigos pra entrar se você perder acesso ao seu aplicativo autenticador. Cada código só pode ser usado uma vez.",
+        warning:
+          "Esses códigos não aparecem de novo depois que você sair desta página.",
+        downloadTxt: "Baixar .txt",
+        downloadImage: "Salvar como imagem",
+        continueButton: "Continuar",
+      },
+    },
+    profile: {
+      title: "Perfil",
+      changePasswordTitle: "Trocar senha",
+      currentPasswordLabel: "Senha atual",
+      currentPasswordRequired: "Informe a senha atual",
+      passwordLabel: "Nova senha",
+      passwordRequired: "Informe a nova senha",
+      passwordConfirmationLabel: "Confirme a nova senha",
+      passwordConfirmationRequired: "A confirmação de senha é obrigatória",
+      passwordMismatch: "As senhas não coincidem",
+      submit: "Trocar senha",
+      submitting: "Trocando...",
+      twoFactorTitle: "Autenticação de dois fatores",
+      twoFactorEnabled: "Ativa",
+      twoFactorDisabled: "Inativa",
+      enableTwoFactorLink: "Ativar",
+      disableTwoFactorPasswordLabel: "Senha atual pra desativar",
+      disableTwoFactorPasswordRequired: "Informe a senha atual",
+      disableTwoFactorSubmit: "Desativar",
+      disableTwoFactorSubmitting: "Desativando...",
     },
   },
 } as const;

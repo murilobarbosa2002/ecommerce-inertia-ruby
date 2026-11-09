@@ -121,3 +121,63 @@ O valor digitado passou a ser mantido como string livre num estado próprio (`le
 ### Verificação
 
 Dois casos novos em `PasswordGenerator.test.tsx` (comprimento acima de 72 clampado pra 72; campo vazio não gera senha de comprimento zero), confirmados vermelhos revertendo o clamp antes de restaurar a correção.
+
+## Dois campos de "senha atual" na mesma página com o mesmo label
+
+- **Data:** 2026-11-09
+- **Severidade:** baixa
+- **PR:** #51
+
+### O que aconteceu
+
+A tela de perfil (`Admin/Profile/Show`) tem dois formulários independentes na mesma página — trocar senha e desativar o 2FA — cada um pedindo a senha atual pra confirmar a ação. Os dois campos nasceram com o mesmo label ("Senha atual"), e o teste de desativar o 2FA (`screen.getByLabelText("Senha atual")`) falhou com `getMultipleElementsFoundError`.
+
+### Causa raiz
+
+Dois campos de propósito diferente (confirmar uma troca de senha vs. confirmar a desativação do 2FA) descreviam a si mesmos com o texto genérico "Senha atual", sem nenhuma distinção — ambíguo tanto pro teste quanto, na prática, pro próprio admin usando a página sem contexto visual suficiente pra saber qual campo pertence a qual ação.
+
+### Como foi encontrado
+
+Rodando o teste de `Admin/Profile/Show` recém-escrito, antes de abrir o PR.
+
+### Impacto
+
+Nenhum em produção (os dois campos funcionam corretamente de forma isolada, cada um dentro do próprio `<form>`) — mas é uma ambiguidade real de UX, não só de teste: nada no texto do campo em si diferencia as duas ações.
+
+### Correção
+
+Label do campo de desativar 2FA mudou de "Senha atual" pra "Senha atual pra desativar", distinguindo as duas ações pelo próprio texto do campo, não só pela seção visual em que cada um está.
+
+### Verificação
+
+Teste de `Admin/Profile/Show.test.tsx` confirmado vermelho com o label duplicado, verde depois da correção.
+
+## Trocar senha autenticado "passaria" sem trocar nada com um password em branco
+
+- **Data:** 2026-11-09
+- **Severidade:** média
+- **PR:** #51
+
+### O que aconteceu
+
+`AdminPanel::ProfilesController#update` (trocar senha estando logado) chamava `admin.update(params.permit(:password, :password_confirmation))` direto — sem nenhuma guarda explícita pro caso de `password` vir em branco.
+
+### Causa raiz
+
+`has_secure_password` só valida presença de senha na criação do registro, não na atualização — a validação real checa se `password_digest` está presente, e esse atributo nunca é sobrescrito quando o `password` virtual recebe uma string vazia (a senha antiga continua intacta). Resultado: `admin.update(password: "", password_confirmation: "")` retorna `true` (válido), sem trocar nada de fato.
+
+### Como foi encontrado
+
+Revisão do próprio código antes de escrever o teste — ao reler `ProfilesController#update`, ficou claro que nada impedia um `password` em branco de "passar" pela validação do `has_secure_password`.
+
+### Impacto
+
+Um request com `password` em branco (por bug de frontend, requisição manual, etc.) destruiria todas as sessões da conta e reportaria "senha alterada com sucesso" sem ter trocado a senha de fato — o admin seria deslogado de todo lugar sem nenhum motivo real, achando que mudou a senha quando não mudou.
+
+### Correção
+
+Guarda explícita (`params[:password].blank?`) antes de chamar `admin.update`, com uma mensagem de erro própria (`admin.profiles.update.blank_password`) em vez de deixar a validação do `has_secure_password` decidir.
+
+### Verificação
+
+Teste em `spec/requests/admin/profiles_spec.rb` ("não troca a senha quando a nova senha vem em branco") confirmado vermelho removendo a guarda de propósito, verde com ela restaurada.

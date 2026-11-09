@@ -15,6 +15,28 @@ RSpec.describe "Admin::TwoFactors", type: :request do
       expect(admin.reload.otp_secret).to be_present
     end
 
+    it "gera um qr_code_svg visível: <svg> de verdade (standalone) com width/height explícitos" do
+      admin = create(:admin)
+      sign_in(admin)
+
+      get new_admin_two_factor_path
+
+      # Props do Inertia vêm embutidas em data-page (JSON), não um endpoint
+      # JSON puro — extrai do HTML renderizado, mesmo formato que o
+      # @inertiajs/react lê no cliente de verdade.
+      page_data = JSON.parse(response.body[/data-page="app" type="application\/json">(.*?)<\/script>/m, 1])
+      qr_code_svg = page_data["props"]["qr_code_svg"]
+
+      expect(qr_code_svg).to include("<svg")
+      expect(qr_code_svg).to include("</svg>")
+      # width/height explícitos em pixel, não só viewBox — o <svg> é
+      # injetado cru via dangerouslySetInnerHTML (fora do alcance de
+      # classe Tailwind), então precisa de tamanho próprio pra não
+      # depender de CSS externo nenhum pra ficar visível.
+      expect(qr_code_svg).to match(/width="\d+"/)
+      expect(qr_code_svg).to match(/height="\d+"/)
+    end
+
     it "não sobrescreve o secret quando o 2FA já está ativo (evitaria travar o login)" do
       admin = create(:admin)
       sign_in(admin)

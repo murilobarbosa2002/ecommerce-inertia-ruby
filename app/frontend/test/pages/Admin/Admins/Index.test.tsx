@@ -7,7 +7,13 @@ import { edit_admin_admin_path, new_admin_admin_path } from "@/routes";
 vi.mock("@inertiajs/react", () => ({
   Head: () => null,
   router: { delete: vi.fn() },
-  usePage: () => ({ props: { current_admin_permissions: ["manage_admins"] } }),
+  usePage: () => ({
+    props: {
+      current_admin_permissions: ["manage_admins"],
+      current_admin_two_factor_enabled: true,
+    },
+    component: "test",
+  }),
 }));
 
 describe("Admin/Admins/Index", () => {

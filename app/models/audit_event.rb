@@ -22,7 +22,11 @@ class AuditEvent < ApplicationRecord
     # Reautenticação (senha de novo) pra confirmar uma ação sensível já
     # autenticada (ex. desativar 2FA) — distinto de login_failed, que é
     # especificamente sobre a tela de login.
-    reauthentication_failed: 13
+    reauthentication_failed: 13,
+    # Troca de senha autenticada (tela de perfil, senha atual + nova) —
+    # distinto de password_reset_completed (fluxo por token/e-mail, admin
+    # nem precisa estar logado), nunca reaproveitado entre os dois.
+    password_changed: 14
   }
 
   validates :event_type, presence: true

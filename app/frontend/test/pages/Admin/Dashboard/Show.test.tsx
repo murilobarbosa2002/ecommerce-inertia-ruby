@@ -6,7 +6,13 @@ import DashboardShow from "@/pages/Admin/Dashboard/Show";
 vi.mock("@inertiajs/react", () => ({
   Head: () => null,
   router: { delete: vi.fn() },
-  usePage: () => ({ props: { current_admin_permissions: [] } }),
+  usePage: () => ({
+    props: {
+      current_admin_permissions: [],
+      current_admin_two_factor_enabled: true,
+    },
+    component: "Admin/Dashboard/Show",
+  }),
 }));
 
 describe("Admin/Dashboard/Show", () => {
