@@ -1,5 +1,5 @@
-import CheckCircleIcon from "@/components/shared/check-circle-icon/CheckCircleIcon";
-import ExclamationIcon from "@/components/shared/exclamation-icon/ExclamationIcon";
+import CheckCircleIcon from "@/components/shared/icons/check-circle-icon/CheckCircleIcon";
+import ExclamationIcon from "@/components/shared/icons/exclamation-icon/ExclamationIcon";
 
 import { type BannerProps } from "./Banner.types";
 import { banner } from "./Banner.variants";

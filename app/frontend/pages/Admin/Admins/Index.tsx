@@ -5,14 +5,9 @@ import PanelLayout from "@/components/admin/PanelLayout";
 import Link from "@/components/shared/link/Link";
 import { edit_admin_admin_path, new_admin_admin_path } from "@/routes";
 
-interface AdminRow {
-  id: number;
-  email_address: string;
-  role_id: number;
-  role_name: string;
-}
+import { type AdminsIndexProps } from "./Index.types";
 
-export default function AdminsIndex({ admins }: { admins: AdminRow[] }) {
+export default function AdminsIndex({ admins }: AdminsIndexProps) {
   const { t } = useTranslation();
 
   return (

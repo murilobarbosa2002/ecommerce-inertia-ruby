@@ -3,23 +3,13 @@ import { useTranslation } from "react-i18next";
 
 import Button from "@/components/shared/button/Button";
 import Checkbox from "@/components/shared/checkbox/Checkbox";
-import FieldError from "@/components/shared/field-error/FieldError";
-import Input from "@/components/shared/input/Input";
+import FormField from "@/components/shared/form-field/FormField";
 import Label from "@/components/shared/label/Label";
 
+import { type RolesNewProps } from "../New.types";
 import useRolesNewForm from "../useRolesNewForm";
 
-interface PermissionOption {
-  id: number;
-  key: string;
-  description: string;
-}
-
-export default function RolesNewForm({
-  permissions,
-}: {
-  permissions: PermissionOption[];
-}) {
+export default function RolesNewForm({ permissions }: RolesNewProps) {
   const { t } = useTranslation();
   const { register, errors, isSubmitting, onSubmit, control } =
     useRolesNewForm();
@@ -32,18 +22,13 @@ export default function RolesNewForm({
       className="space-y-5"
       noValidate
     >
-      <div>
-        <Label htmlFor="name">{t("admin.roles.new.nameLabel")}</Label>
-        <Input
-          id="name"
-          type="text"
-          invalid={!!errors.name}
-          {...register("name")}
-        />
-        {errors.name && (
-          <FieldError>{t("admin.roles.new.nameRequired")}</FieldError>
-        )}
-      </div>
+      <FormField
+        id="name"
+        type="text"
+        label={t("admin.roles.new.nameLabel")}
+        error={errors.name ? t("admin.roles.new.nameRequired") : undefined}
+        register={register("name")}
+      />
 
       <fieldset>
         <legend className="mb-1.5 text-sm font-medium text-gray-700 select-none dark:text-gray-300">
@@ -80,20 +65,17 @@ export default function RolesNewForm({
         />
       </fieldset>
 
-      <div>
-        <Label htmlFor="change_reason">
-          {t("admin.roles.new.changeReasonLabel")}
-        </Label>
-        <Input
-          id="change_reason"
-          type="text"
-          invalid={!!errors.change_reason}
-          {...register("change_reason")}
-        />
-        {errors.change_reason && (
-          <FieldError>{t("admin.roles.new.changeReasonRequired")}</FieldError>
-        )}
-      </div>
+      <FormField
+        id="change_reason"
+        type="text"
+        label={t("admin.roles.new.changeReasonLabel")}
+        error={
+          errors.change_reason
+            ? t("admin.roles.new.changeReasonRequired")
+            : undefined
+        }
+        register={register("change_reason")}
+      />
 
       <Button type="submit" disabled={isSubmitting}>
         {isSubmitting

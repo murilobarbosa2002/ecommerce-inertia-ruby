@@ -1,7 +1,7 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import CheckCircleIcon from "@/components/shared/check-circle-icon/CheckCircleIcon";
+import CheckCircleIcon from "@/components/shared/icons/check-circle-icon/CheckCircleIcon";
 
 describe("CheckCircleIcon", () => {
   it("renderiza um svg decorativo, sem lançar erro", () => {

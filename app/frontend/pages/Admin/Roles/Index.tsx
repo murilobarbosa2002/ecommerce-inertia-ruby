@@ -5,14 +5,9 @@ import PanelLayout from "@/components/admin/PanelLayout";
 import Link from "@/components/shared/link/Link";
 import { edit_admin_role_path, new_admin_role_path } from "@/routes";
 
-interface RoleRow {
-  id: number;
-  name: string;
-  permission_ids: number[];
-  permission_keys: string[];
-}
+import { type RolesIndexProps } from "./Index.types";
 
-export default function RolesIndex({ roles }: { roles: RoleRow[] }) {
+export default function RolesIndex({ roles }: RolesIndexProps) {
   const { t } = useTranslation();
 
   return (

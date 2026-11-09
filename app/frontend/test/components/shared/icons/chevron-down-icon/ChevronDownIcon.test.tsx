@@ -1,7 +1,7 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import ChevronDownIcon from "@/components/shared/chevron-down-icon/ChevronDownIcon";
+import ChevronDownIcon from "@/components/shared/icons/chevron-down-icon/ChevronDownIcon";
 
 describe("ChevronDownIcon", () => {
   it("renderiza um svg decorativo, sem lançar erro", () => {

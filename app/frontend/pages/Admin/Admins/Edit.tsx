@@ -1,41 +1,16 @@
-import { Head, router, usePage } from "@inertiajs/react";
+import { Head } from "@inertiajs/react";
 import { useTranslation } from "react-i18next";
 
 import PanelLayout from "@/components/admin/PanelLayout";
-import Button from "@/components/shared/button/Button";
 import Link from "@/components/shared/link/Link";
-import { admin_admins_path, reset_two_factor_admin_admin_path } from "@/routes";
-import { type SharedProps } from "@/types";
+import { admin_admins_path } from "@/routes";
 
 import AdminsEditForm from "./components/AdminsEditForm";
+import ResetTwoFactorButton from "./components/ResetTwoFactorButton";
+import { type AdminsEditProps } from "./Edit.types";
 
-interface AdminToEdit {
-  id: number;
-  email_address: string;
-  role_id: number;
-}
-
-export default function AdminsEdit({
-  admin,
-  roles,
-}: {
-  admin: AdminToEdit;
-  roles: { id: number; name: string }[];
-}) {
+export default function AdminsEdit({ admin, roles }: AdminsEditProps) {
   const { t } = useTranslation();
-  const {
-    props: { current_admin_permissions, current_admin_id },
-  } = usePage<SharedProps>();
-
-  const canResetTwoFactor =
-    current_admin_permissions.includes("reset_two_factor") &&
-    admin.id !== current_admin_id;
-
-  const resetTwoFactor = () => {
-    if (window.confirm(t("admin.admins.edit.resetTwoFactorConfirm"))) {
-      router.post(reset_two_factor_admin_admin_path(admin.id));
-    }
-  };
 
   return (
     <PanelLayout title={t("admin.admins.edit.title")}>
@@ -47,13 +22,7 @@ export default function AdminsEdit({
 
       <AdminsEditForm admin={admin} roles={roles} />
 
-      {canResetTwoFactor && (
-        <p className="mt-6">
-          <Button type="button" intent="ghost" onClick={resetTwoFactor}>
-            {t("admin.admins.edit.resetTwoFactorButton")}
-          </Button>
-        </p>
-      )}
+      <ResetTwoFactorButton adminId={admin.id} />
 
       <p className="mt-6 text-sm">
         <Link href={admin_admins_path()}>

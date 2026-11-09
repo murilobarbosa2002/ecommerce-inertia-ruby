@@ -1,11 +1,11 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import SunIcon from "@/components/shared/sun-icon/SunIcon";
+import MoonIcon from "@/components/shared/icons/moon-icon/MoonIcon";
 
-describe("SunIcon", () => {
+describe("MoonIcon", () => {
   it("renderiza um svg decorativo, sem lançar erro", () => {
-    const { container } = render(<SunIcon />);
+    const { container } = render(<MoonIcon />);
 
     const svg = container.querySelector("svg");
     expect(svg).toBeInTheDocument();

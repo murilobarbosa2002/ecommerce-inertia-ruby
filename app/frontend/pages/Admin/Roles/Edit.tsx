@@ -6,14 +6,9 @@ import Link from "@/components/shared/link/Link";
 import { admin_roles_path } from "@/routes";
 
 import RolesEditForm from "./components/RolesEditForm";
+import { type RolesEditProps } from "./Edit.types";
 
-export default function RolesEdit({
-  role,
-  permissions,
-}: {
-  role: { id: number; name: string; permission_ids: number[] };
-  permissions: { id: number; key: string; description: string }[];
-}) {
+export default function RolesEdit({ role, permissions }: RolesEditProps) {
   const { t } = useTranslation();
 
   return (

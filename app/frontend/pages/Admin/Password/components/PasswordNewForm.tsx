@@ -1,9 +1,7 @@
 import { useTranslation } from "react-i18next";
 
 import Button from "@/components/shared/button/Button";
-import FieldError from "@/components/shared/field-error/FieldError";
-import Input from "@/components/shared/input/Input";
-import Label from "@/components/shared/label/Label";
+import FormField from "@/components/shared/form-field/FormField";
 
 import usePasswordNewForm from "../usePasswordNewForm";
 
@@ -19,21 +17,18 @@ export default function PasswordNewForm() {
       className="space-y-5"
       noValidate
     >
-      <div>
-        <Label htmlFor="email_address">
-          {t("admin.password.new.emailLabel")}
-        </Label>
-        <Input
-          id="email_address"
-          type="email"
-          autoComplete="email"
-          invalid={!!errors.email_address}
-          {...register("email_address")}
-        />
-        {errors.email_address && (
-          <FieldError>{t("admin.password.new.emailRequired")}</FieldError>
-        )}
-      </div>
+      <FormField
+        id="email_address"
+        type="email"
+        autoComplete="email"
+        label={t("admin.password.new.emailLabel")}
+        error={
+          errors.email_address
+            ? t("admin.password.new.emailRequired")
+            : undefined
+        }
+        register={register("email_address")}
+      />
 
       <Button type="submit" disabled={isSubmitting}>
         {isSubmitting

@@ -1,7 +1,7 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import ExclamationIcon from "@/components/shared/exclamation-icon/ExclamationIcon";
+import ExclamationIcon from "@/components/shared/icons/exclamation-icon/ExclamationIcon";
 
 describe("ExclamationIcon", () => {
   it("renderiza um svg decorativo, sem lançar erro", () => {
