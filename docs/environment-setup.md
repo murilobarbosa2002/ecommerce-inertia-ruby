@@ -219,6 +219,21 @@ O comando só **imprime** as três chaves geradas (`primary_key`, `deterministic
 
 Verificação: `Rails.application.credentials.active_record_encryption.present?` retorna `true`; criar um registro com atributo `encrypts` e consultar a coluna direto no banco (`Model.connection.select_value(...)`) mostra o valor cifrado, diferente do valor em texto puro lido via o model.
 
+### Credentials do ambiente de teste (`config/credentials/test.*`)
+
+Status: feito.
+
+`docs/adr/0022` — ambiente de teste tem suas próprias chaves de `active_record_encryption`, independentes das de produção, pra o job `test`/`js` do CI não depender de nenhum secret do GitHub (`RAILS_MASTER_KEY`), que não chega em PRs abertos pelo Dependabot. Gerado assim:
+
+```bash
+RAILS_ENV=test bin/rails db:encryption:init
+EDITOR="code --wait" bin/rails credentials:edit --environment test
+```
+
+O segundo comando cria `config/credentials/test.key` (comitado, exceção em `.gitignore`) e `config/credentials/test.yml.enc`; cole as três chaves impressas pelo primeiro comando sob `active_record_encryption:` no editor que abrir. Se `config/credentials/test.key` for perdido/precisar ser regenerado, repita os dois comandos — não reaproveite nenhum valor de `config/credentials.yml.enc` (produção) nesse arquivo.
+
+Verificação: `RAILS_ENV=test bin/rails runner 'puts Rails.application.credentials.active_record_encryption.primary_key'` imprime a chave sem precisar de `RAILS_MASTER_KEY` no ambiente; `env -u RAILS_MASTER_KEY bundle exec rspec` passa limpo, simulando a condição real de um PR do Dependabot.
+
 ## Pendente (Fase 2 — ambiente da aplicação)
 
 Esta seção é atualizada com os comandos reais conforme cada item é de fato feito, não antes:

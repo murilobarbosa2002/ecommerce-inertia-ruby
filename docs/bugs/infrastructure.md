@@ -181,3 +181,33 @@ Qualquer deploy rodando Rails 8.1.4 ficava exposto às vulnerabilidades listadas
 ### Verificação
 
 `bin/bundler-audit` limpo (0 vulnerabilidades, eram 14) depois da atualização; `bin/brakeman`, `bundle exec rubocop` e `bundle exec rspec` (121 examples) confirmados limpos/verdes na mesma PR, pra garantir que o bump de patch não quebrou nada.
+
+## PR do Dependabot sempre falhava no job `test` por falta de `RAILS_MASTER_KEY`
+
+- **Data:** 2026-11-09
+- **Severidade:** alta
+- **PR:** #49
+
+### O que aconteceu
+
+O PR #47, aberto pelo Dependabot (bump de rotina do `solid_queue`, só `Gemfile.lock`, sem nenhuma relação com criptografia), falhou no job `test` com 34 exemplos vermelhos, todos `ActiveRecord::Encryption::Errors::Configuration: Missing Active Record encryption credential`. O mesmo workflow, no mesmo commit efetivo, passava limpo quando disparado por push direto na `main`.
+
+### Causa raiz
+
+O secret `RAILS_MASTER_KEY` (configurado desde o bug anterior, acima) existe no repositório, mas o GitHub Actions **não passa secrets do repositório pra workflows disparados por `pull_request` quando o autor é o Dependabot** — restrição de segurança deliberada, pra impedir que um bump de dependência malicioso use o próprio CI pra exfiltrar um secret real. Sem a variável, `config/credentials.yml.enc` nunca decripta, e qualquer spec que toque Active Record Encryption (2FA) falha.
+
+### Como foi encontrado
+
+Comparado o job `test` do PR do Dependabot (vermelho) com o job `test` do push imediatamente anterior na `main` (verde, mesmo código efetivo) — a única variável era a origem do trigger (PR do bot vs. push direto), levando à causa raiz documentada no changelog do GitHub Actions sobre secrets e Dependabot.
+
+### Impacto
+
+Todo PR do Dependabot que tocasse qualquer spec dependente de Active Record Encryption ficaria permanentemente vermelho, incluindo bumps triviais sem relação nenhuma com o problema real — treina a ignorar CI vermelho em PR de bot em vez de investigar, e impede usar o check como gate de merge automático pra esses PRs.
+
+### Correção
+
+`docs/adr/0022` — ambiente de teste ganhou credentials próprias (`config/credentials/test.yml.enc` + `config/credentials/test.key`, comitado, com chaves de `active_record_encryption` geradas só pra teste, sem valor de produção). `.github/workflows/ci.yml` parou de passar `RAILS_MASTER_KEY` pros jobs `test`/`js` — deixou de ser necessário, já que `RAILS_ENV=test` resolve as credentials do ambiente certo sozinho.
+
+### Verificação
+
+`env -u RAILS_MASTER_KEY bundle exec rspec` (156 examples) e `env -u RAILS_MASTER_KEY RAILS_ENV=test bin/rails js:routes` passam limpos localmente, simulando a condição exata de um PR do Dependabot (sem acesso a nenhum secret). PR do Dependabot original mergeado depois desta correção, com o job `test` passando de verdade.

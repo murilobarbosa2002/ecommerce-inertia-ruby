@@ -47,3 +47,12 @@ node_modules
 # Ignore automatically generated js-routes files.
 /app/frontend/routes.js
 /app/frontend/routes.d.ts
+
+# Ignore key files for decrypting credentials and more — exceto a de teste
+# (config/credentials/test.key), que é intencionalmente comitada: só protege
+# dado falso usado em teste, nunca segredo real, e existir no repo é o que
+# permite o job de teste do CI rodar sem precisar de nenhum secret do GitHub
+# (docs/adr/0022).
+/config/credentials/*.key
+!/config/credentials/test.key
+
