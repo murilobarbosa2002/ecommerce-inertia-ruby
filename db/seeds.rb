@@ -20,5 +20,12 @@ manage_admins = Permission.find_or_create_by!(key: "manage_admins") do |permissi
   permission.description = "Criar, listar e editar outros admins"
 end
 
-owner_role = Role.find_or_create_by!(name: "owner")
+manage_roles = Permission.find_or_create_by!(key: "manage_roles") do |permission|
+  permission.description = "Criar papéis e configurar quais permissões cada um tem"
+end
+
+owner_role = Role.find_or_create_by!(name: "owner") do |role|
+  role.change_reason = "Seed inicial do RBAC"
+end
 owner_role.permissions << manage_admins unless owner_role.permissions.include?(manage_admins)
+owner_role.permissions << manage_roles unless owner_role.permissions.include?(manage_roles)

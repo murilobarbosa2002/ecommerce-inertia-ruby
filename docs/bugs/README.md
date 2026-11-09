@@ -52,6 +52,8 @@ Registro completo e detalhado de todo bug real encontrado neste projeto, organiz
 | 2026-11-09 | I18n e validação | Trocar senha autenticado "passaria" sem trocar nada com um password em branco | Média | #51 | [i18n-and-data-validation.md](i18n-and-data-validation.md) |
 | 2026-11-09 | Estrutura de código | `request.get?` sozinho trata requisição HEAD como mutação | Baixa | #51 | [code-structure.md](code-structure.md) |
 | 2026-11-09 | 2FA | QR code de configuração do 2FA não aparecia na tela | Alta | #51 | [two-factor-authentication.md](two-factor-authentication.md) |
+| 2026-11-09 | I18n e validação | Atributos do model `Role` sem tradução pt-BR, erro de validação aparecia em inglês | Baixa | #52 | [i18n-and-data-validation.md](i18n-and-data-validation.md) |
+| 2026-11-09 | Audit logging | Revogar permissão de um papel não deixava rastro, e conceder perdia o motivo | Alta | #52 | [audit-logging.md](audit-logging.md) |
 
 ## Categorias
 

@@ -40,7 +40,11 @@ RSpec.describe "admin:create", type: :task do
   end
 
   context "quando a role \"owner\" não existe (banco sem bin/rails db:seed)" do
-    before { Role.find_by(name: "owner")&.destroy! }
+    before do
+      role = Role.find_by(name: "owner")
+      role&.assign_attributes(change_reason: "Removendo pra teste")
+      role&.destroy!
+    end
 
     it "não cria admin nenhum e sai com erro, sem tentar inventar a role" do
       expect { run_task }.to raise_error(RakeTaskExited).and change(Admin, :count).by(0)

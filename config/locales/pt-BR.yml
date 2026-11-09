@@ -9,6 +9,9 @@ pt-BR:
         password: "Senha"
         password_confirmation: "Confirmação de senha"
         change_reason: "Motivo da alteração"
+      role:
+        name: "Nome"
+        change_reason: "Motivo da alteração"
   # has_secure_password usa esta chave (fora do namespace activerecord, igual
   # ao Rails: lib/active_model/locale/en.yml) pro erro de senha maior que os
   # 72 bytes aceitos pelo bcrypt. rails-i18n ainda não traduz essa chave
@@ -25,6 +28,11 @@ pt-BR:
         success: "Admin criado com sucesso"
       update:
         success: "Admin atualizado com sucesso"
+    roles:
+      create:
+        success: "Papel criado com sucesso"
+      update:
+        success: "Papel atualizado com sucesso"
     sessions:
       create:
         invalid_credentials: "E-mail ou senha inválidos"

@@ -88,6 +88,30 @@ describe("PanelLayout", () => {
     ).toBeInTheDocument();
   });
 
+  it("não mostra o link Gerenciar papéis sem a permissão manage_roles", () => {
+    render(<PanelLayout title="Painel">{null}</PanelLayout>);
+
+    expect(
+      screen.queryByRole("link", { name: "Gerenciar papéis" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("mostra o link Gerenciar papéis com a permissão manage_roles", () => {
+    usePageMock.mockReturnValue({
+      ...defaultPageProps,
+      props: {
+        ...defaultPageProps.props,
+        current_admin_permissions: ["manage_roles"],
+      },
+    });
+
+    render(<PanelLayout title="Painel">{null}</PanelLayout>);
+
+    expect(
+      screen.getByRole("link", { name: "Gerenciar papéis" }),
+    ).toBeInTheDocument();
+  });
+
   it("mostra o link Perfil sempre, independente de permissão", () => {
     render(<PanelLayout title="Painel">{null}</PanelLayout>);
 
