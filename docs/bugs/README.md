@@ -46,6 +46,7 @@ Registro completo e detalhado de todo bug real encontrado neste projeto, organiz
 | 2026-11-09 | Estrutura de código | `Select` (Radix) avisava "changing from uncontrolled to controlled" por falta de `defaultValues` | Baixa | #48 | [code-structure.md](code-structure.md) |
 | 2026-11-09 | Testes e ferramentas | `userEvent.setup()` substitui `navigator.clipboard` por um stub próprio | Média | #48 | [testing-and-tooling.md](testing-and-tooling.md) |
 | 2026-11-09 | Testes e ferramentas | `react/prop-types` aponta falso positivo quando `usePage().props` é desestruturado como `props` | Baixa | #48 | [testing-and-tooling.md](testing-and-tooling.md) |
+| 2026-11-09 | Infraestrutura | PR do Dependabot sempre falhava no job `test` por falta de `RAILS_MASTER_KEY` | Alta | #49 | [infrastructure.md](infrastructure.md) |
 
 ## Categorias
 
