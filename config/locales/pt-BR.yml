@@ -18,6 +18,13 @@ pt-BR:
     messages:
       password_too_long: "é muito longa"
   admin:
+    authorization:
+      forbidden: "Você não tem permissão pra acessar essa página"
+    admins:
+      create:
+        success: "Admin criado com sucesso"
+      update:
+        success: "Admin atualizado com sucesso"
     sessions:
       create:
         invalid_credentials: "E-mail ou senha inválidos"

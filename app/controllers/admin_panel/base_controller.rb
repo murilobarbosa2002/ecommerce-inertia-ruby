@@ -5,10 +5,14 @@ module AdminPanel
 
     before_action :set_paper_trail_whodunnit
 
-    # PENDING-FRONTEND: sem verificação de ponta a ponta ainda — nenhum
-    # controller atual edita um campo rastreado por change_reason
-    # (email_address do Admin); fica verificável quando a tela de gerenciar
-    # admins existir (fase de RBAC, ver docs/adr/0013).
+    # Permissões do admin logado, pra qualquer página condicionar nav/UI sem
+    # cada controller precisar compartilhar isso individualmente (docs/adr/0021)
+    # — array vazio nas páginas pré-autenticação (login, reset de senha),
+    # nunca usado lá.
+    inertia_share do
+      { current_admin_permissions: Current.admin&.role&.permissions&.pluck(:key) || [] }
+    end
+
     def user_for_paper_trail
       Current.admin&.id
     end

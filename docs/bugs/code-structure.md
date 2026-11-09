@@ -121,3 +121,63 @@ Controllers do painel passaram a usar o namespace Ruby `AdminPanel::` em vez de 
 ### Verificação
 
 Confirmado que `AdminPanel::SessionsController` carrega e resolve normalmente, enquanto uma tentativa deliberada de usar `Admin::SessionsController` reproduz o `TypeError` original. Documentado em `CONTRIBUTING.md` como regra geral: nome de namespace de controller/service nunca pode colidir com o nome de um model já existente.
+
+## `PanelLayout` não exibia nenhum flash de notice/alert
+
+- **Data:** 2026-11-09
+- **Severidade:** alta
+- **PR:** #48
+
+### O que aconteceu
+
+Ao implementar o CRUD de "gerenciar admins", a primeira versão de `AdminsController#create`/`#update` usava `redirect_to ..., inertia: { errors: admin.errors }` (protocolo de erro por campo do Inertia Rails) nas falhas de validação, e o `PanelLayout` (layout de todas as páginas autenticadas do painel) nunca lia `usePage().flash` — só o `AuthLayout` (pré-autenticação) fazia isso. O resultado combinado: tanto o `notice` de sucesso quanto qualquer erro de validação do servidor ficavam completamente invisíveis em qualquer página dentro do `PanelLayout`.
+
+### Causa raiz
+
+Duas lacunas independentes se somando: (1) nenhum componente React do projeto consumia `usePage().props.errors` (o campo que `inertia: { errors: ... }` popula) nem chamava `setError` do React Hook Form com ele — o protocolo estava sendo usado no backend sem nenhum consumidor no frontend; (2) `PanelLayout` nunca foi cabeado pra renderizar `Banner` a partir de `usePage().flash`, diferente do `AuthLayout`, que já fazia isso desde a Fase 3.
+
+### Como foi encontrado
+
+Autorrevisão do próprio diff antes de abrir o PR: ao reler `AdminsController` por completo, ficou evidente que `inertia: { errors: ... }` não tinha nenhum consumidor no frontend. A ausência de flash no `PanelLayout` foi notada em seguida, ao verificar onde esse erro de fato apareceria pro usuário.
+
+### Impacto
+
+Um admin tentando criar outro admin com e-mail já cadastrado (ou atualizar um admin sem motivo de alteração) seria redirecionado de volta ao formulário sem nenhuma explicação visível — parecendo que a ação simplesmente não fez nada. O `notice` de sucesso ("Admin criado com sucesso") também nunca apareceria.
+
+### Correção
+
+`AdminsController#create`/`#update` passaram a usar `redirect_to ..., alert: admin.errors.full_messages.to_sentence` (mensagem localizada via `rails-i18n`/`activerecord.attributes`, mesmo padrão de `PasswordsController#update`). `PanelLayout` passou a renderizar `Banner` a partir de `usePage().flash` (notice/alert), reaproveitando o componente já existente desde o `AuthLayout` — nenhum componente novo foi criado.
+
+### Verificação
+
+`spec/requests/admin/admins_spec.rb` passou a verificar o conteúdo de `flash[:alert]` nos dois cenários de falha (e-mail duplicado, motivo de alteração em branco), não só o redirect. `PanelLayout.test.tsx` ganhou dois casos novos (flash de notice e de alert), confirmados vermelhos removendo a renderização do `Banner` antes de restaurar a correção.
+
+## `Select` (Radix) avisava "changing from uncontrolled to controlled" por falta de `defaultValues`
+
+- **Data:** 2026-11-09
+- **Severidade:** baixa
+- **PR:** #48
+
+### O que aconteceu
+
+Ao integrar o `Select` do Radix com React Hook Form no formulário de criação de admin (`useAdminsNewForm`), o console emitia o aviso do React "A component is changing an uncontrolled input to be controlled" ao escolher um papel.
+
+### Causa raiz
+
+`useForm()` não tinha `defaultValues`, então `role_id` começava como `undefined` — `Select.Root value={undefined}` inicializa "uncontrolled" e passa a "controlled" assim que `onValueChange` seta um valor de fato, no primeiro papel escolhido.
+
+### Como foi encontrado
+
+Aviso real do React apareceu no stderr ao rodar `New.test.tsx`.
+
+### Impacto
+
+Nenhum efeito funcional observado neste caso específico, mas é sinal real de um componente controlado que pode perder sincronização de estado em cenários mais complexos — ignorar o aviso generalizaria mal pra qualquer formulário futuro com `Select`.
+
+### Correção
+
+`useAdminsNewForm` passou a declarar `defaultValues` com string vazia pra todo campo (incluindo `role_id`), garantindo que o `Select` já nasce "controlled". Regra geral documentada em `CONTRIBUTING.md`, seção "Padrões de código".
+
+### Verificação
+
+Aviso desapareceu do stderr do teste depois da correção; reproduzido de novo removendo `defaultValues` de propósito antes de restaurar.

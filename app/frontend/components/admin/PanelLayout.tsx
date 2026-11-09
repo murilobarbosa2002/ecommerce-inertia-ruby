@@ -1,10 +1,13 @@
 import { type ReactNode } from "react";
-import { Head, router } from "@inertiajs/react";
+import { Head, router, usePage } from "@inertiajs/react";
 import { useTranslation } from "react-i18next";
 
+import Banner from "@/components/shared/banner/Banner";
 import Button from "@/components/shared/button/Button";
+import Link from "@/components/shared/link/Link";
 import ThemeToggle from "@/components/shared/theme-toggle/ThemeToggle";
-import { admin_session_path } from "@/routes";
+import { admin_admins_path, admin_session_path } from "@/routes";
+import { type FlashData, type SharedProps } from "@/types";
 
 export default function PanelLayout({
   title,
@@ -14,6 +17,11 @@ export default function PanelLayout({
   children: ReactNode;
 }) {
   const { t } = useTranslation();
+  const { props: pageProps, flash } = usePage<SharedProps>() as {
+    props: SharedProps;
+    flash?: FlashData;
+  };
+  const { current_admin_permissions } = pageProps;
 
   const signOut = () => {
     router.delete(admin_session_path());
@@ -29,7 +37,12 @@ export default function PanelLayout({
             {t("shared.panelLayout.brand")}
           </span>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
+            {current_admin_permissions.includes("manage_admins") && (
+              <Link href={admin_admins_path()}>
+                {t("shared.panelLayout.manageAdmins")}
+              </Link>
+            )}
             <ThemeToggle />
             <Button type="button" intent="ghost" onClick={signOut}>
               {t("shared.panelLayout.signOut")}
@@ -38,7 +51,11 @@ export default function PanelLayout({
         </div>
       </nav>
 
-      <main className="mx-auto max-w-5xl px-4 py-8">{children}</main>
+      <main className="mx-auto max-w-5xl px-4 py-8">
+        {flash?.notice && <Banner tone="notice">{flash.notice}</Banner>}
+        {flash?.alert && <Banner tone="alert">{flash.alert}</Banner>}
+        {children}
+      </main>
     </div>
   );
 }
