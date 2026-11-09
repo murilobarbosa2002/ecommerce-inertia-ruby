@@ -68,7 +68,7 @@ RSpec.describe "Admin::Admins", type: :request do
       expect(Admin.last.email_address).to eq("novo@example.com")
     end
 
-    it "registra o motivo digitado na versão do PaperTrail" do
+    it "registra o motivo digitado e quem criou na versão do PaperTrail" do
       admin = create(:admin, :with_two_factor_enabled, role: role_with_permission)
       sign_in(admin)
 
@@ -80,7 +80,9 @@ RSpec.describe "Admin::Admins", type: :request do
         change_reason: "Novo admin da equipe de suporte"
       }
 
-      expect(Admin.last.versions.last.change_reason).to eq("Novo admin da equipe de suporte")
+      version = Admin.last.versions.last
+      expect(version.change_reason).to eq("Novo admin da equipe de suporte")
+      expect(version.whodunnit).to eq(admin.id.to_s)
     end
 
     it "não cria e redireciona de volta quando o e-mail já existe" do
@@ -116,7 +118,7 @@ RSpec.describe "Admin::Admins", type: :request do
   end
 
   describe "PATCH /admin/admins/:id" do
-    it "atualiza o e-mail com motivo, registrando versão no PaperTrail" do
+    it "atualiza o e-mail com motivo, registrando versão no PaperTrail com quem alterou" do
       admin = create(:admin, :with_two_factor_enabled, role: role_with_permission)
       sign_in(admin)
       target = create(:admin, email_address: "antigo@example.com", role: role_without_permission)
@@ -129,7 +131,9 @@ RSpec.describe "Admin::Admins", type: :request do
 
       expect(response).to redirect_to(admin_admins_path)
       expect(target.reload.email_address).to eq("novo-email@example.com")
-      expect(target.versions.last.change_reason).to eq("Correção de digitação no e-mail")
+      version = target.versions.last
+      expect(version.change_reason).to eq("Correção de digitação no e-mail")
+      expect(version.whodunnit).to eq(admin.id.to_s)
     end
 
     it "não atualiza e redireciona de volta sem motivo quando o e-mail muda" do
@@ -148,7 +152,7 @@ RSpec.describe "Admin::Admins", type: :request do
       expect(flash[:alert]).to eq("Motivo da alteração não pode ficar em branco")
     end
 
-    it "atualiza o papel com motivo, registrando versão no PaperTrail" do
+    it "atualiza o papel com motivo, registrando versão no PaperTrail com quem alterou" do
       admin = create(:admin, :with_two_factor_enabled, role: role_with_permission)
       sign_in(admin)
       other_role = create(:role)
@@ -164,6 +168,7 @@ RSpec.describe "Admin::Admins", type: :request do
 
       expect(target.role_id).to eq(other_role.id)
       expect(target.versions.last.change_reason).to eq("Promovido pra outro papel")
+      expect(target.versions.last.whodunnit).to eq(admin.id.to_s)
       expect(target.versions.last.changeset["role_id"]).to eq(
         [ role_without_permission.id, other_role.id ],
       )
