@@ -6,7 +6,7 @@ Aceito
 
 ## Contexto
 
-Até agora o frontend não tinha tema escuro — toda classe de cor nas páginas de autenticação (PR7 da Fase 3) e nos componentes de `components/shared/` (`docs/adr/0019`) era fixa pro tema claro. Deixar pra decidir isso só quando o painel admin real existir (Fase 5) significaria retrofitar `dark:` em toda página/componente já construído, o retrabalho que a Fase 4 inteira busca evitar.
+Até agora o frontend não tinha tema escuro — toda classe de cor nas páginas de autenticação (`#39`) e nos componentes de `components/shared/` (`docs/adr/0019`) era fixa pro tema claro. Deixar pra decidir isso só quando o painel admin real existir (Fase 5) significaria retrofitar `dark:` em toda página/componente já construído, o retrabalho que a Fase 4 inteira busca evitar.
 
 O Tailwind suporta dark mode de duas formas: seguindo `prefers-color-scheme` do sistema operacional automaticamente (`media`, o padrão), ou via seletor CSS controlado pela aplicação (`@custom-variant dark (&:where(.dark, .dark *));`, aplicando uma classe `.dark` em algum ancestral, geralmente `<html>`). Só a segunda permite um toggle manual que o usuário controla, independente da preferência do SO — a primeira não dá escolha nenhuma ao usuário.
 
