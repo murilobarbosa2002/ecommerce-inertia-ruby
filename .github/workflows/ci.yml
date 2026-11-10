@@ -92,7 +92,14 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install Chromium (specs de sistema via Cuprite)
-        run: sudo apt-get update && sudo apt-get install -y chromium-browser
+        # DEBIAN_FRONTEND=noninteractive e NEEDRESTART_MODE=a evitam que o
+        # apt-get trave esperando um prompt interativo do needrestart
+        # (pergunta quais serviços reiniciar) que nunca chega numa shell
+        # não-interativa de CI — bug real: o job ficou preso 20+ minutos na
+        # mesma etapa em duas execuções seguidas, sem nenhum erro no log.
+        run: |
+          sudo DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a apt-get install -y chromium-browser
 
       - name: Generate js-routes (app/frontend/routes.js + routes.d.ts)
         run: bin/rails js:routes

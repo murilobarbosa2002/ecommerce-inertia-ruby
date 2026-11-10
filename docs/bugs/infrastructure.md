@@ -211,3 +211,33 @@ Todo PR do Dependabot que tocasse qualquer spec dependente de Active Record Encr
 ### Verificação
 
 `env -u RAILS_MASTER_KEY bundle exec rspec` (156 examples) e `env -u RAILS_MASTER_KEY RAILS_ENV=test bin/rails js:routes` passam limpos localmente, simulando a condição exata de um PR do Dependabot (sem acesso a nenhum secret). PR do Dependabot original mergeado depois desta correção, com o job `test` passando de verdade.
+
+## Job `test` travava indefinidamente instalando o Chromium, sem nenhum erro no log
+
+- **Data:** 2026-11-10
+- **Severidade:** alta
+- **PR:** #61
+
+### O que aconteceu
+
+O job `test` de um PR (#60) ficou preso mais de 20 minutos na etapa "Install Chromium (specs de sistema via Cuprite)", sem avançar e sem nenhuma linha de erro no log — o passo nunca completava nem falhava. Cancelado e re-rodado, o mesmo job travou de novo, na mesma etapa exata, pelo mesmo tempo — não era uma falha pontual de infraestrutura do runner.
+
+### Causa raiz
+
+A etapa rodava `sudo apt-get update && sudo apt-get install -y chromium-browser` sem `DEBIAN_FRONTEND=noninteractive`/`NEEDRESTART_MODE=a`. Em runners com uma imagem Ubuntu mais nova, o `apt-get install` pode acionar um prompt interativo do `needrestart` (perguntando quais serviços reiniciar depois da instalação) — numa shell não-interativa de CI, esse prompt nunca chega a ser respondido, e o processo fica esperando input pra sempre em vez de falhar com algum erro visível no log.
+
+### Como foi encontrado
+
+Comparado o tempo da etapa travada (20+ minutos) com o tempo da mesma etapa num run anterior bem-sucedido (bem mais curto, dentro do job de ~16 minutos no total) — descartada coincidência de infraestrutura ao confirmar, via `gh api repos/.../actions/jobs/{id}` (campo `steps`, com `started_at`/`completed_at` de cada passo), que dois runs consecutivos e independentes travaram exatamente na mesma etapa, pelo mesmo padrão de tempo.
+
+### Impacto
+
+Qualquer PR aberto a partir desse ponto travaria o job `test` indefinidamente na mesma etapa, sem nenhum erro que indicasse a causa — exigiria cancelamento manual e investigação a cada vez, bloqueando o merge de toda PR (check obrigatório) até alguém notar o padrão.
+
+### Correção
+
+`.github/workflows/ci.yml`: a etapa "Install Chromium" passa a rodar `apt-get update`/`apt-get install` com `DEBIAN_FRONTEND=noninteractive` e `NEEDRESTART_MODE=a`, desligando o prompt interativo do `needrestart` de propósito.
+
+### Verificação
+
+CI do PR #61 (que introduz esta correção) completou a etapa "Install Chromium" normalmente em ~7 minutos (confirmado via `gh api .../jobs/{id}`, `started_at`/`completed_at` do passo) — job `test` inteiro em 8m1s, sem travar.
