@@ -19,6 +19,7 @@ export const ptBR = {
       twoFactorRequiredButton: "Configurar agora",
     },
     passwordGenerator: {
+      optionsLabel: "Opções de geração de senha",
       includeUppercase: "Maiúsculas",
       includeNumbers: "Números",
       includeSpecialCharacters: "Caracteres especiais",

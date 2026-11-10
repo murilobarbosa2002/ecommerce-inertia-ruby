@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="<%= I18n.locale %>">
   <head>
-    <%# Aplica a classe "dark" na <html> antes do primeiro paint — inline e
+    <%# Aplica a classe "dark" na <html lang="<%= I18n.locale %>"> antes do primeiro paint — inline e
         síncrono de propósito, pra não esperar o bundle JS carregar (causaria
         um flash do tema claro antes do escuro aparecer, docs/adr/0020).
         Mesma lógica de app/frontend/hooks/useTheme.ts, duplicada aqui porque

@@ -57,66 +57,71 @@ export default function PasswordGenerator({
 
   return (
     <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-800">
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-        <div className="flex items-center gap-2">
-          <Checkbox
-            id="password-generator-uppercase"
-            checked={includeUppercase}
-            onCheckedChange={(checked) => {
-              setIncludeUppercase(checked === true);
-            }}
-          />
-          <Label htmlFor="password-generator-uppercase" className="mb-0">
-            {t("shared.passwordGenerator.includeUppercase")}
-          </Label>
-        </div>
+      <fieldset>
+        <legend className="mb-1.5 text-sm font-medium text-gray-700 select-none dark:text-gray-300">
+          {t("shared.passwordGenerator.optionsLabel")}
+        </legend>
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="password-generator-uppercase"
+              checked={includeUppercase}
+              onCheckedChange={(checked) => {
+                setIncludeUppercase(checked === true);
+              }}
+            />
+            <Label htmlFor="password-generator-uppercase" className="mb-0">
+              {t("shared.passwordGenerator.includeUppercase")}
+            </Label>
+          </div>
 
-        <div className="flex items-center gap-2">
-          <Checkbox
-            id="password-generator-numbers"
-            checked={includeNumbers}
-            onCheckedChange={(checked) => {
-              setIncludeNumbers(checked === true);
-            }}
-          />
-          <Label htmlFor="password-generator-numbers" className="mb-0">
-            {t("shared.passwordGenerator.includeNumbers")}
-          </Label>
-        </div>
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="password-generator-numbers"
+              checked={includeNumbers}
+              onCheckedChange={(checked) => {
+                setIncludeNumbers(checked === true);
+              }}
+            />
+            <Label htmlFor="password-generator-numbers" className="mb-0">
+              {t("shared.passwordGenerator.includeNumbers")}
+            </Label>
+          </div>
 
-        <div className="flex items-center gap-2">
-          <Checkbox
-            id="password-generator-special-characters"
-            checked={includeSpecialCharacters}
-            onCheckedChange={(checked) => {
-              setIncludeSpecialCharacters(checked === true);
-            }}
-          />
-          <Label
-            htmlFor="password-generator-special-characters"
-            className="mb-0"
-          >
-            {t("shared.passwordGenerator.includeSpecialCharacters")}
-          </Label>
-        </div>
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="password-generator-special-characters"
+              checked={includeSpecialCharacters}
+              onCheckedChange={(checked) => {
+                setIncludeSpecialCharacters(checked === true);
+              }}
+            />
+            <Label
+              htmlFor="password-generator-special-characters"
+              className="mb-0"
+            >
+              {t("shared.passwordGenerator.includeSpecialCharacters")}
+            </Label>
+          </div>
 
-        <div className="flex items-center gap-2">
-          <Label htmlFor="password-generator-length" className="mb-0">
-            {t("shared.passwordGenerator.length")}
-          </Label>
-          <Input
-            id="password-generator-length"
-            type="number"
-            min={MIN_LENGTH}
-            max={MAX_LENGTH}
-            value={lengthInput}
-            onChange={(event) => {
-              setLengthInput(event.target.value);
-            }}
-            className="w-20"
-          />
+          <div className="flex items-center gap-2">
+            <Label htmlFor="password-generator-length" className="mb-0">
+              {t("shared.passwordGenerator.length")}
+            </Label>
+            <Input
+              id="password-generator-length"
+              type="number"
+              min={MIN_LENGTH}
+              max={MAX_LENGTH}
+              value={lengthInput}
+              onChange={(event) => {
+                setLengthInput(event.target.value);
+              }}
+              className="w-20"
+            />
+          </div>
         </div>
-      </div>
+      </fieldset>
 
       <Button
         type="button"

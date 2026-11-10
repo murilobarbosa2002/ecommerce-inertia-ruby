@@ -55,6 +55,10 @@ Registro completo e detalhado de todo bug real encontrado neste projeto, organiz
 | 2026-11-09 | I18n e validação | Atributos do model `Role` sem tradução pt-BR, erro de validação aparecia em inglês | Baixa | #52 | [i18n-and-data-validation.md](i18n-and-data-validation.md) |
 | 2026-11-09 | Audit logging | Revogar permissão de um papel não deixava rastro, e conceder perdia o motivo | Alta | #52 | [audit-logging.md](audit-logging.md) |
 | 2026-11-09 | 2FA | Resetar o 2FA de outro admin não validava se o alvo já estava sem 2FA ativo | Baixa | #54 | [two-factor-authentication.md](two-factor-authentication.md) |
+| 2026-11-09 | Acessibilidade | `<html>` sem atributo `lang` | Alta | #56 | [accessibility.md](accessibility.md) |
+| 2026-11-09 | Acessibilidade | `Dialog` não associava a descrição via `aria-describedby` | Média | #56 | [accessibility.md](accessibility.md) |
+| 2026-11-09 | Acessibilidade | Borda de campo inválido com contraste insuficiente (WCAG 1.4.11) | Média | #56 | [accessibility.md](accessibility.md) |
+| 2026-11-09 | Acessibilidade | Opções do gerador de senha sem agrupamento semântico | Baixa | #56 | [accessibility.md](accessibility.md) |
 
 ## Categorias
 
@@ -65,6 +69,7 @@ Registro completo e detalhado de todo bug real encontrado neste projeto, organiz
 - [infrastructure.md](infrastructure.md) — banco de dados, cache, criptografia, variáveis de ambiente, deploy.
 - [code-structure.md](code-structure.md) — organização de código, namespace, arquitetura, convenção de nomes.
 - [i18n-and-data-validation.md](i18n-and-data-validation.md) — locale, tradução, validação de dado em fronteira de confiança.
+- [accessibility.md](accessibility.md) — WCAG, ARIA, contraste, navegação por teclado, leitor de tela.
 
 ## Template de entrada
 
