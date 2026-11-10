@@ -38,3 +38,16 @@ owner_role.permissions << manage_roles unless owner_role.permissions.include?(ma
 Permission.find_or_create_by!(key: "reset_two_factor") do |permission|
   permission.description = "Resetar o 2FA de outro admin (fluxo de recuperação de conta)"
 end
+
+# manage_store_settings segue a mesma regra de reset_two_factor: existe
+# (pra ser atribuível pela tela de papéis), mas nunca é atribuída a nenhum
+# papel por padrão — informação de marca da loja (nome, logo) é sensível o
+# bastante pra exigir concessão deliberada, nunca automática.
+Permission.find_or_create_by!(key: "manage_store_settings") do |permission|
+  permission.description = "Configurar o nome e o logo da loja"
+end
+
+# StoreSetting.instance também cria sozinho se faltar (fallback pra banco
+# não seedado), mas seedar aqui garante a linha sem depender desse
+# fallback em produção — mesmo racional do Role "owner" acima.
+StoreSetting.instance

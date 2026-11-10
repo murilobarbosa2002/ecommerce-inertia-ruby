@@ -69,6 +69,12 @@ Rails.application.routes.draw do
     # Perfil do próprio admin autenticado (trocar senha) — singular, não tem
     # :id porque é sempre o Current.admin, nunca outro registro.
     resource :profile, only: %i[show update]
+
+    # Configuração da loja (nome, logo) — singular, singleton de verdade
+    # (StoreSetting.instance), gated por require_permission
+    # :manage_store_settings. Sem :new/:index/:destroy — só existe uma
+    # configuração, nunca criada/listada/destruída pela UI.
+    resource :store_setting, only: %i[edit update]
   end
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

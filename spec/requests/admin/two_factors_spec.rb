@@ -37,6 +37,33 @@ RSpec.describe "Admin::TwoFactors", type: :request do
       expect(qr_code_svg).to match(/height="\d+"/)
     end
 
+    it "usa o name configurado em StoreSetting como issuer do provisioning_uri, não o host" do
+      StoreSetting.instance.update!(name: "Minha Loja", change_reason: "Setup de teste")
+      admin = create(:admin)
+      sign_in(admin)
+
+      get new_admin_two_factor_path
+
+      page_data = JSON.parse(response.body[/data-page="app" type="application\/json">(.*?)<\/script>/m, 1])
+      provisioning_uri = page_data["props"]["provisioning_uri"]
+
+      expect(provisioning_uri).to include("issuer=Minha%20Loja")
+      expect(provisioning_uri).not_to include("issuer=#{request.host}")
+    end
+
+    it "cai pro host da requisição quando o name de StoreSetting está em branco" do
+      expect(StoreSetting.instance.name).to eq("")
+      admin = create(:admin)
+      sign_in(admin)
+
+      get new_admin_two_factor_path
+
+      page_data = JSON.parse(response.body[/data-page="app" type="application\/json">(.*?)<\/script>/m, 1])
+      provisioning_uri = page_data["props"]["provisioning_uri"]
+
+      expect(provisioning_uri).to include("issuer=#{request.host}")
+    end
+
     it "não sobrescreve o secret quando o 2FA já está ativo (evitaria travar o login)" do
       admin = create(:admin)
       sign_in(admin)

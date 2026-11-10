@@ -39,7 +39,14 @@ class AuditEvent < ApplicationRecord
     # two_factor_disabled (o próprio dono da conta desativando o próprio
     # 2FA), nunca reaproveitado entre os dois mesmo o efeito final sendo
     # idêntico (AdminTwoFactor::DisableTwoFactor).
-    two_factor_reset_by_admin: 15
+    two_factor_reset_by_admin: 15,
+    # Configuração da loja (nome, logo) alterada — não é sobre a conta de
+    # nenhum admin específico (admin fica nil), só performed_by_admin. Um
+    # evento só, sempre, independente de qual campo mudou (name e/ou logo)
+    # — logo não é atributo rastreado por object_changes do PaperTrail
+    # (não é coluna), então este é o único rastro estruturado que diz QUAL
+    # campo mudou.
+    store_settings_updated: 16
   }
 
   validates :event_type, presence: true

@@ -17,6 +17,7 @@ RSpec.describe AuditEvent, type: :model do
         two_factor_enabled two_factor_disabled two_factor_verified two_factor_failed
         recovery_code_used password_reset_requested password_reset_completed
         password_verified reauthentication_failed password_changed two_factor_reset_by_admin
+        store_settings_updated
       ]
     end
 

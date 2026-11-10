@@ -12,6 +12,17 @@ pt-BR:
       role:
         name: "Nome"
         change_reason: "Motivo da alteração"
+      store_setting:
+        name: "Nome da loja"
+        logo: "Logo"
+        change_reason: "Motivo da alteração"
+    errors:
+      models:
+        store_setting:
+          attributes:
+            logo:
+              content_type_invalid: "precisa ser PNG, JPEG, SVG ou WebP"
+              file_size_too_big: "não pode passar de 2MB"
   # has_secure_password usa esta chave (fora do namespace activerecord, igual
   # ao Rails: lib/active_model/locale/en.yml) pro erro de senha maior que os
   # 72 bytes aceitos pelo bcrypt. rails-i18n ainda não traduz essa chave
@@ -37,6 +48,9 @@ pt-BR:
         success: "Papel criado com sucesso"
       update:
         success: "Papel atualizado com sucesso"
+    store_settings:
+      update:
+        success: "Configurações da loja atualizadas com sucesso"
     sessions:
       create:
         invalid_credentials: "E-mail ou senha inválidos"

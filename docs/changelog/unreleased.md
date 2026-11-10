@@ -24,9 +24,11 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 - Telas de configurar o 2FA (QR code + confirmação do app autenticador) e de códigos de recuperação, e tela de perfil do admin (trocar a senha, ver status do 2FA e desativá-lo). Os códigos de recuperação podem ser baixados como `.txt` ou como imagem, além de aparecerem na tela.
 - Tela de gerenciar papéis (listar, criar e editar), restrita a quem tem a permissão correspondente — cada papel tem um nome e um conjunto de permissões configurável por checkbox; criar ou editar um papel pede motivo da alteração (auditável), inclusive quando só a lista de permissões muda, sem renomear o papel.
 - Resetar o 2FA de outro admin (tela de gerenciar admins), restrito a quem tem a permissão `reset_two_factor` — fluxo de recuperação pra quando um admin perde o autenticador e os códigos de recuperação ao mesmo tempo; nunca permite resetar o próprio 2FA por essa tela. `bin/rails admin:disable_two_factor[email]` existe como último recurso (acesso de shell) pro caso em que nem isso resolve.
+- Tela de configurações da loja (nome e logo), restrita a quem tem a permissão `manage_store_settings` — qualquer alteração (nome e/ou logo) pede motivo e gera evento de auditoria.
 
 ## Corrigido
 
+- O issuer mostrado no app autenticador ao configurar o 2FA passa a usar o nome configurado da loja, em vez do host da requisição (ex. `localhost` em desenvolvimento).
 - Logout do admin passou a gerar evento de auditoria (antes não era registrado).
 - Verificação de 2FA no login passou a respeitar o bloqueio de conta (antes, um código correto contornava o bloqueio mesmo com a conta bloqueada).
 - Desativar 2FA com a senha atual errada passou a contar para o limite de 5 tentativas da conta (antes era ilimitado).

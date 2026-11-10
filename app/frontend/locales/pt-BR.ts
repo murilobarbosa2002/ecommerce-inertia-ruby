@@ -12,6 +12,7 @@ export const ptBR = {
       signOut: "Sair",
       manageAdmins: "Gerenciar admins",
       manageRoles: "Gerenciar papéis",
+      storeSettings: "Configurações da loja",
       profile: "Perfil",
       twoFactorRequiredTitle: "Autenticação de dois fatores obrigatória",
       twoFactorRequiredDescription:
@@ -196,6 +197,19 @@ export const ptBR = {
       disableTwoFactorPasswordRequired: "Informe a senha atual",
       disableTwoFactorSubmit: "Desativar",
       disableTwoFactorSubmitting: "Desativando...",
+    },
+    storeSettings: {
+      edit: {
+        title: "Configurações da loja",
+        nameLabel: "Nome da loja",
+        nameTooLong: "O nome não pode passar de 100 caracteres",
+        logoLabel: "Logo",
+        currentLogoAlt: "Logo atual da loja",
+        changeReasonLabel: "Motivo da alteração",
+        changeReasonRequired: "Informe o motivo da alteração",
+        submit: "Salvar alterações",
+        submitting: "Salvando...",
+      },
     },
   },
 } as const;
