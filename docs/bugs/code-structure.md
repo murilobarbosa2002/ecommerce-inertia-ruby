@@ -241,3 +241,33 @@ Removidos os quatro arquivos (`app/frontend/assets/react.svg`, `rails.svg`, `vit
 ### Verificação
 
 `grep` confirmando zero referência a qualquer um dos quatro arquivos em `app/`/`config/` antes da remoção. `pnpm test`/`pnpm lint`/`pnpm check`/`pnpm format:check` limpos depois, sem nenhuma referência quebrada.
+
+## Comentário ERB com tag de saída aninhada vazava texto cru pro HTML, quebrando o script de tema
+
+- **Data:** 2026-11-10
+- **Severidade:** alta
+- **PR:** #62
+
+### O que aconteceu
+
+Um teste manual no browser (Playwright), feito numa sessão de desenvolvimento normal sem relação direta com nenhuma mudança recente, abriu o console e encontrou um erro de sintaxe JavaScript (`Unexpected identifier 'não'`) em toda página do admin. O snapshot de acessibilidade da página mostrava um bloco de texto em português solto no topo do `<body>`, visível inclusive pro usuário.
+
+### Causa raiz
+
+O comentário ERB (`<%# ... %>`) que documenta o `<script>` inline de tema, em `app/views/layouts/application.html.erb`, citava `<html lang="<%= I18n.locale %>">` como exemplo dentro do próprio texto do comentário. O parser do ERB fecha um comentário no primeiro `%>` que encontrar — inclusive o de uma tag `<%= ... %>` aninhada dentro do comentário — então tudo depois desse `%>` interno (o resto da prosa do comentário, incluindo a palavra `<script>` solta) virava HTML de saída normal. O navegador interpretava essa palavra solta como abertura real de uma tag `<script>`, cujo conteúdo (o resto do comentário em português) se fundia com o `<script>` de tema legítimo logo abaixo, formando um único bloco JavaScript inválido.
+
+### Como foi encontrado
+
+Teste manual no browser via Playwright MCP, abrindo a tela de login — nenhum spec de request pegaria isso, porque `response.body` é comparado como string/regex, nunca interpretado como DOM/JS por um motor de navegador real.
+
+### Impacto
+
+O `<script>` inline de tema (aplica a classe `.dark` antes do primeiro paint, pra evitar flash de tema errado — `docs/adr/0020`) nunca executava, silenciosamente, em toda página do projeto desde a introdução do `<html lang>` (PR #56) — sem nenhum erro do lado do servidor que indicasse o problema. Também expunha prosa interna de comentário (nomes de arquivo, referência a ADR) como texto visível na página renderizada.
+
+### Correção
+
+Reescrito o comentário em `app/views/layouts/application.html.erb` sem nenhuma tag ERB de saída dentro do texto. Gotcha generalizável documentado em `CONTRIBUTING.md` — nunca escrever `<%= ... %>` dentro de um comentário `<%# ... %>`, em nenhum `.erb` do projeto.
+
+### Verificação
+
+Teste de regressão novo em `spec/requests/admin/layout_spec.rb`, confirmado vermelho→verde restaurando o comentário quebrado de propósito. Confirmado também manualmente no browser: console sem erros, `<script>` de tema renderiza intacto.
