@@ -59,6 +59,7 @@ Registro completo e detalhado de todo bug real encontrado neste projeto, organiz
 | 2026-11-09 | Acessibilidade | `Dialog` não associava a descrição via `aria-describedby` | Média | #56 | [accessibility.md](accessibility.md) |
 | 2026-11-09 | Acessibilidade | Borda de campo inválido com contraste insuficiente (WCAG 1.4.11) | Média | #56 | [accessibility.md](accessibility.md) |
 | 2026-11-09 | Acessibilidade | Opções do gerador de senha sem agrupamento semântico | Baixa | #56 | [accessibility.md](accessibility.md) |
+| 2026-11-09 | Estrutura de código | Remoção do scaffold padrão (PR #41) não incluiu os assets estáticos | Baixa | #57 | [code-structure.md](code-structure.md) |
 
 ## Categorias
 
