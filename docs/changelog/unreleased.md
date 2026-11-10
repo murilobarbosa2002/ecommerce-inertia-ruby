@@ -28,7 +28,6 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 
 ## Corrigido
 
-- O issuer mostrado no app autenticador ao configurar o 2FA passa a usar o nome configurado da loja, em vez do host da requisição (ex. `localhost` em desenvolvimento).
 - Logout do admin passou a gerar evento de auditoria (antes não era registrado).
 - Verificação de 2FA no login passou a respeitar o bloqueio de conta (antes, um código correto contornava o bloqueio mesmo com a conta bloqueada).
 - Desativar 2FA com a senha atual errada passou a contar para o limite de 5 tentativas da conta (antes era ilimitado).
@@ -39,6 +38,7 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 
 ## Alterado
 
+- O issuer mostrado no app autenticador ao configurar o 2FA passa a usar o nome configurado da loja, em vez do host da requisição (ex. `localhost` em desenvolvimento).
 - Eventos de auditoria de login foram divididos em `password_verified`/`login_succeeded`/`reauthentication_failed` para maior precisão (antes, contextos diferentes — senha certa mas 2FA pendente, reautenticação pra desativar 2FA — compartilhavam o mesmo `event_type` que outra situação já usava).
 - A raiz do site (`/`) deixou de exibir a página de exemplo padrão do Inertia Rails e passou a redirecionar para o login do admin, único fluxo real disponível até a loja/painel existirem.
 - A obrigatoriedade do 2FA pra conta admin passa a ter efeito de verdade: criar conta/logar continuam funcionando sem o 2FA ativo, mas qualquer outra ação no painel fica bloqueada até ativar — um aviso aparece assim que o admin loga, explicando o motivo e levando direto pra tela de configurar. Trocar a senha pela tela de perfil desloga todas as sessões ativas da conta, igual ao fluxo de redefinir senha por e-mail.
