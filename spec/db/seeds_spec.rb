@@ -26,4 +26,15 @@ RSpec.describe "db/seeds.rb" do
     expect(Permission.find_by(key: "reset_two_factor")).to be_present
     expect(Role.find_by(name: "owner").permission?("reset_two_factor")).to be false
   end
+
+  it "cria a permissão manage_store_settings sem atribuí-la a nenhum papel, e a linha única de StoreSetting" do
+    load Rails.root.join("db/seeds.rb")
+
+    expect(Permission.find_by(key: "manage_store_settings")).to be_present
+    expect(Role.find_by(name: "owner").permission?("manage_store_settings")).to be false
+    expect(StoreSetting.count).to eq(1)
+
+    expect { load Rails.root.join("db/seeds.rb") }
+      .not_to change(StoreSetting, :count)
+  end
 end

@@ -78,10 +78,13 @@ module AdminPanel
       )
     end
 
-    # issuer é o host da requisição, não um nome de marca fixo — o template é
-    # white-label (docs/adr/0006), cada adoção/nicho tem seu próprio domínio.
+    # issuer é o nome configurado em StoreSetting — cada adoção/nicho do
+    # template configura o nome da própria loja, em vez de mostrar o host
+    # da requisição no app autenticador. Cai pro host enquanto o nome não
+    # existir/estiver em branco (nunca deixa o issuer vazio).
     def totp
-      ROTP::TOTP.new(Current.admin.otp_secret, issuer: request.host)
+      issuer = StoreSetting.instance.name.presence || request.host
+      ROTP::TOTP.new(Current.admin.otp_secret, issuer: issuer)
     end
   end
 end

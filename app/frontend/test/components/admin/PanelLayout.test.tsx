@@ -112,6 +112,30 @@ describe("PanelLayout", () => {
     ).toBeInTheDocument();
   });
 
+  it("não mostra o link Configurações da loja sem a permissão manage_store_settings", () => {
+    render(<PanelLayout title="Painel">{null}</PanelLayout>);
+
+    expect(
+      screen.queryByRole("link", { name: "Configurações da loja" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("mostra o link Configurações da loja com a permissão manage_store_settings", () => {
+    usePageMock.mockReturnValue({
+      ...defaultPageProps,
+      props: {
+        ...defaultPageProps.props,
+        current_admin_permissions: ["manage_store_settings"],
+      },
+    });
+
+    render(<PanelLayout title="Painel">{null}</PanelLayout>);
+
+    expect(
+      screen.getByRole("link", { name: "Configurações da loja" }),
+    ).toBeInTheDocument();
+  });
+
   it("mostra o link Perfil sempre, independente de permissão", () => {
     render(<PanelLayout title="Painel">{null}</PanelLayout>);
 

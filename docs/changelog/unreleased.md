@@ -24,6 +24,7 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 - Telas de configurar o 2FA (QR code + confirmação do app autenticador) e de códigos de recuperação, e tela de perfil do admin (trocar a senha, ver status do 2FA e desativá-lo). Os códigos de recuperação podem ser baixados como `.txt` ou como imagem, além de aparecerem na tela.
 - Tela de gerenciar papéis (listar, criar e editar), restrita a quem tem a permissão correspondente — cada papel tem um nome e um conjunto de permissões configurável por checkbox; criar ou editar um papel pede motivo da alteração (auditável), inclusive quando só a lista de permissões muda, sem renomear o papel.
 - Resetar o 2FA de outro admin (tela de gerenciar admins), restrito a quem tem a permissão `reset_two_factor` — fluxo de recuperação pra quando um admin perde o autenticador e os códigos de recuperação ao mesmo tempo; nunca permite resetar o próprio 2FA por essa tela. `bin/rails admin:disable_two_factor[email]` existe como último recurso (acesso de shell) pro caso em que nem isso resolve.
+- Tela de configurações da loja (nome e logo), restrita a quem tem a permissão `manage_store_settings` — qualquer alteração (nome e/ou logo) pede motivo e gera evento de auditoria.
 
 ## Corrigido
 
@@ -37,6 +38,7 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 
 ## Alterado
 
+- O issuer mostrado no app autenticador ao configurar o 2FA passa a usar o nome configurado da loja, em vez do host da requisição (ex. `localhost` em desenvolvimento).
 - Eventos de auditoria de login foram divididos em `password_verified`/`login_succeeded`/`reauthentication_failed` para maior precisão (antes, contextos diferentes — senha certa mas 2FA pendente, reautenticação pra desativar 2FA — compartilhavam o mesmo `event_type` que outra situação já usava).
 - A raiz do site (`/`) deixou de exibir a página de exemplo padrão do Inertia Rails e passou a redirecionar para o login do admin, único fluxo real disponível até a loja/painel existirem.
 - A obrigatoriedade do 2FA pra conta admin passa a ter efeito de verdade: criar conta/logar continuam funcionando sem o 2FA ativo, mas qualquer outra ação no painel fica bloqueada até ativar — um aviso aparece assim que o admin loga, explicando o motivo e levando direto pra tela de configurar. Trocar a senha pela tela de perfil desloga todas as sessões ativas da conta, igual ao fluxo de redefinir senha por e-mail.

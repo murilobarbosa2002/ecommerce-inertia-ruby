@@ -12,6 +12,7 @@ import {
   admin_profile_path,
   admin_roles_path,
   admin_session_path,
+  edit_admin_store_setting_path,
   new_admin_two_factor_path,
 } from "@/routes";
 import { type FlashData, type SharedProps } from "@/types";
@@ -70,6 +71,11 @@ export default function PanelLayout({
             {current_admin_permissions.includes("manage_roles") && (
               <Link href={admin_roles_path()}>
                 {t("shared.panelLayout.manageRoles")}
+              </Link>
+            )}
+            {current_admin_permissions.includes("manage_store_settings") && (
+              <Link href={edit_admin_store_setting_path()}>
+                {t("shared.panelLayout.storeSettings")}
               </Link>
             )}
             <Link href={admin_profile_path()}>
