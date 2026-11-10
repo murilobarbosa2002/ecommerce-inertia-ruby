@@ -7,7 +7,12 @@ import { dialogContent, dialogOverlay } from "./Dialog.variants";
 // este componente é intencionalmente não-fechável, pro único uso que tem
 // hoje (aviso de 2FA obrigatório, PanelLayout). Se um dia precisar de uma
 // variante fechável, isso é extensão futura, não escopo deste componente.
-export default function Dialog({ open, title, children }: DialogProps) {
+export default function Dialog({
+  open,
+  title,
+  description,
+  children,
+}: DialogProps) {
   return (
     <RadixDialog.Root open={open}>
       <RadixDialog.Portal>
@@ -24,6 +29,11 @@ export default function Dialog({ open, title, children }: DialogProps) {
           <RadixDialog.Title className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
             {title}
           </RadixDialog.Title>
+          {description && (
+            <RadixDialog.Description className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+              {description}
+            </RadixDialog.Description>
+          )}
           {children}
         </RadixDialog.Content>
       </RadixDialog.Portal>

@@ -28,7 +28,7 @@ describe("FormField", () => {
     );
 
     expect(screen.queryByRole("paragraph")).not.toBeInTheDocument();
-    expect(screen.getByLabelText("E-mail")).not.toHaveClass("border-red-300");
+    expect(screen.getByLabelText("E-mail")).not.toHaveClass("border-red-500");
   });
 
   it("mostra a mensagem de erro e marca o input como inválido quando error é informado", () => {
@@ -42,7 +42,7 @@ describe("FormField", () => {
     );
 
     expect(screen.getByText("Informe o e-mail")).toBeInTheDocument();
-    expect(screen.getByLabelText("E-mail")).toHaveClass("border-red-300");
+    expect(screen.getByLabelText("E-mail")).toHaveClass("border-red-500");
   });
 
   it("repassa props nativas do input (type, autoComplete, inputMode)", () => {

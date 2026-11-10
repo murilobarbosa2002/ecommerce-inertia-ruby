@@ -92,10 +92,8 @@ export default function PanelLayout({
       <Dialog
         open={showTwoFactorRequiredDialog}
         title={t("shared.panelLayout.twoFactorRequiredTitle")}
+        description={t("shared.panelLayout.twoFactorRequiredDescription")}
       >
-        <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
-          {t("shared.panelLayout.twoFactorRequiredDescription")}
-        </p>
         <Link href={new_admin_two_factor_path()}>
           {t("shared.panelLayout.twoFactorRequiredButton")}
         </Link>

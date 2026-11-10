@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
@@ -94,6 +94,17 @@ describe("PasswordGenerator", () => {
     expect(writeTextMock).toHaveBeenCalledOnce();
     expect(
       await screen.findByRole("button", { name: "Copiado!" }),
+    ).toBeInTheDocument();
+  });
+
+  it("agrupa as opções num group acessível (fieldset/legend), não soltas na página", () => {
+    render(<PasswordGenerator onGenerate={vi.fn()} />);
+
+    const group = screen.getByRole("group", {
+      name: "Opções de geração de senha",
+    });
+    expect(
+      within(group).getByRole("checkbox", { name: "Maiúsculas" }),
     ).toBeInTheDocument();
   });
 });

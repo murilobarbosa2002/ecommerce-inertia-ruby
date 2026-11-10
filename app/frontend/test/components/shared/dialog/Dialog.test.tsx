@@ -48,4 +48,16 @@ describe("Dialog", () => {
 
     expect(screen.getByText("Título do aviso")).toBeInTheDocument();
   });
+
+  it("associa a description via aria-describedby, pra leitor de tela anunciar junto do título", () => {
+    render(
+      <Dialog open title="Título do aviso" description="Descrição do aviso">
+        <p>Conteúdo do aviso</p>
+      </Dialog>,
+    );
+
+    expect(screen.getByRole("dialog")).toHaveAccessibleDescription(
+      "Descrição do aviso",
+    );
+  });
 });

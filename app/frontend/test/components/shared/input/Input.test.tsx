@@ -27,6 +27,12 @@ describe("Input", () => {
   it("muda de estilo quando invalid é true, sem quebrar quando omitido", () => {
     render(<Input aria-label="E-mail" invalid />);
 
-    expect(screen.getByLabelText("E-mail")).toHaveClass("border-red-300");
+    // red-500, não red-300/red-700 — único tom que passa 3:1 (WCAG 1.4.11)
+    // contra o fundo do campo nos dois modos (docs/bugs/testing-and-tooling.md).
+    expect(screen.getByLabelText("E-mail")).toHaveClass("border-red-500");
+    expect(screen.getByLabelText("E-mail")).not.toHaveClass("border-red-300");
+    expect(screen.getByLabelText("E-mail")).not.toHaveClass(
+      "dark:border-red-700",
+    );
   });
 });
