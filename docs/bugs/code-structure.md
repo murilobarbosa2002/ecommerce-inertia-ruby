@@ -211,3 +211,33 @@ Uma requisição `HEAD` numa página de visualização qualquer (ex. o dashboard
 ### Verificação
 
 `bundle exec brakeman` limpo (0 warnings) depois da correção; teste novo em `spec/requests/admin/require_two_factor_spec.rb` fazendo `head root_path` e confirmando `200 OK`.
+
+## Remoção do scaffold padrão (PR #41) não incluiu os assets estáticos, só código/rota/página
+
+- **Data:** 2026-11-09
+- **Severidade:** baixa
+- **PR:** #57
+
+### O que aconteceu
+
+A remoção do scaffold padrão do Inertia Rails (PR #41, entrada acima) removeu o controller, a página React e as rotas da página de exemplo, mas deixou passar quatro arquivos estáticos que só existiam pra essa mesma página: `app/frontend/assets/{react,rails,vite_ruby,inertia}.svg` (os logos exibidos na página de exemplo padrão do scaffold).
+
+### Causa raiz
+
+A verificação feita na PR #41 (`grep` por `root_path`/`root_url` e pelas referências ao controller/página) nunca checou especificamente se havia *asset estático* (imagem/SVG) só usado por aquela página — só código (`.rb`/`.tsx`) e rota.
+
+### Como foi encontrado
+
+Revisão deliberada comparando `app/assets/` (pipeline padrão do Rails/Sprockets, só um `.keep` vazio, sem relação com o scaffold) contra `app/frontend/assets/` (pasta de asset estático do Vite) — os dois existem por motivos diferentes e genuínos (dois pipelines de asset coexistindo num setup Rails + Vite, não duplicação), mas o conteúdo de `app/frontend/assets/` era só os 4 SVGs do scaffold já removido, confirmado via `grep` que nenhum arquivo do projeto referencia qualquer um dos quatro.
+
+### Impacto
+
+Baixo: nenhum comportamento quebrado (os arquivos nunca foram servidos nem importados por nada depois da remoção do scaffold), só código morto ocupando espaço no repositório desde a criação do projeto.
+
+### Correção
+
+Removidos os quatro arquivos (`app/frontend/assets/react.svg`, `rails.svg`, `vite_ruby.svg`, `inertia.svg`) — pasta `app/frontend/assets/` fica vazia (sem `.keep`, já que não há nenhum asset estático real ainda; recriar quando houver um).
+
+### Verificação
+
+`grep` confirmando zero referência a qualquer um dos quatro arquivos em `app/`/`config/` antes da remoção. `pnpm test`/`pnpm lint`/`pnpm check`/`pnpm format:check` limpos depois, sem nenhuma referência quebrada.
