@@ -6,7 +6,8 @@ class AddPerformedByAdminToAuditEvents < ActiveRecord::Migration[8.1]
     # (admin_id já cobre esse caso), e contexto de CLI/rake task não tem
     # Current.admin nenhum. on_delete: :nullify (não bloqueia excluir o
     # admin que performou uma ação só porque ele aparece num log antigo —
-    # mesmo racional já previsto pra admin_id na PR L).
+    # mesmo racional já previsto pra admin_id quando excluir admin de vez
+    # existir).
     add_reference :audit_events, :performed_by_admin,
       null: true, foreign_key: { to_table: :admins, on_delete: :nullify }
   end

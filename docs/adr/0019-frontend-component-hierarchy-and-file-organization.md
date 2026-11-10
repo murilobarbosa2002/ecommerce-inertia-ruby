@@ -6,7 +6,7 @@ Aceito
 
 ## Contexto
 
-As primeiras páginas reais do painel admin (PR7 da Fase 3) aplicavam as variantes de `tailwind-variants` (`docs/adr/0012`) direto como `className={variante()}` em tags nativas (`<input>`, `<button>`, `<label>`, `<p>`) espalhadas pelas páginas, e cada página concentrava num único arquivo `.tsx`: o schema Zod, o tipo derivado, o `useForm`/`zodResolver`, a lógica de submissão (`router.post`/`router.patch`) e o JSX inteiro do formulário. Isso funcionava para 4 páginas pequenas, mas não escala: nenhuma variante de estilo era reutilizável como componente de verdade, e misturar validação/estado/apresentação no mesmo arquivo cresce rápido conforme páginas novas aparecem (painel admin, depois loja).
+As primeiras páginas reais do painel admin (`#39`) aplicavam as variantes de `tailwind-variants` (`docs/adr/0012`) direto como `className={variante()}` em tags nativas (`<input>`, `<button>`, `<label>`, `<p>`) espalhadas pelas páginas, e cada página concentrava num único arquivo `.tsx`: o schema Zod, o tipo derivado, o `useForm`/`zodResolver`, a lógica de submissão (`router.post`/`router.patch`) e o JSX inteiro do formulário. Isso funcionava para 4 páginas pequenas, mas não escala: nenhuma variante de estilo era reutilizável como componente de verdade, e misturar validação/estado/apresentação no mesmo arquivo cresce rápido conforme páginas novas aparecem (painel admin, depois loja).
 
 Faltava uma regra explícita de **onde cada tipo de coisa mora** — sem isso, cada página nova reinventaria a própria organização, inconsistente com a anterior.
 
