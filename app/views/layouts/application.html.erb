@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html lang="<%= I18n.locale %>">
   <head>
-    <%# Aplica a classe "dark" na <html lang="<%= I18n.locale %>"> antes do primeiro paint — inline e
+    <%# Aplica a classe "dark" no elemento html antes do primeiro paint — inline e
         síncrono de propósito, pra não esperar o bundle JS carregar (causaria
         um flash do tema claro antes do escuro aparecer, docs/adr/0020).
         Mesma lógica de app/frontend/hooks/useTheme.ts, duplicada aqui porque
-        um <script> inline não pode importar módulo ES antes do Vite carregar. %>
+        um script inline não pode importar módulo ES antes do Vite carregar.
+        Bug real já encontrado aqui: nunca escreva uma tag ERB de saída
+        dentro de um comentário ERB — o comentário termina no fechamento da
+        tag interna, derramando o resto do texto como HTML cru na página
+        (ver docs/bugs/code-structure.md). %>
     <script>
       (function () {
         var stored = localStorage.getItem("theme");

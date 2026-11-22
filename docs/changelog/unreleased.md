@@ -28,6 +28,7 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 
 ## Corrigido
 
+- Um comentário mal-formado no layout fazia texto interno de documentação vazar pra página renderizada e impedia o tema escuro de ser aplicado antes do primeiro paint (causava um flash do tema claro).
 - Logout do admin passou a gerar evento de auditoria (antes não era registrado).
 - Verificação de 2FA no login passou a respeitar o bloqueio de conta (antes, um código correto contornava o bloqueio mesmo com a conta bloqueada).
 - Desativar 2FA com a senha atual errada passou a contar para o limite de 5 tentativas da conta (antes era ilimitado).
