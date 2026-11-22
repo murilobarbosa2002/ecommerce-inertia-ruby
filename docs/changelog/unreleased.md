@@ -28,6 +28,7 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 
 ## Corrigido
 
+- Atualização do servidor de aplicação Puma para `8.0.4`, corrigindo duas vulnerabilidades da `8.0.3` (esgotamento de memória em conexões SSL e parser que permitia alterar o caminho e a query string da requisição, contornando regras de proxy).
 - Atualização do Ruby para `4.0.10`, corrigindo uma vulnerabilidade crítica de execução remota de código (CVE-2026-132825) presente na `4.0.9`, do `net-ssh` (dependência do Kamal) para `7.3.10`, corrigindo duas vulnerabilidades (validação de host key revogada e verificação de certificado TLS desligada em proxy HTTPS), e do Brakeman para `8.1.1` (o scan de segurança do CI exige sempre a versão mais recente).
 - Um comentário mal-formado no layout fazia texto interno de documentação vazar pra página renderizada e impedia o tema escuro de ser aplicado antes do primeiro paint (causava um flash do tema claro).
 - Logout do admin passou a gerar evento de auditoria (antes não era registrado).
