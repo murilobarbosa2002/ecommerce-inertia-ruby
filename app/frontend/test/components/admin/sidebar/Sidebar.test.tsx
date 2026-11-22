@@ -197,6 +197,21 @@ describe("SidebarNav", () => {
       screen.getByRole("navigation", { name: "Navegação principal" }),
     ).toBeInTheDocument();
   });
+
+  // Bug real (ver docs/bugs/code-structure.md): com só overflow-y-auto, a
+  // spec de overflow do CSS força overflow-x computado pra auto também, e o
+  // navegador chega a desenhar a barra de rolagem horizontal nativa durante
+  // a transição de largura do <aside> ao expandir (rótulo já visível, nav
+  // ainda estreito). overflow-x-hidden explícito evita essa barra. jsdom não
+  // calcula layout, então o teste é na classe (causa raiz), não no scrollbar
+  // em si — medido com dados reais de navegador antes dessa correção.
+  it("nunca deixa o eixo X rolar, pra não desenhar a barra nativa durante a transição de largura", () => {
+    const { container } = render(
+      <SidebarNav sections={sections} activeItemKey={null} />,
+    );
+
+    expect(container.querySelector("nav")).toHaveClass("overflow-x-hidden");
+  });
 });
 
 describe("Sidebar", () => {
@@ -254,5 +269,24 @@ describe("Sidebar", () => {
     const { container } = render(<Sidebar {...baseProps} collapsed={false} />);
 
     expect(container.querySelector("aside")).toHaveClass("hidden", "lg:flex");
+  });
+
+  // Reproduzir em jsdom o tooltip preso na tela (bug real, ver
+  // docs/bugs/code-structure.md) depende de timing de hover real do
+  // navegador — não dá pra simular de forma confiável aqui. Esta asserção
+  // testa a causa raiz diretamente: antes da correção, alternar collapsed
+  // trocava o tipo do elemento na árvore (Tooltip vs. botão puro),
+  // desmontando e remontando o botão a cada clique — é esse remount que
+  // interrompe o fechamento controlado do Radix e deixa o tooltip aberto
+  // preso no body. Com o botão sempre dentro do mesmo Tooltip (variando só
+  // se o Content é renderizado), o nó do DOM se mantém entre as trocas.
+  it("mantém o mesmo nó do botão ao alternar collapsed, sem remontar o tooltip", () => {
+    const { rerender } = render(<Sidebar {...baseProps} collapsed />);
+    const buttonBefore = screen.getByRole("button", { name: "Expandir menu" });
+
+    rerender(<Sidebar {...baseProps} collapsed={false} />);
+    const buttonAfter = screen.getByRole("button", { name: "Recolher menu" });
+
+    expect(buttonAfter).toBe(buttonBefore);
   });
 });

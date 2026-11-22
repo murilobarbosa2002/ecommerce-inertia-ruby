@@ -47,13 +47,9 @@ export default function Sidebar({
         collapsed={collapsed}
       />
       <div className="border-t border-line p-3">
-        {collapsed ? (
-          <Tooltip content={toggleLabel} side="right">
-            {toggle}
-          </Tooltip>
-        ) : (
-          toggle
-        )}
+        <Tooltip content={collapsed ? toggleLabel : null} side="right">
+          {toggle}
+        </Tooltip>
       </div>
     </aside>
   );

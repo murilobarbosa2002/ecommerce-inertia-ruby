@@ -271,3 +271,85 @@ Reescrito o comentário em `app/views/layouts/application.html.erb` sem nenhuma 
 ### Verificação
 
 Teste de regressão novo em `spec/requests/admin/layout_spec.rb`, confirmado vermelho→verde restaurando o comentário quebrado de propósito. Confirmado também manualmente no browser: console sem erros, `<script>` de tema renderiza intacto.
+
+## Tooltip do botão de recolher/expandir a sidebar ficava preso na tela, ou reabria sozinho num flash
+
+- **Data:** 2026-11-22
+- **Severidade:** média
+- **PR:** #71
+
+### O que aconteceu
+
+Dois sintomas distintos, causados pela mesma área de código, encontrados em sequência: (1) recolher a sidebar e depois expandi-la de volta (ou vice-versa) com o mouse ainda sobre o botão de alternar podia deixar o tooltip do botão ("Recolher menu"/"Expandir menu") visualmente preso na tela, sobreposto ao conteúdo, em vez de fechar como ao mover o mouse pra fora normalmente; (2) depois de corrigido (1), passou a aparecer um flash rápido (bem menos de 1 segundo) do mesmo tooltip reabrindo sozinho, sem nenhum hover novo, exatamente no instante de expandir a sidebar com o mouse já sobre o botão.
+
+### Causa raiz
+
+Causa raiz do sintoma (1): `Sidebar` (botão de colapso) e `SidebarItem` (link de navegação recolhido) alternavam, via ternário de tipo, entre embrulhar o trigger (botão/link) num `Tooltip` — só quando `collapsed` era `true` — e renderizá-lo puro, sem nenhum wrapper, quando `collapsed` era `false`:
+
+```tsx
+{collapsed ? (
+  <Tooltip content={toggleLabel} side="right">
+    {toggle}
+  </Tooltip>
+) : (
+  toggle
+)}
+```
+
+Como `Tooltip` (que renderiza `RadixTooltip.Root`) e o botão puro são tipos de elemento diferentes na mesma posição da árvore, o React desmonta o subtree inteiro e monta um subtree novo a cada troca de `collapsed` — o botão nunca é só atualizado, ele é destruído e recriado. Se o ponteiro do mouse estava sobre o botão no instante do clique (o cenário normal: hover abre o tooltip, clique alterna o estado), o `Root` do Radix é desmontado enquanto o tooltip ainda está aberto. Esse unmount abrupto não passa pelo fechamento controlado do Radix (que normalmente remove o `Portal`/`Content` de forma coordenada) — o conteúdo renderizado em `document.body` via `Portal` fica para trás, órfão, sem o elemento que o controlava.
+
+Causa raiz do sintoma (2), que só apareceu depois de corrigir (1): a correção de (1) manteve o `Root`/`Trigger` do Radix sempre montados, variando apenas se o `Content` é renderizado (`content` truthy ou não). Só que o rastreamento de hover do `Root` do Radix roda independentemente de o `Content` estar montado — um hover que começa enquanto `content` é vazio (ex. botão já mostrando o rótulo como texto normal, sem tooltip) ainda dispara `onOpenChange(true)` internamente depois do `delayDuration`, mesmo sem nada pra abrir. Com `open` não controlado (deixado pro Radix gerenciar), esse "quero abrir" ficava latente; assim que `content` passava a ter valor de novo (ex. o clique que recolhe a sidebar, trocando o botão de volta pra ícone+tooltip), o tooltip pipocava já aberto nesse instante, sem esperar um hover de verdade — e sumia pouco depois porque o cursor normalmente não estava mais sobre o gatilho menor/realocado.
+
+### Como foi encontrado
+
+Sintoma (1): reportado pelo mantenedor com captura de tela, usando o painel normalmente no navegador. Reproduzido de forma determinística automatizando um navegador real (Chrome DevTools, via MCP): logado como admin de teste, com o menu lateral recolhido e o cursor posicionado sobre o botão de alternar (disparando o tooltip via hover real), um clique no botão confirmou visualmente o tooltip preso na tela. Tentativas de reproduzir o mesmo sintoma em teste automatizado (jsdom/Testing Library, com `user.hover` + `user.click`) não reproduziram o problema de forma confiável — o timing de abertura/fechamento do Radix em jsdom não corresponde ao de um navegador real o suficiente pra expor a janela de corrida. A causa raiz foi confirmada por uma via mais direta e determinística: verificar que o nó DOM do botão muda de identidade (referência de objeto diferente) entre as duas trocas de `collapsed` — prova de que o elemento estava sendo desmontado e remontado, independente de qualquer timing de mouse.
+
+Sintoma (2): reportado pelo mantenedor logo depois de aplicar a correção de (1), também por observação direta no navegador. Diferente de (1), esse sintoma foi reproduzido com sucesso em jsdom/Testing Library: bastou renderizar `Tooltip` com `content={null}`, simular hover real (`user.hover`) e esperar o `delayDuration` passar, depois trocar (`rerender`) pra `content="Dica"` — o tooltip aparecia sem nenhum hover novo, confirmando a causa raiz sem precisar de automação de navegador.
+
+### Impacto
+
+Visual apenas (nenhum dado ou permissão envolvidos). Sintoma (1): o tooltip preso cobria parte do conteúdo abaixo dele até a próxima interação que fizesse o React re-renderizar aquele ponto da árvore, exigindo recarregar a página ou interagir de novo com o botão pra "limpar" o estado. Sintoma (2): flash rápido e incômodo visualmente, mas sem persistir na tela.
+
+### Correção
+
+Para (1): `Tooltip` (`components/shared/tooltip/`) passou a embrulhar o trigger incondicionalmente; só o `Content` (dentro do `Portal`) é renderizado condicionalmente, conforme o `content` recebido seja truthy. `Sidebar` e `SidebarItem` foram ajustados para sempre passar o botão/link pelo mesmo `Tooltip`, variando apenas o `content` (`collapsed ? rótulo : null`) em vez de alternar a presença do wrapper. Gotcha generalizável documentado em `CONTRIBUTING.md`, seção "Padrões de código": nenhum elemento controlado por um primitivo Radix de abrir/fechar deve alternar entre "com wrapper"/"sem wrapper" via ternário de tipo.
+
+Para (2): `open` do `RadixTooltip.Root` passou a ser totalmente controlado por `Tooltip` (`useState` próprio), e todo pedido de abrir (`onOpenChange(true)`) vindo do Radix só é aceito quando há `content` disponível (`hasContent`) — fechar (`onOpenChange(false)`) continua sempre aceito. Isso elimina o "quero abrir" latente que o Radix guardava durante o hover sem conteúdo, impedindo que ele resurja quando `content` volta a ter valor.
+
+### Verificação
+
+Para (1): teste de regressão novo em `Sidebar.test.tsx` verifica que o nó do botão não muda de identidade (`toBe`, igualdade de referência) entre `collapsed=true` e `collapsed=false`. Confirmado vermelho restaurando a implementação anterior (o nó mudava) e verde com a correção aplicada. O sintoma visual em si foi reproduzido e confirmado corrigido manualmente no Chrome (automação de navegador via MCP), antes e depois da correção, já que não é capturável de forma confiável em jsdom.
+
+Para (2): teste de regressão novo em `Tooltip.test.tsx` (hover real com `content={null}`, espera o delay, troca pra `content` preenchido, confirma que nenhum tooltip aparece sem hover novo) — confirmado vermelho com uma primeira tentativa de correção insuficiente (`useEffect` resetando `open` só na transição `hasContent: true → false`, que não cobre o caso em que `hasContent` já nasce `false`) e verde com a correção final (filtrar `onOpenChange` por `hasContent`). Também confirmado manualmente no Chrome via gravação quadro a quadro (`requestAnimationFrame`) de um clique real: o tooltip fecha uma vez e nunca reaparece durante toda a transição de largura da sidebar.
+
+## Nav da sidebar desenhava uma barra de rolagem horizontal nativa por um instante ao expandir o menu
+
+- **Data:** 2026-11-22
+- **Severidade:** baixa
+- **PR:** #71
+
+### O que aconteceu
+
+Ao expandir a sidebar recolhida (com o mouse em qualquer posição, sem relação com o tooltip do botão de alternar), aparecia por uma fração de segundo uma barra de rolagem horizontal nativa do navegador dentro do menu, bem acima do botão de recolher/expandir — sem nenhuma barra equivalente ao recolher.
+
+### Causa raiz
+
+O rótulo de texto de cada item de navegação (`SidebarNav`) volta a ficar visível no mesmo render em que `collapsed` passa a `false` — não há nenhuma animação própria nesse texto. A largura do `<aside>`/`<nav>`, por outro lado, anima via CSS (`transition-[width] duration-200`) ao longo de ~170ms. Durante essa janela, o conteúdo do `<nav>` (`scrollWidth`, já contando o rótulo inteiro) ficava mais largo que o próprio `<nav>` (`clientWidth`, ainda seguindo a largura intermediária da animação) — confirmado instrumentando o navegador real: por alguns frames, `scrollWidth` chegava a 155px enquanto `clientWidth` ainda estava entre 72px e 115px.
+
+Isso por si só causaria overflow, mas não deveria desenhar scrollbar nenhuma no eixo X, já que `SidebarNav` só define `overflow-y-auto`, sem tocar em `overflow-x` (que fica no valor inicial `visible`). O problema é que a especificação de overflow do CSS não permite a combinação "um eixo `auto`/`scroll`, outro `visible`" — quando isso acontece, o navegador força o eixo `visible` a se comportar como `auto` também, pra não deixar o conteúdo escapar sem controle da caixa. Confirmado com `getComputedStyle(nav).overflowX` retornando `"auto"` mesmo sem nenhuma classe Tailwind pra isso. Esse `auto` "fantasma" é o que fazia o navegador desenhar a barra de rolagem horizontal nativa durante a janela de overflow momentâneo.
+
+### Como foi encontrado
+
+Reportado pelo mantenedor, inicialmente confundido com o tooltip (mesma região da tela, mesmo gatilho — expandir o menu). Como o sintoma não reproduzia em nenhuma tentativa de automação de navegador baseada em tooltip/DOM de alto nível, foi necessário instrumentar a página ao vivo via `evaluate_script` (Chrome DevTools MCP): um laço de amostragem a cada `requestAnimationFrame`, registrando `nav.scrollWidth`/`nav.clientWidth` durante um clique real no botão de expandir. Isso capturou objetivamente a janela de overflow (~50ms, 3-4 frames) e o `overflow-x` computado como `"auto"`, confirmando a causa raiz sem depender de interpretação visual de screenshot/vídeo.
+
+### Impacto
+
+Visual apenas, cosmético: nenhum dado, navegação ou permissão envolvidos — só uma barra de rolagem nativa aparecendo e desaparecendo rápido demais pra interagir com ela, mas perceptível o suficiente pra ser notada pelo mantenedor em uso normal do painel.
+
+### Correção
+
+`SidebarNav` passou a declarar `overflow-x-hidden` explicitamente (além do `overflow-y-auto` já existente), fixando o eixo X como sempre oculto — nunca mais computa como `auto`, então nenhuma barra de rolagem horizontal é desenhada, mesmo durante a janela de overflow momentâneo da transição (o conteúdo é só cortado, de forma imperceptível, já que a largura alcança o conteúdo antes dos ~200ms da transição terminarem). Gotcha generalizável documentado em `CONTRIBUTING.md`, seção "Padrões de código": sempre declarar `overflow-x`/`overflow-y` juntos ao usar qualquer um dos dois, nunca confiar no valor inicial (`visible`) do outro eixo.
+
+### Verificação
+
+Teste de regressão novo em `Sidebar.test.tsx` (`describe("SidebarNav")`) verifica que o `<nav>` tem a classe `overflow-x-hidden` — confirmado vermelho antes da correção (classe ausente) e verde depois. jsdom não calcula layout real (`scrollWidth`/`clientWidth` sempre zero), então o teste automatizado trava a causa raiz (a classe que fixa o eixo) em vez do sintoma visual em si; o sintoma e sua ausência após a correção foram confirmados com dados reais de navegador (instrumentação por `requestAnimationFrame` descrita acima).

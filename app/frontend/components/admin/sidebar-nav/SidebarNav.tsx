@@ -12,10 +12,18 @@ export default function SidebarNav({
 }: SidebarNavProps) {
   const { t } = useTranslation();
 
+  // overflow-x-hidden é explícito mesmo sem nenhum conteúdo pensado pra
+  // rolar na horizontal: ao expandir a sidebar, o rótulo de cada item
+  // aparece de uma vez (sem animação própria) enquanto a largura do <aside>
+  // ainda está em transição CSS, deixando o conteúdo do nav mais largo que
+  // o nav por ~150ms. Com overflow-x no valor inicial (visible) e
+  // overflow-y em auto, a spec de overflow do CSS força o overflow-x
+  // computado também pra auto — e o navegador desenha a barra de rolagem
+  // horizontal nativa durante essa janela (ver docs/bugs/code-structure.md).
   return (
     <nav
       aria-label={t("shared.panelLayout.sidebar.navLabel")}
-      className="flex-1 space-y-6 overflow-y-auto px-3 py-4"
+      className="flex-1 space-y-6 overflow-x-hidden overflow-y-auto px-3 py-4"
     >
       {sections.map((section) => (
         <div key={section.key}>

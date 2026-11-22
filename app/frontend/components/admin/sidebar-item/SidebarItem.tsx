@@ -29,11 +29,9 @@ export default function SidebarItem({
     </Link>
   );
 
-  return collapsed ? (
-    <Tooltip content={label} side="right">
+  return (
+    <Tooltip content={collapsed ? label : null} side="right">
       {link}
     </Tooltip>
-  ) : (
-    link
   );
 }

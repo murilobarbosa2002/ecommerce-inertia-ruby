@@ -38,6 +38,8 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 - Unicidade de e-mail do admin passou a ignorar diferença de maiúsculas/minúsculas.
 - Atualização do Rails para `8.1.4.1`, corrigindo múltiplos CVEs (um crítico, de leitura/escrita arbitrária de arquivo) divulgados após o lançamento do `8.1.4`.
 - Trocar o papel de um admin passou a exigir motivo explícito e gerar versão no histórico, igual à troca de e-mail (antes não deixava nenhum registro).
+- O tooltip do botão de recolher/expandir o menu lateral (e dos itens de navegação recolhidos) podia ficar preso na tela ou reaparecer num flash rápido ao alternar o menu com o mouse ainda em cima do botão, em vez de fechar normalmente.
+- Uma barra de rolagem horizontal aparecia por um instante dentro do menu lateral ao expandi-lo.
 
 ## Alterado
 
