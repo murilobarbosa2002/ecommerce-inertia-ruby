@@ -65,4 +65,36 @@ describe("Tooltip", () => {
 
     expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
   });
+
+  // Reproduz o flash reportado pelo mantenedor: content nasce vazio (ex. a
+  // sidebar expandida, onde o botão já mostra o rótulo como texto em vez de
+  // tooltip), o mouse já está sobre o gatilho há tempo suficiente pra
+  // ultrapassar o delay de abertura do Radix, e só então content passa a
+  // ter valor (ex. o clique que recolhe a sidebar). Sem reiniciar o estado
+  // de hover pendente do Radix nessa transição, o tooltip pipocava já
+  // aberto no instante em que content ficava disponível, sem esperar um
+  // novo hover de verdade — some pouco depois porque o cursor normalmente
+  // já não está mais sobre o gatilho menor/realocado.
+  it("não reabre sozinho quando content passa de vazio pra preenchido com o gatilho já em hover", async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(
+      <Tooltip content={null}>
+        <button type="button">Botão</button>
+      </Tooltip>,
+    );
+
+    await user.hover(screen.getByRole("button", { name: "Botão" }));
+    await new Promise((resolve) => {
+      setTimeout(resolve, 300);
+    });
+    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+
+    rerender(
+      <Tooltip content="Dica">
+        <button type="button">Botão</button>
+      </Tooltip>,
+    );
+
+    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+  });
 });

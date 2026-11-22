@@ -197,6 +197,21 @@ describe("SidebarNav", () => {
       screen.getByRole("navigation", { name: "Navegação principal" }),
     ).toBeInTheDocument();
   });
+
+  // Bug real (ver docs/bugs/code-structure.md): com só overflow-y-auto, a
+  // spec de overflow do CSS força overflow-x computado pra auto também, e o
+  // navegador chega a desenhar a barra de rolagem horizontal nativa durante
+  // a transição de largura do <aside> ao expandir (rótulo já visível, nav
+  // ainda estreito). overflow-x-hidden explícito evita essa barra. jsdom não
+  // calcula layout, então o teste é na classe (causa raiz), não no scrollbar
+  // em si — medido com dados reais de navegador antes dessa correção.
+  it("nunca deixa o eixo X rolar, pra não desenhar a barra nativa durante a transição de largura", () => {
+    const { container } = render(
+      <SidebarNav sections={sections} activeItemKey={null} />,
+    );
+
+    expect(container.querySelector("nav")).toHaveClass("overflow-x-hidden");
+  });
 });
 
 describe("Sidebar", () => {
