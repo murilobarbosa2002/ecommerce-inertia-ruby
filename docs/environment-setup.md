@@ -140,6 +140,13 @@ mise use ruby@4.0.10 node@24.22.2 pnpm@12.16.1
 
 Gera `mise.toml` na raiz do repo, versionado, com versões exatas pinadas (não faixas como `"4"` — reprodutibilidade real). Ruby 4.x já vem com Bundler embutido como gem padrão, não precisou `gem install bundler` separado. Verificação: `ruby -v`, `node -v`, `pnpm -v` dentro da pasta do projeto.
 
+### Checkout no lado Windows (CRLF)
+
+Rodar `git checkout`/`pnpm` pelo Windows (ex. numa cópia do repositório em `C:\...`, com o Ruby só no WSL) traz dois efeitos por causa do `core.autocrlf=true` do Git for Windows, que converte os arquivos versionados pra CRLF:
+
+- `pnpm format:check` acusa dezenas de arquivos (o Prettier exige LF) sem haver diferença de código. Formate/verifique só os arquivos tocados; o commit normaliza de volta pra LF.
+- `bin/rails` (e os demais scripts de `bin/`) ficam com `\r` no shebang, e `bin/rails ...` falha no WSL com `env: 'ruby\r': No such file or directory`. Rode `ruby bin/rails ...` em vez disso (ex. `ruby bin/rails js:routes`, necessário pra gerar `app/frontend/routes.js`/`routes.d.ts`, que o `pnpm check`, o lint e o Vitest exigem).
+
 ### PostgreSQL — role de desenvolvimento
 
 Status: feito.

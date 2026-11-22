@@ -10,5 +10,8 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./test/setup.ts"],
     include: ["**/*.test.{ts,tsx}"],
+    // Por padrão o Vitest devolve string vazia pra qualquer .css (inclusive
+    // com ?raw). tokens.test.ts precisa do texto real pra validar o contraste.
+    css: { include: [/styles\/tokens\.css/] },
   },
 });
