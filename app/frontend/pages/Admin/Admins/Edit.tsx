@@ -1,7 +1,7 @@
 import { Head } from "@inertiajs/react";
 import { useTranslation } from "react-i18next";
 
-import PanelLayout from "@/components/admin/PanelLayout";
+import PanelLayout from "@/components/admin/panel-layout/PanelLayout";
 import Link from "@/components/shared/link/Link";
 import { admin_admins_path } from "@/routes";
 

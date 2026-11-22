@@ -9,7 +9,7 @@ describe("Banner", () => {
 
     const banner = screen.getByRole("status");
     expect(banner).toHaveTextContent("Tudo certo");
-    expect(banner).toHaveClass("bg-green-50");
+    expect(banner).toHaveClass("bg-success-soft");
   });
 
   it("renderiza com role=alert e a variante de alert quando tone é alert", () => {
@@ -17,6 +17,6 @@ describe("Banner", () => {
 
     const banner = screen.getByRole("alert");
     expect(banner).toHaveTextContent("Algo errado");
-    expect(banner).toHaveClass("bg-red-50");
+    expect(banner).toHaveClass("bg-danger-soft");
   });
 });

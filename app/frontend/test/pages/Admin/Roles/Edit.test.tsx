@@ -9,6 +9,7 @@ const { routerPatchMock } = vi.hoisted(() => ({ routerPatchMock: vi.fn() }));
 
 vi.mock("@inertiajs/react", () => ({
   Head: () => null,
+  Link: "a",
   router: { patch: routerPatchMock },
   usePage: () => ({
     props: {

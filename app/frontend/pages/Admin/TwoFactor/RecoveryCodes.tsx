@@ -1,7 +1,7 @@
 import { Head, router } from "@inertiajs/react";
 import { useTranslation } from "react-i18next";
 
-import PanelLayout from "@/components/admin/PanelLayout";
+import PanelLayout from "@/components/admin/panel-layout/PanelLayout";
 import Button from "@/components/shared/button/Button";
 import downloadRecoveryCodesImage from "@/lib/downloadRecoveryCodesImage";
 import downloadTextFile from "@/lib/downloadTextFile";

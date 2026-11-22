@@ -6,6 +6,7 @@ import { edit_admin_admin_path, new_admin_admin_path } from "@/routes";
 
 vi.mock("@inertiajs/react", () => ({
   Head: () => null,
+  Link: "a",
   router: { delete: vi.fn() },
   usePage: () => ({
     props: {

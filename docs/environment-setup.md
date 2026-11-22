@@ -147,6 +147,8 @@ Rodar `git checkout`/`pnpm` pelo Windows (ex. numa cópia do repositório em `C:
 - `pnpm format:check` acusa dezenas de arquivos (o Prettier exige LF) sem haver diferença de código. Formate/verifique só os arquivos tocados; o commit normaliza de volta pra LF.
 - `bin/rails` (e os demais scripts de `bin/`) ficam com `\r` no shebang, e `bin/rails ...` falha no WSL com `env: 'ruby\r': No such file or directory`. Rode `ruby bin/rails ...` em vez disso (ex. `ruby bin/rails js:routes`, necessário pra gerar `app/frontend/routes.js`/`routes.d.ts`, que o `pnpm check`, o lint e o Vitest exigem).
 
+Rodar `pnpm install` (ou qualquer comando que reinstale dependências) tira `node_modules/` do ar por alguns segundos: a extensão Prettier do VS Code registra `Failed to load module ... node_modules/prettier/package.json` nesse intervalo, e o erro some sozinho depois (se ficar, `Developer: Reload Window`). Não alterne `pnpm install` entre Windows e WSL sobre a mesma pasta: cada lado cria o `node_modules` no seu formato (junctions do Windows, symlinks do Linux) e o outro passa a não conseguir carregar os pacotes; escolha um lado pra instalar.
+
 ### PostgreSQL — role de desenvolvimento
 
 Status: feito.
