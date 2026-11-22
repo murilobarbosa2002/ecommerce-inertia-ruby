@@ -107,7 +107,7 @@ export default function AdminsNewForm({ roles }: AdminsNewProps) {
         register={register("change_reason")}
       />
 
-      <Button type="submit" disabled={isSubmitting}>
+      <Button type="submit" fullWidth disabled={isSubmitting}>
         {isSubmitting
           ? t("admin.admins.new.submitting")
           : t("admin.admins.new.submit")}

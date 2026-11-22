@@ -2,7 +2,7 @@
 
 ## Status
 
-Aceito
+Aceito. Ícone novo da interface passa a vir do `lucide-react` (`docs/adr/0032`), sem componente wrapper por ícone; esta decisão continua vigente para SVG próprio que o `lucide-react` não oferece e para os ícones já existentes.
 
 ## Contexto
 

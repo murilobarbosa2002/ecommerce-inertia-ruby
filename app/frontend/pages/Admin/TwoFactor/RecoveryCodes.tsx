@@ -62,6 +62,7 @@ export default function TwoFactorRecoveryCodes({
 
       <Button
         type="button"
+        fullWidth
         onClick={() => {
           router.visit(root_path());
         }}

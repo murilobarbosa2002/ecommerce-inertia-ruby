@@ -40,6 +40,7 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 
 ## Alterado
 
+- Botões do painel admin ganharam novo visual (cor de marca violeta-índigo, cantos e altura revisados, anel de foco mais visível) e novas variantes (secundário, contorno, perigo), tamanhos e estado de carregamento. Botões de envio de formulário continuam ocupando a largura toda.
 - O issuer mostrado no app autenticador ao configurar o 2FA passa a usar o nome configurado da loja, em vez do host da requisição (ex. `localhost` em desenvolvimento).
 - Eventos de auditoria de login foram divididos em `password_verified`/`login_succeeded`/`reauthentication_failed` para maior precisão (antes, contextos diferentes — senha certa mas 2FA pendente, reautenticação pra desativar 2FA — compartilhavam o mesmo `event_type` que outra situação já usava).
 - A raiz do site (`/`) deixou de exibir a página de exemplo padrão do Inertia Rails e passou a redirecionar para o login do admin, único fluxo real disponível até a loja/painel existirem.

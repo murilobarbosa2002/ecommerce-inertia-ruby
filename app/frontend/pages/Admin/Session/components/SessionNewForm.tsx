@@ -41,7 +41,7 @@ export default function SessionNewForm() {
         register={register("password")}
       />
 
-      <Button type="submit" disabled={isSubmitting}>
+      <Button type="submit" fullWidth disabled={isSubmitting}>
         {isSubmitting
           ? t("admin.session.new.submitting")
           : t("admin.session.new.submit")}

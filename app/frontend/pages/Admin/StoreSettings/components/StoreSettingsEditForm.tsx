@@ -64,7 +64,7 @@ export default function StoreSettingsEditForm({
         register={register("change_reason")}
       />
 
-      <Button type="submit" disabled={isSubmitting}>
+      <Button type="submit" fullWidth disabled={isSubmitting}>
         {isSubmitting
           ? t("admin.storeSettings.edit.submitting")
           : t("admin.storeSettings.edit.submit")}
