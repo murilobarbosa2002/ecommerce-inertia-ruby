@@ -4,6 +4,8 @@
 @plugin "@tailwindcss/typography";
 @plugin "@tailwindcss/forms";
 
+@import "../styles/tokens.css";
+
 /* dark: passa a responder à classe .dark na árvore (aplicada via script
    inline em application.html.erb + hook useTheme), não só à preferência
    do sistema — permite toggle manual independente do SO (docs/adr/0020). */

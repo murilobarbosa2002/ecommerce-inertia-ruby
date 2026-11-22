@@ -1,0 +1,156 @@
+/* Tokens de design do painel (docs/adr/0031).
+
+   Duas camadas:
+   1. Escalas cruas (`brand`, `ink`) e medidas (raio, sombra) em `@theme`.
+   2. Tokens semânticos (`canvas`, `surface`, `fg`, `accent`, ...) declarados
+      como variáveis CSS em `:root` (tema claro) e `.dark` (tema escuro, classe
+      aplicada na <html> — docs/adr/0020) e expostos como utilitários do
+      Tailwind via `@theme inline` (`bg-surface`, `text-fg-muted`, ...).
+
+   Componente novo usa os tokens semânticos: trocam sozinhos entre os temas,
+   sem `dark:` repetido em cada classe. Valor fixo de cor (ex. `bg-white`)
+   continua exigindo a variante `dark:` correspondente (CONTRIBUTING.md).
+
+   Todo valor de cor é hexadecimal de propósito: o teste
+   `test/styles/tokens.test.ts` lê este arquivo e calcula o contraste WCAG de
+   cada par texto/fundo nos dois temas (docs/adr/0028). Alterar uma cor sem
+   manter o contraste mínimo quebra o teste. */
+
+@theme {
+  /* Marca: violeta-índigo. */
+  --color-brand-50: #f4f3ff;
+  --color-brand-100: #ebe9fe;
+  --color-brand-200: #d9d6fe;
+  --color-brand-300: #bdb4fe;
+  --color-brand-400: #9b8afb;
+  --color-brand-500: #7a5af8;
+  --color-brand-600: #6938ef;
+  --color-brand-700: #5925dc;
+  --color-brand-800: #4a1fb8;
+  --color-brand-900: #3e1c96;
+  --color-brand-950: #27115f;
+
+  /* Neutros com um leve tom azulado, pra combinar com a marca. */
+  --color-ink-50: #f8f9fb;
+  --color-ink-100: #f1f3f7;
+  --color-ink-200: #e4e7ee;
+  --color-ink-300: #cfd4df;
+  --color-ink-400: #9aa2b3;
+  --color-ink-500: #6b7487;
+  --color-ink-600: #515a6d;
+  --color-ink-700: #3d4555;
+  --color-ink-800: #272d3a;
+  --color-ink-900: #171b25;
+  --color-ink-950: #0d1017;
+
+  --radius-control: 0.625rem;
+  --radius-card: 0.875rem;
+
+  --shadow-card:
+    0 1px 2px 0 rgb(16 24 40 / 0.04), 0 1px 3px 0 rgb(16 24 40 / 0.06);
+  --shadow-popover:
+    0 12px 16px -4px rgb(16 24 40 / 0.08), 0 4px 6px -2px rgb(16 24 40 / 0.03);
+}
+
+:root {
+  color-scheme: light;
+
+  --canvas: #f8f9fb;
+  --surface: #ffffff;
+  --surface-muted: #f1f3f7;
+  --line: #e4e7ee;
+  --line-strong: #c5cbd8;
+
+  --fg: #171b25;
+  --fg-muted: #515a6d;
+  --fg-subtle: #616b7e;
+
+  --accent: #6938ef;
+  --accent-hover: #5925dc;
+  --accent-fg: #ffffff;
+  --accent-soft: #f4f3ff;
+  --accent-text: #5925dc;
+  --focus-ring: #7a5af8;
+
+  --success-soft: #ecfdf3;
+  --success-text: #067647;
+  --success-solid: #067647;
+
+  --warning-soft: #fffaeb;
+  --warning-text: #b54708;
+
+  --danger-soft: #fef3f2;
+  --danger-text: #b42318;
+  --danger-solid: #d92d20;
+
+  --info-soft: #eff8ff;
+  --info-text: #175cd3;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --canvas: #0d1017;
+  --surface: #151922;
+  --surface-muted: #1c212c;
+  --line: #272d3a;
+  --line-strong: #3d4555;
+
+  --fg: #f1f3f7;
+  --fg-muted: #aab1c0;
+  --fg-subtle: #8f98aa;
+
+  --accent: #7450f5;
+  --accent-hover: #6938ef;
+  --accent-fg: #ffffff;
+  --accent-soft: #221a4a;
+  --accent-text: #bdb4fe;
+  --focus-ring: #9b8afb;
+
+  --success-soft: #0b2a1c;
+  --success-text: #6ce9a6;
+  --success-solid: #067647;
+
+  --warning-soft: #33220a;
+  --warning-text: #fec84b;
+
+  --danger-soft: #3a1512;
+  --danger-text: #fda29b;
+  --danger-solid: #d92d20;
+
+  --info-soft: #102a4c;
+  --info-text: #84caff;
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-text: var(--accent-text);
+  --color-focus-ring: var(--focus-ring);
+
+  --color-success-soft: var(--success-soft);
+  --color-success-text: var(--success-text);
+  --color-success-solid: var(--success-solid);
+
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-text: var(--warning-text);
+
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-text: var(--danger-text);
+  --color-danger-solid: var(--danger-solid);
+
+  --color-info-soft: var(--info-soft);
+  --color-info-text: var(--info-text);
+}
