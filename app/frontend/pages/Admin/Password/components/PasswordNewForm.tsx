@@ -30,7 +30,7 @@ export default function PasswordNewForm() {
         register={register("email_address")}
       />
 
-      <Button type="submit" disabled={isSubmitting}>
+      <Button type="submit" fullWidth disabled={isSubmitting}>
         {isSubmitting
           ? t("admin.password.new.submitting")
           : t("admin.password.new.submit")}

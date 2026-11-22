@@ -47,7 +47,7 @@ export default function PasswordEditForm({ token }: PasswordEditProps) {
         register={register("password_confirmation")}
       />
 
-      <Button type="submit" disabled={isSubmitting}>
+      <Button type="submit" fullWidth disabled={isSubmitting}>
         {isSubmitting
           ? t("admin.password.edit.submitting")
           : t("admin.password.edit.submit")}

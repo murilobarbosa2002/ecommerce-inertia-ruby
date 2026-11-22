@@ -73,7 +73,7 @@ export default function AdminsEditForm({ admin, roles }: AdminsEditProps) {
         register={register("change_reason")}
       />
 
-      <Button type="submit" disabled={isSubmitting}>
+      <Button type="submit" fullWidth disabled={isSubmitting}>
         {isSubmitting
           ? t("admin.admins.edit.submitting")
           : t("admin.admins.edit.submit")}

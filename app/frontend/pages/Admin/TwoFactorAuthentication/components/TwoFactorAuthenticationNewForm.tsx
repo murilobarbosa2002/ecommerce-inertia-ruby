@@ -32,7 +32,7 @@ export default function TwoFactorAuthenticationNewForm() {
         register={register("otp_code")}
       />
 
-      <Button type="submit" disabled={isSubmitting}>
+      <Button type="submit" fullWidth disabled={isSubmitting}>
         {isSubmitting
           ? t("admin.twoFactorAuthentication.new.submitting")
           : t("admin.twoFactorAuthentication.new.submit")}

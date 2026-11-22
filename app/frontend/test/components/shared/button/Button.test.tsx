@@ -25,17 +25,83 @@ describe("Button", () => {
     expect(screen.getByRole("button")).toBeDisabled();
   });
 
-  it("usa a variante primary (largura cheia) por padrão", () => {
+  it("usa a variante primary, sem largura cheia, por padrão", () => {
     render(<Button>Entrar</Button>);
+
+    const button = screen.getByRole("button");
+    expect(button).toHaveClass("bg-accent");
+    expect(button).not.toHaveClass("w-full");
+  });
+
+  it("fullWidth ocupa a largura toda", () => {
+    render(<Button fullWidth>Entrar</Button>);
 
     expect(screen.getByRole("button")).toHaveClass("w-full");
   });
 
-  it("intent=ghost não força largura cheia nem fundo sólido", () => {
+  it("intent=ghost não tem fundo sólido", () => {
     render(<Button intent="ghost">Sair</Button>);
 
     const button = screen.getByRole("button");
-    expect(button).not.toHaveClass("w-full");
-    expect(button).not.toHaveClass("bg-indigo-600");
+    expect(button).not.toHaveClass("bg-accent");
+    expect(button).toHaveClass("text-fg-muted");
+  });
+
+  it.each([
+    ["secondary", "bg-surface-muted"],
+    ["outline", "border-line-strong"],
+    ["danger", "bg-danger-solid"],
+  ] as const)("intent=%s aplica a classe %s", (intent, expectedClass) => {
+    render(<Button intent={intent}>Ação</Button>);
+
+    expect(screen.getByRole("button")).toHaveClass(expectedClass);
+  });
+
+  it.each([
+    ["sm", "h-8"],
+    ["md", "h-10"],
+    ["lg", "h-12"],
+    ["icon", "size-10"],
+  ] as const)("size=%s aplica a classe %s", (size, expectedClass) => {
+    render(<Button size={size}>Ação</Button>);
+
+    expect(screen.getByRole("button")).toHaveClass(expectedClass);
+  });
+
+  describe("loading", () => {
+    it("desabilita o botão e marca aria-busy", () => {
+      render(<Button loading>Salvar</Button>);
+
+      const button = screen.getByRole("button", { name: "Salvar" });
+      expect(button).toBeDisabled();
+      expect(button).toHaveAttribute("aria-busy", "true");
+    });
+
+    it("mostra o spinner sem esconder o rótulo", () => {
+      const { container } = render(<Button loading>Salvar</Button>);
+
+      expect(container.querySelector("svg")).toBeInTheDocument();
+      expect(screen.getByText("Salvar")).toBeInTheDocument();
+    });
+
+    it("não renderiza spinner nem aria-busy quando não está carregando", () => {
+      const { container } = render(<Button>Salvar</Button>);
+
+      expect(container.querySelector("svg")).not.toBeInTheDocument();
+      expect(screen.getByRole("button")).not.toHaveAttribute("aria-busy");
+    });
+
+    it("não chama onClick enquanto carrega", () => {
+      const onClick = vi.fn();
+      render(
+        <Button loading onClick={onClick}>
+          Salvar
+        </Button>,
+      );
+
+      screen.getByRole("button").click();
+
+      expect(onClick).not.toHaveBeenCalled();
+    });
   });
 });

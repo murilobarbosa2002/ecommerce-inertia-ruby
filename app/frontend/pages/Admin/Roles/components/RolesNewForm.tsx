@@ -77,7 +77,7 @@ export default function RolesNewForm({ permissions }: RolesNewProps) {
         register={register("change_reason")}
       />
 
-      <Button type="submit" disabled={isSubmitting}>
+      <Button type="submit" fullWidth disabled={isSubmitting}>
         {isSubmitting
           ? t("admin.roles.new.submitting")
           : t("admin.roles.new.submit")}

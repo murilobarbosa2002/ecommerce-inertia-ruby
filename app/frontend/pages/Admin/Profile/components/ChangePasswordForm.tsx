@@ -56,7 +56,7 @@ export default function ChangePasswordForm() {
         register={register("password_confirmation")}
       />
 
-      <Button type="submit" disabled={isSubmitting}>
+      <Button type="submit" fullWidth disabled={isSubmitting}>
         {isSubmitting
           ? t("admin.profile.submitting")
           : t("admin.profile.submit")}
