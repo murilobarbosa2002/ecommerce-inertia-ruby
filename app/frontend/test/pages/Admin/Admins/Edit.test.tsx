@@ -22,6 +22,7 @@ const { routerPatchMock, routerPostMock, usePageMock } = vi.hoisted(() => ({
 
 vi.mock("@inertiajs/react", () => ({
   Head: () => null,
+  Link: "a",
   router: { patch: routerPatchMock, post: routerPostMock },
   usePage: () => usePageMock(),
 }));

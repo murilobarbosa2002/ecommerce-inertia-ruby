@@ -1,7 +1,7 @@
 import { Head } from "@inertiajs/react";
 import { useTranslation } from "react-i18next";
 
-import PanelLayout from "@/components/admin/PanelLayout";
+import PanelLayout from "@/components/admin/panel-layout/PanelLayout";
 
 import TwoFactorNewForm from "./components/TwoFactorNewForm";
 import { type TwoFactorNewProps } from "./New.types";

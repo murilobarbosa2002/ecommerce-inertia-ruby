@@ -10,10 +10,31 @@ export const ptBR = {
     panelLayout: {
       brand: "Ecommerce Inertia Ruby",
       signOut: "Sair",
-      manageAdmins: "Gerenciar admins",
-      manageRoles: "Gerenciar papéis",
-      storeSettings: "Configurações da loja",
       profile: "Perfil",
+      breadcrumbs: "Você está em",
+      sections: {
+        general: "Geral",
+        administration: "Administração",
+      },
+      nav: {
+        dashboard: "Painel",
+        admins: "Admins",
+        roles: "Papéis",
+        storeSettings: "Configurações da loja",
+      },
+      sidebar: {
+        navLabel: "Navegação principal",
+        collapse: "Recolher menu",
+        expand: "Expandir menu",
+      },
+      mobileNav: {
+        open: "Abrir menu",
+        close: "Fechar menu",
+        title: "Menu de navegação",
+      },
+      userMenu: {
+        label: "Menu da conta",
+      },
       twoFactorRequiredTitle: "Autenticação de dois fatores obrigatória",
       twoFactorRequiredDescription:
         "Por segurança, toda conta admin precisa ter a autenticação de dois fatores ativa. Configure agora pra continuar usando o painel.",
@@ -34,7 +55,9 @@ export const ptBR = {
     dashboard: {
       show: {
         title: "Painel",
-        placeholder: "Em construção — mais telas chegam nas próximas fases.",
+        placeholderTitle: "Em construção",
+        placeholder:
+          "Métricas, atividade recente e atalhos chegam nas próximas fases.",
       },
     },
     admins: {

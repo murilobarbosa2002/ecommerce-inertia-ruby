@@ -1,7 +1,7 @@
 import { Head } from "@inertiajs/react";
 import { useTranslation } from "react-i18next";
 
-import PanelLayout from "@/components/admin/PanelLayout";
+import PanelLayout from "@/components/admin/panel-layout/PanelLayout";
 import Link from "@/components/shared/link/Link";
 import { edit_admin_role_path, new_admin_role_path } from "@/routes";
 

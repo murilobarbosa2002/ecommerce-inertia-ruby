@@ -22,6 +22,7 @@ vi.mock("@/lib/downloadRecoveryCodesImage", () => ({
 
 vi.mock("@inertiajs/react", () => ({
   Head: () => null,
+  Link: "a",
   router: { visit: routerVisitMock, delete: vi.fn() },
   usePage: () => ({
     props: {

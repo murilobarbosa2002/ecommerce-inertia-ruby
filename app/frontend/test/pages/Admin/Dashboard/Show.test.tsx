@@ -5,6 +5,7 @@ import DashboardShow from "@/pages/Admin/Dashboard/Show";
 
 vi.mock("@inertiajs/react", () => ({
   Head: () => null,
+  Link: "a",
   router: { delete: vi.fn() },
   usePage: () => ({
     props: {

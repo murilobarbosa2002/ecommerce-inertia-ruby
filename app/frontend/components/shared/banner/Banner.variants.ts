@@ -1,13 +1,11 @@
 import { tv } from "tailwind-variants";
 
 export const banner = tv({
-  base: "mb-5 flex items-start gap-2.5 rounded-lg border p-3.5 text-sm",
+  base: "mb-5 flex items-start gap-2.5 rounded-control border p-3.5 text-sm",
   variants: {
     tone: {
-      notice:
-        "border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-300",
-      alert:
-        "border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-300",
+      notice: "border-success-text/30 bg-success-soft text-success-text",
+      alert: "border-danger-text/30 bg-danger-soft text-danger-text",
     },
   },
 });

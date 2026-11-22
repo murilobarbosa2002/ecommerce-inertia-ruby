@@ -16,6 +16,7 @@ const { routerPatchMock, routerDeleteMock } = vi.hoisted(() => ({
 
 vi.mock("@inertiajs/react", () => ({
   Head: () => null,
+  Link: "a",
   router: { patch: routerPatchMock, delete: routerDeleteMock },
   usePage: () => ({
     props: {

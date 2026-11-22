@@ -1,18 +1,26 @@
+import { Construction } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import PanelLayout from "@/components/admin/PanelLayout";
+import PanelLayout from "@/components/admin/panel-layout/PanelLayout";
+import Card from "@/components/shared/card/Card";
+import EmptyState from "@/components/shared/empty-state/EmptyState";
 
 export default function DashboardShow() {
   const { t } = useTranslation();
 
   return (
     <PanelLayout title={t("admin.dashboard.show.title")}>
-      <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+      <h1 className="mb-6 text-2xl font-semibold tracking-tight text-fg">
         {t("admin.dashboard.show.title")}
       </h1>
-      <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-        {t("admin.dashboard.show.placeholder")}
-      </p>
+      <Card>
+        <EmptyState
+          icon={Construction}
+          titleAs="h2"
+          title={t("admin.dashboard.show.placeholderTitle")}
+          description={t("admin.dashboard.show.placeholder")}
+        />
+      </Card>
     </PanelLayout>
   );
 }

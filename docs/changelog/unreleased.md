@@ -41,6 +41,7 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 
 ## Alterado
 
+- Painel admin com novo layout: menu lateral (recolhível pra só ícones, preferência lembrada no navegador) agrupado por seção, com o item da página atual destacado e só os itens que o papel do admin permite; barra superior com breadcrumb, alternância de tema e menu da conta (e-mail, papel, perfil e sair); no celular o menu abre como gaveta lateral. O nome e o logo da loja aparecem na marca do menu. A navegação entre telas deixou de recarregar a página inteira.
 - Botões do painel admin ganharam novo visual (cor de marca violeta-índigo, cantos e altura revisados, anel de foco mais visível) e novas variantes (secundário, contorno, perigo), tamanhos e estado de carregamento. Botões de envio de formulário continuam ocupando a largura toda.
 - O issuer mostrado no app autenticador ao configurar o 2FA passa a usar o nome configurado da loja, em vez do host da requisição (ex. `localhost` em desenvolvimento).
 - Eventos de auditoria de login foram divididos em `password_verified`/`login_succeeded`/`reauthentication_failed` para maior precisão (antes, contextos diferentes — senha certa mas 2FA pendente, reautenticação pra desativar 2FA — compartilhavam o mesmo `event_type` que outra situação já usava).

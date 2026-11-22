@@ -26,11 +26,11 @@ export default function Dialog({
             event.preventDefault();
           }}
         >
-          <RadixDialog.Title className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <RadixDialog.Title className="mb-2 text-lg font-semibold text-fg">
             {title}
           </RadixDialog.Title>
           {description && (
-            <RadixDialog.Description className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+            <RadixDialog.Description className="mb-4 text-sm text-fg-muted">
               {description}
             </RadixDialog.Description>
           )}

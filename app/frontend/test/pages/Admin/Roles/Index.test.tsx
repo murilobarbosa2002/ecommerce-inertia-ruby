@@ -6,6 +6,7 @@ import { edit_admin_role_path, new_admin_role_path } from "@/routes";
 
 vi.mock("@inertiajs/react", () => ({
   Head: () => null,
+  Link: "a",
   usePage: () => ({
     props: {
       current_admin_permissions: ["manage_roles"],
