@@ -255,4 +255,23 @@ describe("Sidebar", () => {
 
     expect(container.querySelector("aside")).toHaveClass("hidden", "lg:flex");
   });
+
+  // Reproduzir em jsdom o tooltip preso na tela (bug real, ver
+  // docs/bugs/code-structure.md) depende de timing de hover real do
+  // navegador — não dá pra simular de forma confiável aqui. Esta asserção
+  // testa a causa raiz diretamente: antes da correção, alternar collapsed
+  // trocava o tipo do elemento na árvore (Tooltip vs. botão puro),
+  // desmontando e remontando o botão a cada clique — é esse remount que
+  // interrompe o fechamento controlado do Radix e deixa o tooltip aberto
+  // preso no body. Com o botão sempre dentro do mesmo Tooltip (variando só
+  // se o Content é renderizado), o nó do DOM se mantém entre as trocas.
+  it("mantém o mesmo nó do botão ao alternar collapsed, sem remontar o tooltip", () => {
+    const { rerender } = render(<Sidebar {...baseProps} collapsed />);
+    const buttonBefore = screen.getByRole("button", { name: "Expandir menu" });
+
+    rerender(<Sidebar {...baseProps} collapsed={false} />);
+    const buttonAfter = screen.getByRole("button", { name: "Recolher menu" });
+
+    expect(buttonAfter).toBe(buttonBefore);
+  });
 });
