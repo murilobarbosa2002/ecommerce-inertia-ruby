@@ -20,11 +20,17 @@ RSpec.describe "db/seeds.rb" do
       .not_to change(Permission, :count)
   end
 
-  it "cria a permissão reset_two_factor sem atribuí-la a nenhum papel por padrão" do
+  it "cria as permissões reset_two_factor e view_audit_log, atribuídas ao owner por padrão" do
     load Rails.root.join("db/seeds.rb")
 
     expect(Permission.find_by(key: "reset_two_factor")).to be_present
-    expect(Role.find_by(name: "owner").permission?("reset_two_factor")).to be false
+    expect(Permission.find_by(key: "view_audit_log")).to be_present
+    owner_role = Role.find_by(name: "owner")
+    expect(owner_role.permission?("reset_two_factor")).to be true
+    expect(owner_role.permission?("view_audit_log")).to be true
+
+    expect { load Rails.root.join("db/seeds.rb") }
+      .not_to change(Role.find_by(name: "owner").permissions, :count)
   end
 
   it "cria a permissão manage_store_settings sem atribuí-la a nenhum papel, e a linha única de StoreSetting" do

@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import Dialog from "@/components/shared/dialog/Dialog";
 
@@ -59,5 +59,47 @@ describe("Dialog", () => {
     expect(screen.getByRole("dialog")).toHaveAccessibleDescription(
       "Descrição do aviso",
     );
+  });
+
+  describe("fechável (onOpenChange)", () => {
+    it("mostra um botão de fechar", () => {
+      render(
+        <Dialog open title="Título" onOpenChange={vi.fn()}>
+          <p>Conteúdo</p>
+        </Dialog>,
+      );
+
+      expect(
+        screen.getByRole("button", { name: "Fechar" }),
+      ).toBeInTheDocument();
+    });
+
+    it("fecha ao apertar Escape", async () => {
+      const user = userEvent.setup();
+      const onOpenChange = vi.fn();
+      render(
+        <Dialog open title="Título" onOpenChange={onOpenChange}>
+          <p>Conteúdo</p>
+        </Dialog>,
+      );
+
+      await user.keyboard("{Escape}");
+
+      expect(onOpenChange).toHaveBeenCalledWith(false);
+    });
+
+    it("fecha ao clicar no botão de fechar", async () => {
+      const user = userEvent.setup();
+      const onOpenChange = vi.fn();
+      render(
+        <Dialog open title="Título" onOpenChange={onOpenChange}>
+          <p>Conteúdo</p>
+        </Dialog>,
+      );
+
+      await user.click(screen.getByRole("button", { name: "Fechar" }));
+
+      expect(onOpenChange).toHaveBeenCalledWith(false);
+    });
   });
 });

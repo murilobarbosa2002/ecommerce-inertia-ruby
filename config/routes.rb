@@ -70,6 +70,11 @@ Rails.application.routes.draw do
     # :id porque é sempre o Current.admin, nunca outro registro.
     resource :profile, only: %i[show update]
 
+    # Preferência pessoal de quais atalhos aparecem no dashboard do próprio
+    # admin (Current.admin, igual profile acima) — só update, não tem tela
+    # própria (editado inline no dashboard).
+    resource :quick_actions, only: %i[update]
+
     # Configuração da loja (nome, logo) — singular, singleton de verdade
     # (StoreSetting.instance), gated por require_permission
     # :manage_store_settings. Sem :new/:index/:destroy — só existe uma

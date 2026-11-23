@@ -1,26 +1,64 @@
-import { Construction } from "lucide-react";
+import { Head, usePage } from "@inertiajs/react";
+import { ShieldOff, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
+import ActivityFeed from "@/components/admin/activity-feed/ActivityFeed";
+import PageHeader from "@/components/admin/page-header/PageHeader";
+import QuickActions from "@/components/admin/quick-actions/QuickActions";
+import StatCard from "@/components/admin/stat-card/StatCard";
 import PanelLayout from "@/components/admin/panel-layout/PanelLayout";
 import Card from "@/components/shared/card/Card";
-import EmptyState from "@/components/shared/empty-state/EmptyState";
+import { type SharedProps } from "@/types";
 
-export default function DashboardShow() {
+import { type DashboardShowProps } from "./Show.types";
+
+export default function DashboardShow({
+  stats,
+  activity,
+  quick_action_keys: quickActionKeys,
+}: DashboardShowProps) {
   const { t } = useTranslation();
+  const {
+    props: { current_admin_permissions },
+  } = usePage<SharedProps>();
 
   return (
     <PanelLayout title={t("admin.dashboard.show.title")}>
-      <h1 className="mb-6 text-2xl font-semibold tracking-tight text-fg">
-        {t("admin.dashboard.show.title")}
-      </h1>
-      <Card>
-        <EmptyState
-          icon={Construction}
-          titleAs="h2"
-          title={t("admin.dashboard.show.placeholderTitle")}
-          description={t("admin.dashboard.show.placeholder")}
+      <Head title={t("admin.dashboard.show.title")} />
+
+      <PageHeader
+        title={t("admin.dashboard.show.title")}
+        description={t("admin.dashboard.show.description")}
+      />
+
+      <div className="mb-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <StatCard
+          icon={Users}
+          label={t("admin.dashboard.show.stats.totalAdmins")}
+          value={stats.total_admins}
         />
-      </Card>
+        <StatCard
+          icon={ShieldOff}
+          label={t("admin.dashboard.show.stats.adminsWithoutTwoFactor")}
+          value={stats.admins_without_two_factor}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
+        <div className="order-2 lg:order-0 lg:col-span-2">
+          {activity && (
+            <Card>
+              <ActivityFeed activity={activity} />
+            </Card>
+          )}
+        </div>
+
+        <QuickActions
+          className="order-1 lg:order-0"
+          permissions={current_admin_permissions}
+          quickActionKeys={quickActionKeys}
+        />
+      </div>
     </PanelLayout>
   );
 }

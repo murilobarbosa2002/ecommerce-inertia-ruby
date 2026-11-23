@@ -3,6 +3,11 @@ require "rails_helper"
 RSpec.describe "Admin::Dashboards", type: :request do
   def sign_in(admin)
     post admin_session_path, params: { email_address: admin.email_address, password: AdminCredentials::VALID_PASSWORD }
+    return unless admin.otp_required_for_login?
+
+    # Com 2FA ativo, a senha certa só deixa o login "pendente" — precisa
+    # confirmar o código TOTP pra criar a AdminSession de verdade.
+    post admin_two_factor_authentication_path, params: { otp_code: ROTP::TOTP.new(admin.otp_secret).now }
   end
 
   describe "GET / (root)" do
@@ -68,6 +73,157 @@ RSpec.describe "Admin::Dashboards", type: :request do
       sign_in(create(:admin))
 
       expect(inertia_props.dig("store", "name")).to be_nil
+    end
+  end
+
+  describe "props de stats" do
+    def inertia_props
+      get root_path, headers: { "X-Inertia" => "true", "X-Inertia-Version" => InertiaRails.configuration.version.to_s }
+      JSON.parse(response.body).fetch("props")
+    end
+
+    it "conta o total de admins e quantos estão sem 2FA ativo" do
+      create(:admin, :with_two_factor_enabled)
+      create(:admin)
+      create(:admin)
+      sign_in(create(:admin, :with_two_factor_enabled))
+
+      expect(inertia_props["stats"]).to eq("total_admins" => 4, "admins_without_two_factor" => 2)
+    end
+  end
+
+  describe "prop de atividade recente" do
+    def inertia_props(params = {})
+      get root_path, params: params, headers: { "X-Inertia" => "true", "X-Inertia-Version" => InertiaRails.configuration.version.to_s }
+      JSON.parse(response.body).fetch("props")
+    end
+
+    let(:role_with_permission) do
+      create(:role).tap { |role| role.permissions << view_audit_log }
+    end
+    let(:view_audit_log) { Permission.find_or_create_by!(key: "view_audit_log") { |p| p.description = "Ver atividade" } }
+
+    it "vem nil (não um objeto vazio) pra quem não tem a permissão view_audit_log" do
+      sign_in(create(:admin, :with_two_factor_enabled, role: create(:role)))
+
+      expect(inertia_props["activity"]).to be_nil
+    end
+
+    it "lista os eventos relevantes, do mais recente pro mais antigo, pra quem tem a permissão" do
+      target = create(:admin)
+      create(:audit_event, event_type: :login_succeeded, admin: target, performed_by_admin: target, created_at: 2.days.ago)
+      create(:audit_event, event_type: :account_locked, admin: target, created_at: 1.hour.ago)
+      create(:audit_event, event_type: :password_verified) # fora da lista de relevantes
+      # sign_in também gera um login_succeeded (relevante) pro próprio admin
+      # que está logando agora — é o mais recente de todos, sempre.
+      sign_in(create(:admin, :with_two_factor_enabled, role: role_with_permission))
+
+      event_types = inertia_props.dig("activity", "events").pluck("event_type")
+
+      expect(event_types).to eq([ "login_succeeded", "account_locked", "login_succeeded" ])
+    end
+
+    it "expõe o metadata do evento (ex. o e-mail digitado num login_failed sem conta correspondente)" do
+      create(:audit_event, event_type: :login_failed, admin: nil, metadata: { email_address: "inexistente@example.com" })
+      sign_in(create(:admin, :with_two_factor_enabled, role: role_with_permission))
+
+      login_failed_event = inertia_props.dig("activity", "events").find { |event| event["event_type"] == "login_failed" }
+
+      expect(login_failed_event["admin_email"]).to be_nil
+      expect(login_failed_event["metadata"]).to eq("email_address" => "inexistente@example.com")
+    end
+
+    it "pagina os resultados, expondo page/per_page/total_count/total_pages" do
+      create_list(:audit_event, 15, event_type: :login_succeeded)
+      sign_in(create(:admin, :with_two_factor_enabled, role: role_with_permission))
+
+      props = inertia_props(activity_page: 2)
+
+      expect(props.dig("activity", "events").size).to eq(6) # 16 no total (15 + o login do sign_in), página 2 de 10
+      expect(props.dig("activity", "page")).to eq(2)
+      expect(props.dig("activity", "per_page")).to eq(10)
+      expect(props.dig("activity", "total_count")).to eq(16)
+      expect(props.dig("activity", "total_pages")).to eq(2)
+    end
+
+    it "filtra por event_type via activity_event_types (string separada por vírgula)" do
+      create(:audit_event, event_type: :login_succeeded)
+      create(:audit_event, event_type: :account_locked)
+      sign_in(create(:admin, :with_two_factor_enabled, role: role_with_permission))
+
+      props = inertia_props(activity_event_types: "account_locked")
+
+      expect(props.dig("activity", "events").pluck("event_type")).to eq([ "account_locked" ])
+    end
+
+    it "activity_event_types vazio (todos desmarcados no filtro) não mostra nenhum evento" do
+      create(:audit_event, event_type: :login_succeeded)
+      create(:audit_event, event_type: :account_locked)
+      sign_in(create(:admin, :with_two_factor_enabled, role: role_with_permission))
+
+      props = inertia_props(activity_event_types: "")
+
+      expect(props.dig("activity", "events")).to eq([])
+    end
+
+    it "sem activity_event_types algum (nenhum filtro aplicado ainda) mostra todos os tipos relevantes" do
+      create(:audit_event, event_type: :account_locked)
+      sign_in(create(:admin, :with_two_factor_enabled, role: role_with_permission))
+
+      # sign_in também gera um login_succeeded (relevante) pro admin que
+      # está logando agora, além do account_locked criado acima.
+      props = inertia_props
+
+      expect(props.dig("activity", "events").pluck("event_type"))
+        .to contain_exactly("login_succeeded", "account_locked")
+    end
+
+    it "filtra por intervalo de data via activity_from/activity_to" do
+      create(:audit_event, event_type: :login_succeeded, created_at: 10.days.ago)
+      recent = create(:audit_event, event_type: :login_succeeded, created_at: 2.days.ago)
+      sign_in(create(:admin, :with_two_factor_enabled, role: role_with_permission))
+
+      props = inertia_props(activity_from: 5.days.ago.to_date.iso8601, activity_to: 1.day.ago.to_date.iso8601)
+      ids = props.dig("activity", "events").pluck("id")
+
+      expect(ids).to contain_exactly(recent.id)
+    end
+
+    it "filtra por hora dentro do mesmo dia (activity_from/activity_to com horário)" do
+      morning = create(:audit_event, event_type: :login_succeeded, created_at: Time.zone.parse("2026-11-10 08:00"))
+      create(:audit_event, event_type: :login_succeeded, created_at: Time.zone.parse("2026-11-10 20:00"))
+      sign_in(create(:admin, :with_two_factor_enabled, role: role_with_permission))
+
+      props = inertia_props(activity_from: "2026-11-10T07:00", activity_to: "2026-11-10T12:00")
+      ids = props.dig("activity", "events").pluck("id")
+
+      expect(ids).to contain_exactly(morning.id)
+    end
+
+    it "ignora uma data inválida em vez de quebrar a página" do
+      sign_in(create(:admin, :with_two_factor_enabled, role: role_with_permission))
+
+      expect { inertia_props(activity_from: "não-é-uma-data") }.not_to raise_error
+    end
+  end
+
+  describe "prop quick_action_keys" do
+    def inertia_props
+      get root_path, headers: { "X-Inertia" => "true", "X-Inertia-Version" => InertiaRails.configuration.version.to_s }
+      JSON.parse(response.body).fetch("props")
+    end
+
+    it "expõe as chaves salvas do admin logado" do
+      admin = create(:admin, quick_action_keys: [ "new_admin" ])
+      sign_in(admin)
+
+      expect(inertia_props["quick_action_keys"]).to eq([ "new_admin" ])
+    end
+
+    it "vem vazio quando o admin nunca configurou nada" do
+      sign_in(create(:admin))
+
+      expect(inertia_props["quick_action_keys"]).to eq([])
     end
   end
 end

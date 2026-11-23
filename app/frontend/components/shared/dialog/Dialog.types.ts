@@ -8,4 +8,8 @@ export interface DialogProps {
   // anunciado como descrição do diálogo pra quem usa leitor de tela.
   description?: string;
   children: ReactNode;
+  // Sem isso, o diálogo não é fechável (comportamento original, pensado
+  // pro aviso obrigatório de 2FA) — Esc/clique fora/X ficam desabilitados.
+  // Com onOpenChange, o diálogo vira fechável por qualquer um dos três.
+  onOpenChange?: (open: boolean) => void;
 }

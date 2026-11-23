@@ -331,3 +331,63 @@ A desestruturação foi renomeada (`const { props: pageProps } = usePage()`), ev
 ### Verificação
 
 `pnpm lint` limpo depois da renomeação; confirmado que o erro reaparece revertendo só o nome da variável pra `props`.
+
+## `params: { chave: [] }` chega no controller como `[""]`, não `[]`
+
+- **Data:** 2026-11-22
+- **Severidade:** média
+- **PR:** #72
+
+### O que aconteceu
+
+`AdminPanel::QuickActionsController#update` salvava uma string vazia (`""`) como se fosse uma chave de atalho válida sempre que a lista de atalhos escolhidos ficava vazia (nenhum checkbox marcado) — tanto num request spec (`patch admin_quick_actions_path, params: { quick_action_keys: [] }`) quanto, por extensão, num envio real de formulário HTML sem nenhum campo marcado.
+
+### Causa raiz
+
+`x-www-form-urlencoded`/`multipart/form-data` (o formato real de um POST/PATCH de formulário, inclusive o que os helpers de request spec do Rails montam a partir de `params:`) não tem uma forma nativa de representar "um array vazio" — um campo múltiplo sem nenhum valor marcado simplesmente não manda nenhum par chave=valor pro servidor. O Rails, ao reconstruir `params[:quick_action_keys]` como array a partir de zero entradas, produz `[""]` (um elemento com string vazia), não `[]`. `params.permit(quick_action_keys: []).fetch(:quick_action_keys, [])` nunca cai no `[]` default nesse caso — ele recebe `[""]` de verdade.
+
+### Como foi encontrado
+
+Request spec deliberado (`"aceita lista vazia (remover todos os atalhos escolhidos)"`) falhou com `expected: [] / got: [""]` ao implementar o controller, antes de qualquer correção — não foi uma suposição teórica, o teste pegou o comportamento real do Rails na primeira tentativa.
+
+### Impacto
+
+Sem a correção, um admin que desmarcasse todos os atalhos no diálogo de configurar teria `[""]` salvo em `Admin#quick_action_keys` em vez de `[]` — inofensivo pro catálogo de atalhos de hoje (nenhuma chave real é string vazia, então nada aparece a mais), mas um dado sujo persistido sem necessidade, que poderia confundir uma leitura futura desse campo.
+
+### Correção
+
+`params.permit(quick_action_keys: []).fetch(:quick_action_keys, []).compact_blank` — `compact_blank` remove qualquer elemento em branco do array recebido, tratando o `[""]` do formulário vazio exatamente como `[]`. Gotcha generalizável documentado em `CONTRIBUTING.md`: todo parâmetro de array vindo de formulário (checkbox múltiplo, `Select` múltiplo, etc.) deve passar por `compact_blank` antes de ser salvo, nunca assumir que "nenhum selecionado" chega como `[]`.
+
+### Verificação
+
+Request spec confirmado vermelho (`got: [""]`) antes do `compact_blank`, verde depois — sem precisar reverter de propósito, o teste já nasceu pegando o comportamento real do Rails antes de qualquer fix existir.
+
+## Array vazio enviado via `router.reload` (Inertia, GET) nunca chegava nos params do Rails
+
+- **Data:** 2026-11-22
+- **Severidade:** média
+- **PR:** #72
+
+### O que aconteceu
+
+O filtro de tipo de evento da atividade recente (dashboard) permite desmarcar todos os tipos, esperando que isso mostre zero eventos. Na prática, desmarcar tudo continuava mostrando todos os eventos — o mesmo resultado de nunca ter aplicado filtro nenhum.
+
+### Causa raiz
+
+`router.reload({ data: { activity_event_types: [] } })` do Inertia serializa `data` como query string de uma requisição GET usando a lib `qs`, que **descarta por padrão qualquer chave cujo valor seja um array vazio** — o par chave=valor simplesmente não aparece na URL final. `params[:activity_event_types]` no Rails, então, não chegava como `[]` (array vazio, uma escolha explícita de "nenhum tipo") — chegava como `nil` (chave ausente), indistinguível de "nenhum filtro foi aplicado ainda". O backend tratava os dois casos do mesmo jeito, caindo sempre no padrão de "mostrar todos os tipos".
+
+### Como foi encontrado
+
+Teste de regressão escrito pro cenário "desmarcar tudo mostra zero eventos" falhava mesmo com a lógica de filtro (interseção com os tipos relevantes) aparentemente correta — a investigação revelou que o parâmetro nunca chegava como array vazio no controller, só como ausente.
+
+### Impacto
+
+Desmarcar todos os tipos no filtro de atividade parecia não fazer nada — o admin via a lista inteira continuar aparecendo, sem nenhuma mensagem de erro, parecendo um filtro quebrado.
+
+### Correção
+
+O frontend passou a enviar os tipos escolhidos como uma única string separada por vírgula (`activity_event_types: selected.join(",")`), não um array — uma string vazia (`""`) ainda é enviada normalmente pelo `qs` (`chave=`), diferente de um array vazio. O controller (`AdminPanel::DashboardsController#activity_event_types_param`) passou a checar `params.key?(:activity_event_types)` pra distinguir "parâmetro nunca enviado" (retorna `nil`, mostra todos os tipos relevantes) de "enviado como string vazia" (retorna `[]`, mostra zero eventos) — `AuditEvents::RecentActivity` só aplica esse mesmo fallback quando recebe `nil`, nunca quando recebe `[]`.
+
+### Verificação
+
+Specs de `AuditEvents::RecentActivity` e do request `GET /` cobrindo os três casos (`event_types: nil` → todos; `event_types: []` → nenhum; string vazia via `activity_event_types: ""` no request real → nenhum) — confirmados vermelhos com a lógica antiga (fallback único pra `nil`/`[]`), verdes depois da correção.

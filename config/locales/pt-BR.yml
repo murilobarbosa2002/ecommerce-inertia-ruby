@@ -81,6 +81,9 @@ pt-BR:
         success: "Senha alterada com sucesso. Faça login novamente."
         invalid_current_password: "Senha atual incorreta"
         blank_password: "Informe a nova senha"
+    quick_actions:
+      update:
+        success: "Atalhos do dashboard atualizados"
   admin_panel:
     passwords_mailer:
       reset:

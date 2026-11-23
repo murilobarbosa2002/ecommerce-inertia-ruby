@@ -64,6 +64,8 @@ Registro completo e detalhado de todo bug real encontrado neste projeto, organiz
 | 2026-11-10 | Estrutura de código | Comentário ERB com tag de saída aninhada vazava texto cru pro HTML, quebrando o script de tema | Alta | #62 | [code-structure.md](code-structure.md) |
 | 2026-11-22 | Estrutura de código | Tooltip do botão de recolher/expandir a sidebar ficava preso na tela, ou reabria sozinho num flash | Média | #71 | [code-structure.md](code-structure.md) |
 | 2026-11-22 | Estrutura de código | Nav da sidebar desenhava uma barra de rolagem horizontal nativa por um instante ao expandir o menu | Baixa | #71 | [code-structure.md](code-structure.md) |
+| 2026-11-22 | Acessibilidade | `<label for>` apontando pro gatilho de um combobox sobrescrevia o nome acessível dele | Média | #72 | [accessibility.md](accessibility.md) |
+| 2026-11-22 | Testes e ferramentas | Array vazio enviado via `router.reload` (Inertia, GET) nunca chegava nos params do Rails | Média | #72 | [testing-and-tooling.md](testing-and-tooling.md) |
 
 ## Categorias
 
