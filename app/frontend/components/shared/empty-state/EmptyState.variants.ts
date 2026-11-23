@@ -2,7 +2,7 @@ import { tv } from "tailwind-variants";
 
 export const emptyState = tv({
   slots: {
-    root: "flex flex-col items-center justify-center px-6 py-12 text-center",
+    root: "flex flex-col items-center justify-center py-6 text-center",
     iconWrapper:
       "mb-4 flex size-12 items-center justify-center rounded-full bg-accent-soft text-accent-text",
     title: "text-base font-semibold text-fg",

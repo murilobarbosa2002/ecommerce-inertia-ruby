@@ -30,14 +30,24 @@ end
 owner_role.permissions << manage_admins unless owner_role.permissions.include?(manage_admins)
 owner_role.permissions << manage_roles unless owner_role.permissions.include?(manage_roles)
 
-# reset_two_factor existe (pra ser atribuível pela tela de papéis), mas
-# nunca é atribuída a nenhum papel por padrão — nem ao "owner". Resetar o
-# 2FA de outro admin é sensível o bastante pra exigir uma concessão
-# deliberada através da tela de papéis (manage_roles), não um padrão
-# automático de bootstrap.
-Permission.find_or_create_by!(key: "reset_two_factor") do |permission|
+# reset_two_factor existe pra ser atribuível pela tela de papéis a
+# qualquer papel, e também vem no "owner" por padrão desde o bootstrap —
+# resetar o 2FA de outro admin é o fluxo de recuperação de conta, algo que
+# o papel de maior confiança do sistema precisa conseguir fazer sem
+# depender de concessão manual extra.
+reset_two_factor = Permission.find_or_create_by!(key: "reset_two_factor") do |permission|
   permission.description = "Resetar o 2FA de outro admin (fluxo de recuperação de conta)"
 end
+owner_role.permissions << reset_two_factor unless owner_role.permissions.include?(reset_two_factor)
+
+# view_audit_log dá acesso ao feed de atividade recente (eventos de
+# segurança) no dashboard — concedida ao "owner" por padrão, diferente de
+# reset_two_factor/manage_store_settings: é só visibilidade sobre a própria
+# operação, não um poder de alterar nada.
+view_audit_log = Permission.find_or_create_by!(key: "view_audit_log") do |permission|
+  permission.description = "Ver o feed de atividade recente (eventos de segurança) no dashboard"
+end
+owner_role.permissions << view_audit_log unless owner_role.permissions.include?(view_audit_log)
 
 # manage_store_settings segue a mesma regra de reset_two_factor: existe
 # (pra ser atribuível pela tela de papéis), mas nunca é atribuída a nenhum

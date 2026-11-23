@@ -40,6 +40,14 @@ export const ptBR = {
         "Por segurança, toda conta admin precisa ter a autenticação de dois fatores ativa. Configure agora pra continuar usando o painel.",
       twoFactorRequiredButton: "Configurar agora",
     },
+    dialog: {
+      close: "Fechar",
+    },
+    pagination: {
+      previous: "Anterior",
+      next: "Próxima",
+      pageOf: "Página {{page}} de {{totalPages}}",
+    },
     passwordGenerator: {
       optionsLabel: "Opções de geração de senha",
       includeUppercase: "Maiúsculas",
@@ -55,9 +63,61 @@ export const ptBR = {
     dashboard: {
       show: {
         title: "Painel",
-        placeholderTitle: "Em construção",
-        placeholder:
-          "Métricas, atividade recente e atalhos chegam nas próximas fases.",
+        description: "Visão geral da operação e atalhos mais usados.",
+        stats: {
+          totalAdmins: "Total de admins",
+          adminsWithoutTwoFactor: "Sem 2FA ativo",
+        },
+        activity: {
+          title: "Atividade recente",
+          emptyTitle: "Nenhum evento recente",
+          emptyDescription:
+            "Eventos de segurança (login, bloqueio de conta, etc.) aparecem aqui.",
+          loginSucceeded: "{{email}} fez login",
+          loginFailed: "Tentativa de login falhou para {{email}}",
+          accountLocked:
+            "{{email}} teve a conta bloqueada por tentativas de login inválidas",
+          accountUnlocked: "{{email}} teve a conta desbloqueada",
+          twoFactorResetByAdmin: "{{actorEmail}} resetou o 2FA de {{email}}",
+          storeSettingsUpdated:
+            "{{actorEmail}} alterou as configurações da loja",
+          filters: {
+            trigger: "Filtros",
+            searchPlaceholder: "Buscar tipo...",
+            eventTypesLabel: "Tipo de evento",
+            allTypes: "Todos os tipos",
+            noneSelected: "Nenhum tipo selecionado",
+            selectedCount: "{{count}} selecionados",
+            fromLabel: "De",
+            toLabel: "Até",
+            fromTimeLabel: "Hora de",
+            toTimeLabel: "Hora até",
+            clear: "Limpar filtros",
+            types: {
+              login_succeeded: "Login bem-sucedido",
+              login_failed: "Login falhou",
+              account_locked: "Conta bloqueada",
+              account_unlocked: "Conta desbloqueada",
+              two_factor_reset_by_admin: "2FA resetado por outro admin",
+              store_settings_updated: "Configurações da loja alteradas",
+            },
+          },
+        },
+        quickActions: {
+          title: "Atalhos",
+          configure: "Configurar atalhos",
+          newAdmin: "Novo admin",
+          newRole: "Novo papel",
+          storeSettings: "Configurações da loja",
+          emptyTitle: "Nenhum atalho disponível",
+          emptyDescription:
+            "Configure quais atalhos você quer ver aqui, ou peça a permissão de alguma ação.",
+          dialogTitle: "Configurar atalhos",
+          dialogDescription: "Escolha quais atalhos aparecem no seu dashboard.",
+          save: "Salvar",
+          saving: "Salvando...",
+          cancel: "Cancelar",
+        },
       },
     },
     admins: {
