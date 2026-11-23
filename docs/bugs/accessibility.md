@@ -121,3 +121,33 @@ Opções envolvidas num `fieldset` com `legend` ("Opções de geração de senha
 ### Verificação
 
 Teste novo em `PasswordGenerator.test.tsx` verificando `getByRole("group", { name: "Opções de geração de senha" })` contém os checkboxes. Confirmado vermelho revertendo o `fieldset` pra uma `div` de propósito, verde com ele restaurado.
+
+## `<label for>` apontando pro gatilho de um combobox sobrescrevia o nome acessível dele
+
+- **Data:** 2026-11-22
+- **Severidade:** média
+- **PR:** #72
+
+### O que aconteceu
+
+`MultiSelect` (combobox fechado por padrão, usado no filtro de tipo de evento do dashboard) tinha um `<Label htmlFor="activity-type-search">Tipo de evento</Label>` logo acima do botão-gatilho (`<button id="activity-type-search">`, mostrando o resumo escolhido, ex. "3 selecionados"). Um teste automatizado escrito pra verificar o texto do gatilho (`getByRole("button", { name: "Todos os tipos" })`) falhava — o nome acessível do botão não era o resumo, era o texto do label ("Tipo de evento").
+
+### Causa raiz
+
+A associação `<label for="x">` sobrescreve o nome acessível do elemento `x` pelo texto do próprio `<label>`, segundo o algoritmo de cálculo de nome acessível (accname) — isso vale mesmo quando `x` já tem conteúdo visível próprio (o botão mostrando "3 selecionados"). Essa regra existe pensando em controles nativos de formulário simples (`<input>`, onde o conteúdo visível do campo não é um "nome" por si, só um valor) — um botão com texto próprio significativo não se beneficia dela, só perde o próprio nome.
+
+### Como foi encontrado
+
+Teste de regressão escrito pro `MultiSelect` esperava o nome acessível do gatilho ser o resumo escolhido; falhou com o nome acessível sendo "Tipo de evento" em vez disso, antes de qualquer correção.
+
+### Impacto
+
+Alguém usando leitor de tela ouviria só "Tipo de evento, botão" ao focar o gatilho — nunca "Todos os tipos" ou "3 selecionados" — perdendo a única informação que de fato muda (o que está selecionado agora), tendo que abrir o combobox pra descobrir.
+
+### Correção
+
+O texto visível acima do gatilho deixou de ser um `<label for>` de verdade — vira um `<p>` sem associação nenhuma, e o nome acessível completo (rótulo do campo + resumo escolhido) entra via `aria-label` no próprio botão-gatilho.
+
+### Verificação
+
+Teste de `MultiSelect.test.tsx` (`getByRole("button", { name: "Categoria: 1 selecionadas" })`) confirmado vermelho com `<Label htmlFor>` (nome acessível virava só "Categoria"), verde depois da correção.
