@@ -241,3 +241,66 @@ Qualquer PR aberto a partir desse ponto travaria o job `test` indefinidamente na
 ### Verificação
 
 CI do PR #61 (que introduz esta correção) completou a etapa "Install Chromium" normalmente em ~7 minutos (confirmado via `gh api .../jobs/{id}`, `started_at`/`completed_at` do passo) — job `test` inteiro em 8m1s, sem travar.
+
+## CVE crítico de execução remota de código no Ruby 4.0.9 (CVE-2026-132825)
+
+- **Data:** 2026-11-22
+- **Severidade:** crítica
+- **PR:** #66
+
+### O que aconteceu
+
+O Brakeman 8.1.1 foi lançado e o `bin/brakeman` roda com `--ensure-latest`, então o job `scan_ruby` do CI passou a falhar em todo PR e na `main` com `Brakeman 8.1.0 is not the latest version 8.1.1`. Ao atualizar o Brakeman pra investigar, o scan passou a reportar uma vulnerabilidade crítica de execução remota de código no Ruby 4.0.9 em si (CVE-2026-132825, confiança alta).
+
+### Causa raiz
+
+Vulnerabilidade na própria versão do Ruby usada pelo projeto (`4.0.9`), descoberta e divulgada depois do lançamento dessa versão, corrigida na `4.0.10` — mesmo padrão já visto com o Rails (ver "CVEs do Rails 8.1.4" acima): não é erro de configuração do projeto, é dependência que ficou vulnerável com o tempo.
+
+### Como foi encontrado
+
+Atualização de rotina do Brakeman (pra destravar o `scan_ruby`, que exige sempre a versão mais recente) passou a reportar o CVE do Ruby que a versão anterior do scanner não detectava.
+
+### Impacto
+
+Qualquer deploy rodando Ruby 4.0.9 ficava exposto a execução remota de código. Também bloqueava o CI de toda PR a partir desse ponto (check obrigatório), já que o `scan_ruby` continuaria falhando mesmo corrigindo só o Brakeman.
+
+### Correção
+
+`.ruby-version`/`mise.toml` atualizados pra `4.0.10` (referências em `docs/environment-setup.md` e `config/deploy.yml` acompanham), junto do próprio bump do Brakeman pra `8.1.1` (`bundle update brakeman --conservative`).
+
+### Verificação
+
+`bin/brakeman` sem avisos, `bin/bundler-audit` sem vulnerabilidades, `bin/rubocop` sem ofensas, `bundle exec rspec` (221 exemplos, 0 falhas) e `pnpm test` (137 testes) confirmados limpos na mesma PR com o Ruby já atualizado.
+
+## Duas vulnerabilidades no `net-ssh` (dependência do Kamal) sinalizadas pelo `bundler-audit`
+
+- **Data:** 2026-11-22
+- **Severidade:** alta
+- **PR:** #66
+
+### O que aconteceu
+
+O `bundler-audit` do CI, com o banco de advisories atualizado, passou a reportar duas vulnerabilidades no `net-ssh 7.3.8` (dependência transitiva do Kamal, usado só pra deploy) — mantendo o job `scan_ruby` vermelho mesmo depois do bump de Ruby e Brakeman (ver entrada acima).
+
+### Causa raiz
+
+- `GHSA-hjwv-j52r-xcg7` (alta): entradas `@revoked` do `known_hosts` eram tratadas como host keys válidas, aceitando uma chave revogada em vez de rejeitá-la.
+- `GHSA-qcf4-j55x-72hv` (média): `Net::SSH::Proxy::HTTPS` desligava a verificação de certificado TLS por padrão (CWE-295).
+
+Mesmo padrão das outras duas entradas de CVE desta página: vulnerabilidade na dependência em si, não erro de configuração do projeto.
+
+### Como foi encontrado
+
+CI continuava vermelho no job `scan_ruby` mesmo depois de corrigir o CVE do Ruby e atualizar o Brakeman — investigação do `bin/bundler-audit` localmente apontou as duas vulnerabilidades do `net-ssh`, não cobertas pela correção anterior.
+
+### Impacto
+
+Em tese, exposição a ataque man-in-the-middle via chave de host revogada aceita como válida, ou via certificado TLS inválido não rejeitado num proxy HTTPS — ambos no caminho de deploy (Kamal), não na aplicação em produção em si. Bloqueava o CI de toda PR (check obrigatório).
+
+### Correção
+
+`Gemfile.lock`: `net-ssh` `7.3.8` → `7.3.10` (`bundle update net-ssh --conservative`, respeitando a faixa `~> 7.3` exigida pelo Kamal).
+
+### Verificação
+
+`bin/bundler-audit` (banco de advisories atualizado) sem vulnerabilidades e `bin/brakeman` sem avisos, confirmados na mesma PR.

@@ -92,4 +92,18 @@ describe("MobileNav", () => {
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
+
+  it("desenha a linha divisória uma única vez, sob o cabeçalho inteiro (não duplicada sob a marca)", async () => {
+    const user = userEvent.setup();
+    renderMobileNav();
+    await user.click(screen.getByRole("button", { name: "Abrir menu" }));
+
+    const closeButton = await screen.findByRole("button", {
+      name: "Fechar menu",
+    });
+    const bordered = document.querySelectorAll(".border-b.border-line");
+
+    expect(bordered).toHaveLength(1);
+    expect(bordered[0]).toContainElement(closeButton);
+  });
 });

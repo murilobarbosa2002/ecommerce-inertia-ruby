@@ -353,3 +353,63 @@ Visual apenas, cosmético: nenhum dado, navegação ou permissão envolvidos —
 ### Verificação
 
 Teste de regressão novo em `Sidebar.test.tsx` (`describe("SidebarNav")`) verifica que o `<nav>` tem a classe `overflow-x-hidden` — confirmado vermelho antes da correção (classe ausente) e verde depois. jsdom não calcula layout real (`scrollWidth`/`clientWidth` sempre zero), então o teste automatizado trava a causa raiz (a classe que fixa o eixo) em vez do sintoma visual em si; o sintoma e sua ausência após a correção foram confirmados com dados reais de navegador (instrumentação por `requestAnimationFrame` descrita acima).
+
+## `Avatar` com `delayMs` fixo fazia as iniciais demorarem pra aparecer sem foto
+
+- **Data:** 2026-11-22
+- **Severidade:** baixa
+- **PR:** #68
+
+### O que aconteceu
+
+`Avatar` (Radix Avatar, usado no menu da conta e em listas de admin) aplicava `delayMs={300}` fixo no `Avatar.Fallback`, mesmo quando não havia nenhuma foto (`src`) pra carregar — as iniciais do nome, que deveriam aparecer de imediato, só apareciam depois de ~300ms.
+
+### Causa raiz
+
+`delayMs` no Radix Avatar existe pra evitar um flash do fallback durante o breve instante em que uma imagem real ainda está carregando — faz sentido só quando existe `src`. Aplicado incondicionalmente, o mesmo atraso passa a valer também no caso sem foto nenhuma, onde não há imagem carregando e portanto nenhum flash a evitar — só um atraso artificial sem propósito.
+
+### Como foi encontrado
+
+Durante a implementação do componente, verificado que as iniciais não apareciam de imediato ao renderizar `Avatar` sem `src`.
+
+### Impacto
+
+Em qualquer lista ou menu usando `Avatar` sem foto configurada (a maioria dos admins, que não têm avatar customizado), as iniciais do nome ficavam ausentes por ~300ms a cada render — perceptível como um "pisca" na interface, sem nenhum benefício de UX em troca.
+
+### Correção
+
+`delayMs` passou a ser condicional: `delayMs={src ? 300 : undefined}` — o atraso só se aplica quando há uma foto de fato carregando; sem `src`, o fallback (iniciais) renderiza de imediato.
+
+### Verificação
+
+Testes de `Avatar.test.tsx` ("mostra as iniciais quando não há foto" e "gera as iniciais a partir de um e-mail") confirmados vermelhos aplicando `delayMs={300}` incondicional de propósito (iniciais não apareciam no primeiro render), verdes depois da correção condicional.
+
+## Linha divisória do drawer mobile parava antes do botão de fechar
+
+- **Data:** 2026-11-22
+- **Severidade:** baixa
+- **PR:** #69
+
+### O que aconteceu
+
+No drawer de navegação mobile (`MobileNav`), a linha divisória sob o cabeçalho (marca da loja + botão de fechar) só cobria a largura da marca — parava antes do botão de fechar, em vez de atravessar o cabeçalho inteiro.
+
+### Causa raiz
+
+`SidebarBrand` tem uma variante `bordered` (usada por padrão na sidebar normal) que desenha a própria linha divisória na raiz do componente. No `MobileNav`, a marca é envolvida por um `<div className="flex-1">` ao lado do botão de fechar — a borda desenhada na raiz do `SidebarBrand` ficava restrita à largura desse wrapper (só a marca), nunca alcançando o botão ao lado.
+
+### Como foi encontrado
+
+Verificado visualmente durante a implementação do shell do painel (PR #69), comparando o drawer mobile com o comportamento esperado da sidebar normal.
+
+### Impacto
+
+Visual apenas: o cabeçalho do drawer mobile ficava com uma linha divisória incompleta, cortada no meio em vez de atravessar até a borda, perceptível em qualquer abertura do menu no mobile.
+
+### Correção
+
+O próprio `<div className="flex items-center border-b border-line">` que envolve a marca e o botão de fechar passou a desenhar a linha divisória; `SidebarBrand`, dentro dele, passou a receber `bordered={false}` — sem isso, a borda ficaria duplicada (uma vez no wrapper, cobrindo tudo, e de novo só sob a marca).
+
+### Verificação
+
+Teste novo em `MobileNav.test.tsx` ("desenha a linha divisória uma única vez, sob o cabeçalho inteiro") verifica que existe exatamente um elemento com as classes `border-b border-line` no drawer aberto, e que ele contém o botão de fechar — confirmado vermelho restaurando `bordered` (sem `={false}`) de propósito (a asserção de quantidade falhava, 2 elementos com a classe em vez de 1), verde com a correção restaurada.
