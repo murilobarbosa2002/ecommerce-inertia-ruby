@@ -71,6 +71,7 @@ Registro completo e detalhado de todo bug real encontrado neste projeto, organiz
 | 2026-11-22 | Estrutura de código | `Avatar` com `delayMs` fixo fazia as iniciais demorarem pra aparecer sem foto | Baixa | #68 | [code-structure.md](code-structure.md) |
 | 2026-11-22 | Estrutura de código | Linha divisória do drawer mobile parava antes do botão de fechar | Baixa | #69 | [code-structure.md](code-structure.md) |
 | 2026-11-23 | Acessibilidade | Animações de entrada do dashboard ignoravam `prefers-reduced-motion` | Média | #76 | [accessibility.md](accessibility.md) |
+| 2026-11-24 | Estrutura de código | Nome/sobrenome do admin logado nunca chegavam ao menu da conta nem ao avatar | Média | #80 | [code-structure.md](code-structure.md) |
 
 ## Categorias
 

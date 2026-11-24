@@ -413,3 +413,33 @@ O próprio `<div className="flex items-center border-b border-line">` que envolv
 ### Verificação
 
 Teste novo em `MobileNav.test.tsx` ("desenha a linha divisória uma única vez, sob o cabeçalho inteiro") verifica que existe exatamente um elemento com as classes `border-b border-line` no drawer aberto, e que ele contém o botão de fechar — confirmado vermelho restaurando `bordered` (sem `={false}`) de propósito (a asserção de quantidade falhava, 2 elementos com a classe em vez de 1), verde com a correção restaurada.
+
+## Nome/sobrenome do admin logado nunca chegavam ao menu da conta nem ao avatar
+
+- **Data:** 2026-11-24
+- **Severidade:** média
+- **PR:** #80
+
+### O que aconteceu
+
+A PR que adicionou `first_name`/`last_name` ao `Admin` (#79) atualizou a listagem/formulários de Admins, mas não `AdminPanel::BaseController#current_admin_json` — a identidade do admin logado, compartilhada em toda página pro menu da conta (`UserMenu`) e pro avatar do topo. O menu continuava mostrando só e-mail e papel, e o `Avatar` continuava gerando as iniciais a partir do e-mail, nunca do nome de verdade.
+
+### Causa raiz
+
+`current_admin_json` (identidade do admin logado) e `admin_json` (serialização de um admin na tela de Admins) são dois pontos de serialização separados e nunca foram tratados como a mesma mudança — a PR #79 atualizou só o segundo.
+
+### Como foi encontrado
+
+Reportado pelo mantenedor ao abrir o menu da conta no navegador: o nome não aparecia em lugar nenhum, e o avatar mostrava iniciais derivadas do e-mail em vez do nome real.
+
+### Impacto
+
+Admin logado não via o próprio nome em lugar nenhum da interface, e o avatar não refletia a identidade real.
+
+### Correção
+
+`current_admin_json` passou a incluir `first_name`/`last_name`; `SharedProps`, `PanelLayout` e `UserMenu` (nova prop `name`, usada também no `Avatar`) atualizados.
+
+### Verificação
+
+`spec/requests/admin/dashboards_spec.rb` e os testes de `UserMenu` confirmados vermelhos removendo os campos novos de `current_admin_json` e do componente de propósito, verdes com a correção restaurada.

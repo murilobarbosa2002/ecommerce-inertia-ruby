@@ -1,5 +1,8 @@
+import { AnimatePresence } from "motion/react";
 import { Tooltip as RadixTooltip } from "radix-ui";
 import { useState } from "react";
+
+import ScaleFade from "@/components/motion/ScaleFade";
 
 import { type TooltipProps } from "./Tooltip.types";
 import { tooltipContent } from "./Tooltip.variants";
@@ -32,27 +35,37 @@ export default function Tooltip({
 }: TooltipProps) {
   const hasContent = Boolean(content);
   const [open, setOpen] = useState(false);
+  const isOpen = hasContent && open;
 
   return (
     <RadixTooltip.Provider delayDuration={200}>
       <RadixTooltip.Root
-        open={hasContent && open}
+        open={isOpen}
         onOpenChange={(next) => {
           setOpen(hasContent && next);
         }}
       >
         <RadixTooltip.Trigger asChild>{children}</RadixTooltip.Trigger>
-        {hasContent ? (
-          <RadixTooltip.Portal>
-            <RadixTooltip.Content
-              side={side}
-              sideOffset={8}
-              className={tooltipContent()}
-            >
-              {content}
-            </RadixTooltip.Content>
-          </RadixTooltip.Portal>
-        ) : null}
+        <AnimatePresence>
+          {isOpen && (
+            <RadixTooltip.Portal>
+              <RadixTooltip.Content
+                asChild
+                side={side}
+                sideOffset={8}
+                forceMount
+              >
+                <ScaleFade
+                  scale={0.95}
+                  duration={0.1}
+                  className={tooltipContent()}
+                >
+                  {content}
+                </ScaleFade>
+              </RadixTooltip.Content>
+            </RadixTooltip.Portal>
+          )}
+        </AnimatePresence>
       </RadixTooltip.Root>
     </RadixTooltip.Provider>
   );

@@ -99,6 +99,11 @@ export default function PanelLayout({
         >
           <ThemeToggle />
           <UserMenu
+            name={
+              current_admin
+                ? `${current_admin.first_name} ${current_admin.last_name}`
+                : ""
+            }
             email={current_admin?.email_address ?? ""}
             roleName={current_admin?.role_name ?? ""}
             profileHref={admin_profile_path()}

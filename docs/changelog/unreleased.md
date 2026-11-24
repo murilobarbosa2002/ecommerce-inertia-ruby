@@ -44,6 +44,8 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 - O tooltip do botão de recolher/expandir o menu lateral (e dos itens de navegação recolhidos) podia ficar preso na tela ou reaparecer num flash rápido ao alternar o menu com o mouse ainda em cima do botão, em vez de fechar normalmente.
 - Uma barra de rolagem horizontal aparecia por um instante dentro do menu lateral ao expandi-lo.
 - As animações de entrada do dashboard e de abrir/fechar de popover e modal passam a respeitar a preferência de movimento reduzido do sistema operacional.
+- O menu da conta (topo do painel) passa a mostrar o nome do admin logado, além do e-mail e do papel; o avatar usa as iniciais do nome, não mais do e-mail. Nome e e-mail truncados (muito longos) mostram o texto completo num tooltip ao passar o mouse.
+- Tooltips (ex. os da sidebar recolhida) passam a ter animação de entrada/saída, igual a popover e modal.
 
 ## Alterado
 
