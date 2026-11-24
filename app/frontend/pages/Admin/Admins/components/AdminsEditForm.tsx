@@ -29,6 +29,39 @@ export default function AdminsEditForm({ admin, roles }: AdminsEditProps) {
       noValidate
     >
       <FormField
+        id="first_name"
+        type="text"
+        autoComplete="given-name"
+        label={t("admin.admins.edit.firstNameLabel")}
+        error={
+          errors.first_name
+            ? t("admin.admins.edit.firstNameRequired")
+            : undefined
+        }
+        register={register("first_name")}
+      />
+
+      <FormField
+        id="last_name"
+        type="text"
+        autoComplete="family-name"
+        label={t("admin.admins.edit.lastNameLabel")}
+        error={
+          errors.last_name ? t("admin.admins.edit.lastNameRequired") : undefined
+        }
+        register={register("last_name")}
+      />
+
+      <FormField
+        id="phone"
+        type="tel"
+        autoComplete="tel-national"
+        label={t("admin.admins.edit.phoneLabel")}
+        error={errors.phone ? t("admin.admins.edit.phoneInvalid") : undefined}
+        register={register("phone")}
+      />
+
+      <FormField
         id="email_address"
         type="email"
         autoComplete="email"

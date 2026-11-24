@@ -72,7 +72,15 @@ module AdminPanel
     private
 
     def admin_json(admin)
-      { id: admin.id, email_address: admin.email_address, role_id: admin.role_id, role_name: admin.role.name }
+      {
+        id: admin.id,
+        email_address: admin.email_address,
+        first_name: admin.first_name,
+        last_name: admin.last_name,
+        phone: admin.phone,
+        role_id: admin.role_id,
+        role_name: admin.role.name
+      }
     end
 
     def roles_json
@@ -80,11 +88,13 @@ module AdminPanel
     end
 
     def admin_create_params
-      params.permit(:email_address, :password, :password_confirmation, :role_id, :change_reason)
+      params.permit(
+        :email_address, :password, :password_confirmation, :first_name, :last_name, :phone, :role_id, :change_reason
+      )
     end
 
     def admin_update_params
-      params.permit(:email_address, :role_id, :change_reason)
+      params.permit(:email_address, :first_name, :last_name, :phone, :role_id, :change_reason)
     end
   end
 end

@@ -22,22 +22,28 @@ describe("Admin/Admins/Index", () => {
     {
       id: 1,
       email_address: "dono@example.com",
+      first_name: "Ana",
+      last_name: "Dona",
       role_id: 1,
       role_name: "owner",
     },
     {
       id: 2,
       email_address: "suporte@example.com",
+      first_name: "Bruno",
+      last_name: "Suporte",
       role_id: 2,
       role_name: "suporte",
     },
   ];
 
-  it("lista os admins com e-mail e papel", () => {
+  it("lista os admins com nome, e-mail e papel", () => {
     render(<AdminsIndex admins={admins} />);
 
+    expect(screen.getByText("Ana Dona")).toBeInTheDocument();
     expect(screen.getByText("dono@example.com")).toBeInTheDocument();
     expect(screen.getByText("owner")).toBeInTheDocument();
+    expect(screen.getByText("Bruno Suporte")).toBeInTheDocument();
     expect(screen.getByText("suporte@example.com")).toBeInTheDocument();
     expect(screen.getByText("suporte")).toBeInTheDocument();
   });

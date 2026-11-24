@@ -6,6 +6,9 @@ pt-BR:
     attributes:
       admin:
         email_address: "E-mail"
+        first_name: "Nome"
+        last_name: "Sobrenome"
+        phone: "Celular"
         password: "Senha"
         password_confirmation: "Confirmação de senha"
         change_reason: "Motivo da alteração"

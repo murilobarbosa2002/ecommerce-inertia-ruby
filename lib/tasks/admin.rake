@@ -6,6 +6,15 @@ namespace :admin do
     print I18n.t("cli.admin.create.prompt_email")
     email_address = $stdin.gets.chomp
 
+    print I18n.t("cli.admin.create.prompt_first_name")
+    first_name = $stdin.gets.chomp
+
+    print I18n.t("cli.admin.create.prompt_last_name")
+    last_name = $stdin.gets.chomp
+
+    print I18n.t("cli.admin.create.prompt_phone")
+    phone = $stdin.gets.chomp
+
     password = $stdin.getpass(I18n.t("cli.admin.create.prompt_password"))
     password_confirmation = $stdin.getpass(I18n.t("cli.admin.create.prompt_password_confirmation"))
 
@@ -22,6 +31,9 @@ namespace :admin do
 
     admin = Admin.new(
       email_address: email_address,
+      first_name: first_name,
+      last_name: last_name,
+      phone: phone.presence,
       password: password,
       password_confirmation: password_confirmation,
       change_reason: change_reason,

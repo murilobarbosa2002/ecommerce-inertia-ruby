@@ -57,6 +57,8 @@ RSpec.describe "Admin::Admins", type: :request do
       expect do
         post admin_admins_path, params: {
           email_address: "novo@example.com",
+          first_name: "Novo",
+          last_name: "Admin",
           password: AdminCredentials::VALID_PASSWORD,
           password_confirmation: AdminCredentials::VALID_PASSWORD,
           role_id: role_without_permission.id,
@@ -74,6 +76,8 @@ RSpec.describe "Admin::Admins", type: :request do
 
       post admin_admins_path, params: {
         email_address: "novo@example.com",
+        first_name: "Novo",
+        last_name: "Admin",
         password: AdminCredentials::VALID_PASSWORD,
         password_confirmation: AdminCredentials::VALID_PASSWORD,
         role_id: role_without_permission.id,
@@ -93,6 +97,8 @@ RSpec.describe "Admin::Admins", type: :request do
       expect do
         post admin_admins_path, params: {
           email_address: "duplicado@example.com",
+          first_name: "Novo",
+          last_name: "Admin",
           password: AdminCredentials::VALID_PASSWORD,
           password_confirmation: AdminCredentials::VALID_PASSWORD,
           role_id: role_without_permission.id,
@@ -102,6 +108,27 @@ RSpec.describe "Admin::Admins", type: :request do
 
       expect(response).to redirect_to(new_admin_admin_path)
       expect(flash[:alert]).to eq("E-mail já está em uso")
+    end
+
+    it "não cria e redireciona de volta quando o celular informado é inválido" do
+      admin = create(:admin, :with_two_factor_enabled, role: role_with_permission)
+      sign_in(admin)
+
+      expect do
+        post admin_admins_path, params: {
+          email_address: "novo@example.com",
+          first_name: "Novo",
+          last_name: "Admin",
+          phone: "123",
+          password: AdminCredentials::VALID_PASSWORD,
+          password_confirmation: AdminCredentials::VALID_PASSWORD,
+          role_id: role_without_permission.id,
+          change_reason: "Teste"
+        }
+      end.not_to change(Admin, :count)
+
+      expect(response).to redirect_to(new_admin_admin_path)
+      expect(flash[:alert]).to eq("Celular não é válido")
     end
   end
 

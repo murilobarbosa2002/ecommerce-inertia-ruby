@@ -21,6 +21,9 @@ export default function useAdminsNewForm() {
     // do React de componente trocando de modo no meio da vida.
     defaultValues: {
       email_address: "",
+      first_name: "",
+      last_name: "",
+      phone: "",
       password: "",
       password_confirmation: "",
       role_id: "",

@@ -10,13 +10,37 @@ RSpec.describe "admin:create", type: :task do
     # Vem de db/seeds.rb em produção (docs/adr/0021) — a task recusa criar
     # admin sem essa role existir, então o spec precisa garantir que existe.
     create(:role, name: "owner")
-    allow($stdin).to receive(:gets).and_return("#{email_address}\n", "#{change_reason}\n")
+    allow($stdin).to receive(:gets).and_return(
+      "#{email_address}\n", "Admin\n", "de Teste\n", "\n", "#{change_reason}\n"
+    )
     allow($stdin).to receive(:getpass).and_return(AdminCredentials::VALID_PASSWORD)
   end
 
   it "cria um admin com os dados digitados" do
     expect { run_task }.to change(Admin, :count).by(1)
     expect(Admin.last.email_address).to eq(email_address)
+    expect(Admin.last.first_name).to eq("Admin")
+    expect(Admin.last.last_name).to eq("de Teste")
+  end
+
+  it "cria sem celular quando a resposta é deixada em branco (opcional)" do
+    run_task
+
+    expect(Admin.last.phone).to be_nil
+  end
+
+  context "quando o celular é digitado" do
+    before do
+      allow($stdin).to receive(:gets).and_return(
+        "#{email_address}\n", "Admin\n", "de Teste\n", "11988887777\n", "#{change_reason}\n"
+      )
+    end
+
+    it "salva o celular digitado" do
+      run_task
+
+      expect(Admin.last.phone).to eq("11988887777")
+    end
   end
 
   it "autentica com a senha digitada" do

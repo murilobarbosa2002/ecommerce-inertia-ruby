@@ -3,6 +3,10 @@ import { type RoleOption } from "./types";
 export interface AdminToEdit {
   id: number;
   email_address: string;
+  first_name: string;
+  last_name: string;
+  // null: celular é opcional (docs/adr/0010, criptografado em repouso).
+  phone: string | null;
   role_id: number;
 }
 
