@@ -151,3 +151,33 @@ O texto visível acima do gatilho deixou de ser um `<label for>` de verdade — 
 ### Verificação
 
 Teste de `MultiSelect.test.tsx` (`getByRole("button", { name: "Categoria: 1 selecionadas" })`) confirmado vermelho com `<Label htmlFor>` (nome acessível virava só "Categoria"), verde depois da correção.
+
+## Animações de entrada do dashboard ignoravam `prefers-reduced-motion`
+
+- **Data:** 2026-11-23
+- **Severidade:** média
+- **PR:** #76
+
+### O que aconteceu
+
+As animações de entrada introduzidas no dashboard (feed de atividade) e de abrir/fechar em `Popover`/`Dialog` usavam `motion.div`/`motion.ol` direto, sem checar a preferência de movimento reduzido do sistema operacional — animação de deslocamento e escala rodava sempre, mesmo pra quem ativou essa preferência de acessibilidade no SO.
+
+### Causa raiz
+
+A implementação original (PR #75) só cobriu a exibição visual da animação, sem considerar `prefers-reduced-motion` — gap que passou pela revisão por não ter teste cobrindo esse cenário e por `Reveal` (único componente de animação existente até então) também não ter esse guard.
+
+### Como foi encontrado
+
+Levantado durante o planejamento das próximas fases do painel (antes de iniciar a Fase B), ao revisar lacunas de acessibilidade pendentes.
+
+### Impacto
+
+Quem configurou o sistema operacional pra reduzir movimento continuava recebendo deslocamento e escala nas animações do painel — a preferência de acessibilidade era ignorada, podendo causar desconforto (ex. sensibilidade vestibular).
+
+### Correção
+
+`Reveal` e o novo `ScaleFade` (ambos em `components/motion/`) passaram a usar `useReducedMotion()` do Motion: com a preferência ativa, a duração zera e o deslocamento/escala inicial é descartado, restando só variação de opacidade.
+
+### Verificação
+
+Suíte de testes de `Reveal.test.tsx`/`ScaleFade.test.tsx` cobre renderização e forwarding de props; o comportamento de `as`/`scale` foi confirmado vermelho quebrando a implementação de propósito (`motion[as]` → `motion["div"]` fixo) e verde depois de restaurado.

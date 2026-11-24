@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence } from "motion/react";
 import { Popover as RadixPopover } from "radix-ui";
+
+import ScaleFade from "@/components/motion/ScaleFade";
 
 import { type PopoverProps } from "./Popover.types";
 import { popoverContent, popoverScrollArea } from "./Popover.variants";
@@ -32,15 +34,9 @@ export default function Popover({
               sideOffset={8}
               forceMount
             >
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
-                className={popoverContent()}
-              >
+              <ScaleFade className={popoverContent()}>
                 <div className={popoverScrollArea()}>{children}</div>
-              </motion.div>
+              </ScaleFade>
             </RadixPopover.Content>
           </RadixPopover.Portal>
         )}

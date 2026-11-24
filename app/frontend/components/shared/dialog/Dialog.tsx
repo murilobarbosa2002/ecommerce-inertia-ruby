@@ -1,7 +1,9 @@
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence } from "motion/react";
 import { X } from "lucide-react";
 import { Dialog as RadixDialog } from "radix-ui";
 import { useTranslation } from "react-i18next";
+
+import ScaleFade from "@/components/motion/ScaleFade";
 
 import { type DialogProps } from "./Dialog.types";
 import { dialogContent, dialogOverlay } from "./Dialog.variants";
@@ -25,13 +27,7 @@ export default function Dialog({
         {open && (
           <RadixDialog.Portal forceMount>
             <RadixDialog.Overlay asChild forceMount>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className={dialogOverlay()}
-              />
+              <ScaleFade scale={1} duration={0.2} className={dialogOverlay()} />
             </RadixDialog.Overlay>
             <RadixDialog.Content
               asChild
@@ -43,13 +39,7 @@ export default function Dialog({
                 if (!closable) event.preventDefault();
               }}
             >
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                className={dialogContent()}
-              >
+              <ScaleFade duration={0.2} className={dialogContent()}>
                 {closable && (
                   <RadixDialog.Close
                     aria-label={t("shared.dialog.close")}
@@ -67,7 +57,7 @@ export default function Dialog({
                   </RadixDialog.Description>
                 )}
                 {children}
-              </motion.div>
+              </ScaleFade>
             </RadixDialog.Content>
           </RadixDialog.Portal>
         )}

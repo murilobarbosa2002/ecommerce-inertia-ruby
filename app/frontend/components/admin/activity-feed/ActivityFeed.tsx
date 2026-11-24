@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { router } from "@inertiajs/react";
 import { type ParseKeys, type TFunction } from "i18next";
-import { motion } from "motion/react";
 import {
   Filter,
   Lock,
@@ -15,6 +14,7 @@ import {
 import { useTranslation } from "react-i18next";
 
 import Pagination from "@/components/admin/pagination/Pagination";
+import Reveal from "@/components/motion/Reveal";
 import Badge from "@/components/shared/badge/Badge";
 import Button from "@/components/shared/button/Button";
 import DateRangePicker from "@/components/shared/date-range-picker/DateRangePicker";
@@ -264,11 +264,11 @@ export default function ActivityFeed({ activity }: ActivityFeedProps) {
           description={t("admin.dashboard.show.activity.emptyDescription")}
         />
       ) : (
-        <motion.ol
+        <Reveal
+          as="ol"
           key={activity.events.map((event) => event.id).join(",")}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          direction="up"
+          duration={0.3}
           className="space-y-1"
         >
           {activity.events.map((event) => {
@@ -302,7 +302,7 @@ export default function ActivityFeed({ activity }: ActivityFeedProps) {
               </li>
             );
           })}
-        </motion.ol>
+        </Reveal>
       )}
 
       <Pagination
