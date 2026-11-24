@@ -122,6 +122,28 @@ describe("MultiSelect", () => {
     expect(onChange).toHaveBeenCalledWith(["a"]);
   });
 
+  it("agrupa as opções num fieldset com legend associado ao label", async () => {
+    const user = userEvent.setup();
+    render(
+      <MultiSelect
+        label="Categoria"
+        options={options}
+        selected={["a"]}
+        onChange={vi.fn()}
+        searchPlaceholder="Buscar..."
+        summary={summary}
+      />,
+    );
+
+    await user.click(
+      screen.getByRole("button", { name: "Categoria: 1 selecionadas" }),
+    );
+
+    expect(
+      screen.getByRole("group", { name: "Categoria" }),
+    ).toBeInTheDocument();
+  });
+
   it("desmarcar um checkbox chama onChange com a opção removida", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
