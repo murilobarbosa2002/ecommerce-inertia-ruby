@@ -14,7 +14,12 @@ interface MockPage {
   props: {
     current_admin_permissions: string[];
     current_admin_two_factor_enabled: boolean;
-    current_admin?: { email_address: string; role_name: string } | null;
+    current_admin?: {
+      email_address: string;
+      first_name: string;
+      last_name: string;
+      role_name: string;
+    } | null;
     store?: { name: string | null; logo_url: string | null };
   };
   flash?: { notice?: string; alert?: string };
@@ -45,6 +50,8 @@ const defaultPage: MockPage = {
     current_admin_two_factor_enabled: true,
     current_admin: {
       email_address: "ana.souza@loja.com",
+      first_name: "Ana",
+      last_name: "Souza",
       role_name: "Gerente",
     },
     store: { name: null, logo_url: null },

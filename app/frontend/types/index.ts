@@ -17,7 +17,12 @@ export interface SharedProps {
   // Identidade do admin logado e da loja pro shell do painel (menu do
   // usuário, marca da sidebar) — `current_admin` é null nas páginas
   // pré-autenticação; `store.name` é null enquanto a loja não tem nome.
-  current_admin: { email_address: string; role_name: string } | null;
+  current_admin: {
+    email_address: string;
+    first_name: string;
+    last_name: string;
+    role_name: string;
+  } | null;
   // Opcional no tipo só porque o PanelLayout também é renderizado fora do
   // contexto compartilhado (ex. testes); o backend sempre envia.
   store?: { name: string | null; logo_url: string | null };

@@ -9,10 +9,12 @@ import DropdownMenuItem from "@/components/shared/dropdown-menu/dropdown-menu-it
 import DropdownMenuLabel from "@/components/shared/dropdown-menu/dropdown-menu-label/DropdownMenuLabel";
 import DropdownMenuSeparator from "@/components/shared/dropdown-menu/dropdown-menu-separator/DropdownMenuSeparator";
 import DropdownMenuTrigger from "@/components/shared/dropdown-menu/dropdown-menu-trigger/DropdownMenuTrigger";
+import Tooltip from "@/components/shared/tooltip/Tooltip";
 
 import { type UserMenuProps } from "./UserMenu.types";
 
 export default function UserMenu({
+  name,
   email,
   roleName,
   profileHref,
@@ -28,7 +30,7 @@ export default function UserMenu({
           aria-label={t("shared.panelLayout.userMenu.label")}
           className="flex items-center gap-2 rounded-full p-1 pr-2 transition-colors select-none hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
         >
-          <Avatar name={email} size="sm" />
+          <Avatar name={name} size="sm" />
           <ChevronDown
             className="hidden size-4 text-fg-muted sm:block"
             aria-hidden="true"
@@ -37,9 +39,16 @@ export default function UserMenu({
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuLabel>
-          <span className="block truncate text-sm font-semibold text-fg">
-            {email}
-          </span>
+          <Tooltip content={name}>
+            <span className="block truncate text-sm font-semibold text-fg">
+              {name}
+            </span>
+          </Tooltip>
+          <Tooltip content={email}>
+            <span className="block truncate text-xs text-fg-subtle">
+              {email}
+            </span>
+          </Tooltip>
           <span className="block truncate">{roleName}</span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

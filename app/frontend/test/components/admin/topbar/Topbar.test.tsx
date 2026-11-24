@@ -68,26 +68,53 @@ describe("Topbar", () => {
 
 describe("UserMenu", () => {
   const props = {
+    name: "Ana Souza",
     email: "ana.souza@loja.com",
     roleName: "Gerente",
     profileHref: "/admin/profile",
     onSignOut: vi.fn(),
   };
 
-  it("começa fechado e mostra as iniciais no avatar", () => {
+  it("começa fechado e mostra as iniciais do nome no avatar", () => {
     render(<UserMenu {...props} />);
 
     expect(screen.queryByRole("menu")).not.toBeInTheDocument();
     expect(screen.getByText("AS")).toBeInTheDocument();
   });
 
-  it("abre com a identidade, o perfil e o sair", async () => {
+  it("mostra o nome completo num tooltip ao passar o mouse, pro caso de estar truncado", async () => {
+    const user = userEvent.setup();
+    const longName = "Maria Fernanda Oliveira Nascimento de Albuquerque";
+    render(<UserMenu {...props} name={longName} />);
+    await user.click(screen.getByRole("button", { name: "Menu da conta" }));
+    const menu = await screen.findByRole("menu");
+
+    await user.hover(within(menu).getByText(longName));
+
+    expect(await screen.findByRole("tooltip")).toHaveTextContent(longName);
+  });
+
+  it("mostra o e-mail completo num tooltip ao passar o mouse, pro caso de estar truncado", async () => {
+    const user = userEvent.setup();
+    const longEmail =
+      "maria.fernanda.oliveira.nascimento@departamento-financeiro.loja.com";
+    render(<UserMenu {...props} email={longEmail} />);
+    await user.click(screen.getByRole("button", { name: "Menu da conta" }));
+    const menu = await screen.findByRole("menu");
+
+    await user.hover(within(menu).getByText(longEmail));
+
+    expect(await screen.findByRole("tooltip")).toHaveTextContent(longEmail);
+  });
+
+  it("abre com a identidade (nome, e-mail, papel), o perfil e o sair", async () => {
     const user = userEvent.setup();
     render(<UserMenu {...props} />);
 
     await user.click(screen.getByRole("button", { name: "Menu da conta" }));
 
     const menu = await screen.findByRole("menu");
+    expect(within(menu).getByText("Ana Souza")).toBeInTheDocument();
     expect(within(menu).getByText("ana.souza@loja.com")).toBeInTheDocument();
     expect(within(menu).getByText("Gerente")).toBeInTheDocument();
     expect(

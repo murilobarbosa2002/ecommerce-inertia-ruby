@@ -35,12 +35,14 @@ RSpec.describe "Admin::Dashboards", type: :request do
       JSON.parse(response.body).fetch("props")
     end
 
-    it "expõe o e-mail e o papel do admin logado" do
+    it "expõe o e-mail, nome e papel do admin logado" do
       admin = create(:admin)
       sign_in(admin)
 
       expect(inertia_props["current_admin"]).to eq(
         "email_address" => admin.email_address,
+        "first_name" => admin.first_name,
+        "last_name" => admin.last_name,
         "role_name" => admin.role.name
       )
     end

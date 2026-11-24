@@ -36,7 +36,12 @@ module AdminPanel
       admin = Current.admin
       return unless admin
 
-      { email_address: admin.email_address, role_name: admin.role.name }
+      {
+        email_address: admin.email_address,
+        first_name: admin.first_name,
+        last_name: admin.last_name,
+        role_name: admin.role.name
+      }
     end
 
     # Não usa StoreSetting.instance: ele cria o registro quando não existe, e
