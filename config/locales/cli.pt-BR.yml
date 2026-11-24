@@ -7,6 +7,9 @@ pt-BR:
       create:
         description: "Cria uma conta de admin (interativo, senha mascarada — nunca via argumento de linha de comando)"
         prompt_email: "E-mail do admin: "
+        prompt_first_name: "Nome: "
+        prompt_last_name: "Sobrenome: "
+        prompt_phone: "Celular (DDD + número, opcional, Enter pra pular): "
         prompt_password: "Senha do admin: "
         prompt_password_confirmation: "Confirme a senha: "
         prompt_change_reason: "Motivo da criação: "

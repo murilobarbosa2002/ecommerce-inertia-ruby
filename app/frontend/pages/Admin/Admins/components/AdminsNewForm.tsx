@@ -30,6 +30,39 @@ export default function AdminsNewForm({ roles }: AdminsNewProps) {
       noValidate
     >
       <FormField
+        id="first_name"
+        type="text"
+        autoComplete="given-name"
+        label={t("admin.admins.new.firstNameLabel")}
+        error={
+          errors.first_name
+            ? t("admin.admins.new.firstNameRequired")
+            : undefined
+        }
+        register={register("first_name")}
+      />
+
+      <FormField
+        id="last_name"
+        type="text"
+        autoComplete="family-name"
+        label={t("admin.admins.new.lastNameLabel")}
+        error={
+          errors.last_name ? t("admin.admins.new.lastNameRequired") : undefined
+        }
+        register={register("last_name")}
+      />
+
+      <FormField
+        id="phone"
+        type="tel"
+        autoComplete="tel-national"
+        label={t("admin.admins.new.phoneLabel")}
+        error={errors.phone ? t("admin.admins.new.phoneInvalid") : undefined}
+        register={register("phone")}
+      />
+
+      <FormField
         id="email_address"
         type="email"
         autoComplete="email"

@@ -27,6 +27,9 @@ export default function AdminsIndex({ admins }: AdminsIndexProps) {
         <thead className="bg-gray-50 text-gray-500 dark:bg-gray-900 dark:text-gray-400">
           <tr>
             <th scope="col" className="px-4 py-2 font-medium">
+              {t("admin.admins.index.nameColumn")}
+            </th>
+            <th scope="col" className="px-4 py-2 font-medium">
               {t("admin.admins.index.emailColumn")}
             </th>
             <th scope="col" className="px-4 py-2 font-medium">
@@ -38,6 +41,9 @@ export default function AdminsIndex({ admins }: AdminsIndexProps) {
         <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
           {admins.map((admin) => (
             <tr key={admin.id}>
+              <td className="px-4 py-2 text-gray-900 dark:text-gray-100">
+                {admin.first_name} {admin.last_name}
+              </td>
               <td className="px-4 py-2 text-gray-900 dark:text-gray-100">
                 {admin.email_address}
               </td>

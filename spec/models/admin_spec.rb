@@ -35,6 +35,55 @@ RSpec.describe Admin, type: :model do
       expect(admin).not_to be_valid
       expect(admin.errors[:email_address]).to include("é muito longo (máximo: 254 caracteres)")
     end
+
+    it { is_expected.to validate_presence_of(:first_name) }
+    it { is_expected.to validate_presence_of(:last_name) }
+
+    it "não exige celular (opcional)" do
+      admin = build(:admin, phone: nil)
+
+      expect(admin).to be_valid
+    end
+
+    it "aceita celular no formato brasileiro (DDD + 9 dígitos)" do
+      admin = build(:admin, phone: "11988887777")
+
+      expect(admin).to be_valid
+    end
+
+    it "rejeita celular fora do formato esperado (sem o 9 ou com DDD faltando)" do
+      admin = build(:admin, phone: "1188887777")
+
+      expect(admin).not_to be_valid
+      expect(admin.errors[:phone]).to include("não é válido")
+    end
+  end
+
+  describe "normalização de celular" do
+    it "remove tudo que não é dígito, guardando só os números" do
+      admin = create(:admin, phone: "(11) 98888-7777")
+
+      expect(admin.phone).to eq("11988887777")
+    end
+
+    it "mantém nil quando não informado, sem quebrar a normalização" do
+      admin = create(:admin, phone: nil)
+
+      expect(admin.phone).to be_nil
+    end
+  end
+
+  describe "criptografia do celular (docs/adr/0010)" do
+    it "não guarda o celular em texto puro na coluna" do
+      admin = create(:admin, phone: "11988887777")
+
+      raw_value = ActiveRecord::Base.connection.select_value(
+        "SELECT phone FROM admins WHERE id = #{admin.id}",
+      )
+
+      expect(raw_value).not_to eq("11988887777")
+      expect(admin.reload.phone).to eq("11988887777")
+    end
   end
 
   describe "normalização de e-mail" do
@@ -93,6 +142,26 @@ RSpec.describe Admin, type: :model do
 
       admin.change_reason = nil
       admin.email_address = "novo-email@example.com"
+
+      expect(admin).not_to be_valid
+      expect(admin.errors[:change_reason]).to include("não pode ficar em branco")
+    end
+
+    it "exige change_reason ao atualizar first_name (campo editorial)" do
+      admin = create(:admin)
+
+      admin.change_reason = nil
+      admin.first_name = "Outro nome"
+
+      expect(admin).not_to be_valid
+      expect(admin.errors[:change_reason]).to include("não pode ficar em branco")
+    end
+
+    it "exige change_reason ao atualizar phone (campo editorial)" do
+      admin = create(:admin)
+
+      admin.change_reason = nil
+      admin.phone = "11988887777"
 
       expect(admin).not_to be_valid
       expect(admin.errors[:change_reason]).to include("não pode ficar em branco")

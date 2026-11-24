@@ -31,7 +31,14 @@ const roles = [
   { id: 1, name: "owner" },
   { id: 2, name: "suporte" },
 ];
-const admin = { id: 7, email_address: "editar@example.com", role_id: 1 };
+const admin = {
+  id: 7,
+  email_address: "editar@example.com",
+  first_name: "Carla",
+  last_name: "Editada",
+  phone: null,
+  role_id: 1,
+};
 
 const defaultPageProps = {
   props: {
@@ -49,11 +56,23 @@ describe("Admin/Admins/Edit", () => {
     usePageMock.mockReturnValue(defaultPageProps);
   });
 
-  it("vem preenchido com o e-mail e papel atuais do admin", () => {
+  it("vem preenchido com o nome, e-mail e papel atuais do admin", () => {
     render(<AdminsEdit admin={admin} roles={roles} />);
 
+    expect(screen.getByLabelText("Nome")).toHaveValue("Carla");
+    expect(screen.getByLabelText("Sobrenome")).toHaveValue("Editada");
     expect(screen.getByLabelText("E-mail")).toHaveValue("editar@example.com");
     expect(screen.getByRole("combobox")).toHaveTextContent("owner");
+  });
+
+  it("vem com o celular preenchido quando o admin já tem um salvo", () => {
+    render(
+      <AdminsEdit admin={{ ...admin, phone: "11988887777" }} roles={roles} />,
+    );
+
+    expect(screen.getByLabelText("Celular (opcional)")).toHaveValue(
+      "11988887777",
+    );
   });
 
   it("atualiza o e-mail e o motivo, enviando pro admin correto", async () => {
@@ -72,6 +91,9 @@ describe("Admin/Admins/Edit", () => {
     await waitFor(() => {
       expect(routerPatchMock).toHaveBeenCalledWith(admin_admin_path(admin.id), {
         email_address: "novo-email@example.com",
+        first_name: "Carla",
+        last_name: "Editada",
+        phone: "",
         role_id: "1",
         change_reason: "Correção de digitação",
       });
@@ -93,6 +115,9 @@ describe("Admin/Admins/Edit", () => {
     await waitFor(() => {
       expect(routerPatchMock).toHaveBeenCalledWith(admin_admin_path(admin.id), {
         email_address: "editar@example.com",
+        first_name: "Carla",
+        last_name: "Editada",
+        phone: "",
         role_id: "2",
         change_reason: "Mudança de papel",
       });

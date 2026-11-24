@@ -27,6 +27,7 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 - Tela de configurações da loja (nome e logo), restrita a quem tem a permissão `manage_store_settings` — qualquer alteração (nome e/ou logo) pede motivo e gera evento de auditoria.
 - Dashboard com números gerais (total de admins, quantos estão sem 2FA ativo), feed de atividade recente (login, bloqueio/desbloqueio de conta, reset de 2FA por outro admin, alteração de configurações da loja) restrito a quem tem a permissão `view_audit_log`, com filtro por tipo de evento e por intervalo de data/hora, e paginação.
 - Atalhos personalizáveis no dashboard ("novo admin", "novo papel", "configurações da loja") — cada admin escolhe quais ver, filtrado sempre pelas permissões que tem no momento.
+- Conta de admin passa a ter nome e sobrenome (obrigatórios) e celular (opcional) — exibidos na lista de admins e editáveis nas telas de criar/editar, com o mesmo rastro de auditoria (motivo + histórico de versões) já existente pra e-mail e papel.
 
 ## Corrigido
 

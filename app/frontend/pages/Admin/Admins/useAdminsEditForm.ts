@@ -17,6 +17,9 @@ export default function useAdminsEditForm(admin: AdminToEdit) {
     resolver: zodResolver(adminsEditSchema),
     defaultValues: {
       email_address: admin.email_address,
+      first_name: admin.first_name,
+      last_name: admin.last_name,
+      phone: admin.phone ?? "",
       role_id: String(admin.role_id),
     },
   });

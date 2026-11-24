@@ -36,6 +36,8 @@ RSpec.describe "AdminPanel::RequireTwoFactor", type: :request do
     expect do
       post admin_admins_path, params: {
         email_address: "novo-sem-2fa@example.com",
+        first_name: "Novo",
+        last_name: "Admin",
         password: AdminCredentials::VALID_PASSWORD,
         password_confirmation: AdminCredentials::VALID_PASSWORD,
         role_id: role_with_permission.id,
@@ -54,6 +56,8 @@ RSpec.describe "AdminPanel::RequireTwoFactor", type: :request do
     expect do
       post admin_admins_path, params: {
         email_address: "novo-com-2fa@example.com",
+        first_name: "Novo",
+        last_name: "Admin",
         password: AdminCredentials::VALID_PASSWORD,
         password_confirmation: AdminCredentials::VALID_PASSWORD,
         role_id: role_with_permission.id,
