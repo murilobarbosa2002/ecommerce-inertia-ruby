@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import FormField from "@/components/shared/form-field/FormField";
@@ -73,5 +74,43 @@ describe("FormField", () => {
       "name",
       "email_address",
     );
+  });
+
+  describe("campo de senha", () => {
+    it("não mostra o botão de mostrar/ocultar quando type não é password", () => {
+      render(
+        <FormField id="email_address" label="E-mail" register={fakeRegister} />,
+      );
+
+      expect(
+        screen.queryByRole("button", { name: "Mostrar senha" }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("começa oculto e alterna pra texto visível ao clicar no botão", async () => {
+      const user = userEvent.setup();
+      render(
+        <FormField
+          id="password"
+          label="Senha"
+          type="password"
+          register={{ ...fakeRegister, name: "password" }}
+        />,
+      );
+
+      const input = screen.getByLabelText("Senha");
+      expect(input).toHaveAttribute("type", "password");
+
+      await user.click(screen.getByRole("button", { name: "Mostrar senha" }));
+
+      expect(input).toHaveAttribute("type", "text");
+      expect(
+        screen.getByRole("button", { name: "Ocultar senha" }),
+      ).toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: "Ocultar senha" }));
+
+      expect(input).toHaveAttribute("type", "password");
+    });
   });
 });

@@ -7,6 +7,10 @@ export const ptBR = {
       switchToLight: "Ativar tema claro",
       switchToDark: "Ativar tema escuro",
     },
+    formField: {
+      showPassword: "Mostrar senha",
+      hidePassword: "Ocultar senha",
+    },
     panelLayout: {
       brand: "Ecommerce Inertia Ruby",
       signOut: "Sair",
