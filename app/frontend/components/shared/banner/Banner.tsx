@@ -1,5 +1,4 @@
-import CheckCircleIcon from "@/components/shared/icons/check-circle-icon/CheckCircleIcon";
-import ExclamationIcon from "@/components/shared/icons/exclamation-icon/ExclamationIcon";
+import { CircleCheck, TriangleAlert } from "lucide-react";
 
 import { type BannerProps } from "./Banner.types";
 import { banner } from "./Banner.variants";
@@ -10,7 +9,11 @@ export default function Banner({ tone, children }: BannerProps) {
       role={tone === "notice" ? "status" : "alert"}
       className={banner({ tone })}
     >
-      {tone === "notice" ? <CheckCircleIcon /> : <ExclamationIcon />}
+      {tone === "notice" ? (
+        <CircleCheck className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+      ) : (
+        <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+      )}
       <span>{children}</span>
     </div>
   );

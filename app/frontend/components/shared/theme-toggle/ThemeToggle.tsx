@@ -1,7 +1,6 @@
+import { Moon, Sun } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import MoonIcon from "@/components/shared/icons/moon-icon/MoonIcon";
-import SunIcon from "@/components/shared/icons/sun-icon/SunIcon";
 import useTheme from "@/hooks/useTheme";
 
 import { themeToggle } from "./ThemeToggle.variants";
@@ -21,7 +20,11 @@ export default function ThemeToggle() {
       }
       className={themeToggle()}
     >
-      {theme === "dark" ? <SunIcon /> : <MoonIcon />}
+      {theme === "dark" ? (
+        <Sun className="size-4" aria-hidden="true" />
+      ) : (
+        <Moon className="size-4" aria-hidden="true" />
+      )}
     </button>
   );
 }
