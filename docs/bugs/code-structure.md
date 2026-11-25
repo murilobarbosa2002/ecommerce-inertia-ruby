@@ -443,3 +443,85 @@ Admin logado não via o próprio nome em lugar nenhum da interface, e o avatar n
 ### Verificação
 
 `spec/requests/admin/dashboards_spec.rb` e os testes de `UserMenu` confirmados vermelhos removendo os campos novos de `current_admin_json` e do componente de propósito, verdes com a correção restaurada.
+
+## Ordenação por nome (duas colunas) só aplicava a direção na segunda coluna
+
+- **Data:** 2026-11-24
+- **Severidade:** média
+- **PR:** #81
+
+### O que aconteceu
+
+`Admins::Search`/`Roles::Search` (query objects de busca/ordenação/paginação da Fase B) mapeiam a chave de ordenação "name" pra duas colunas (`first_name`, `last_name`), já que nome completo é composto. Pedir ordenação descendente devolvia a lista praticamente na mesma ordem ascendente — só a segunda coluna (`last_name`) de fato invertia.
+
+### Causa raiz
+
+A direção era concatenada no fim da expressão SQL inteira (`"admins.first_name, admins.last_name DESC"`), e `ORDER BY col1, col2 DESC` em SQL aplica a direção só à última coluna listada — `col1` continua implicitamente `ASC`. Com a maioria dos nomes de teste começando com letras diferentes, `first_name` (sempre ascendente) dominava o resultado, mascarando que `last_name` de fato invertia.
+
+### Como foi encontrado
+
+Teste novo (`spec/services/admins/search_spec.rb`, "inverte a direção quando pedido") falhou ao escrever a spec, antes de qualquer tentativa de correção — a ordem esperada (`Bruno, Ana`) não batia com a devolvida (`Ana, Bruno`).
+
+### Impacto
+
+Clicar pra ordenar por nome em ordem decrescente, na tela de Admins (Fase B), não invertia a lista de forma confiável — o usuário via uma ordem quase idêntica à ascendente, parecendo que o clique não tinha feito efeito nenhum.
+
+### Correção
+
+A direção passou a ser aplicada a cada coluna da ordenação, não à expressão inteira: `SORT_COLUMNS` guarda um array de nomes de coluna, e a cláusula `ORDER BY` é montada concatenando `"coluna direção"` pra cada uma (`"admins.first_name DESC, admins.last_name DESC"`).
+
+### Verificação
+
+`spec/services/admins/search_spec.rb` ("inverte a direção quando pedido") confirmado vermelho antes da correção (ordem errada), verde depois.
+
+## Drawer de detalhe (DataTable, mobile) repetia a primeira coluna como título e na lista
+
+- **Data:** 2026-11-24
+- **Severidade:** baixa
+- **PR:** #81
+
+### O que aconteceu
+
+O Drawer de detalhe de linha (`DataTable`, mobile) usa a primeira coluna declarada como título do painel (ex. nome + e-mail do admin) — mas também listava todas as colunas, incluindo essa mesma primeira, na lista de rótulo/valor logo abaixo, mostrando a mesma informação duas vezes.
+
+### Como foi encontrado
+
+Reportado pelo mantenedor testando o Drawer no navegador.
+
+### Impacto
+
+Visual apenas: o painel de detalhe parecia ter um erro de duplicação de dado, por mostrar nome e e-mail duas vezes seguidas, confundindo a leitura do restante das informações.
+
+### Correção
+
+A lista de rótulo/valor do Drawer passou a excluir a coluna que já é o título (`columns.filter((column) => column.key !== primaryColumn.key)`), mostrando só as colunas restantes.
+
+### Verificação
+
+Teste novo em `DataTable.test.tsx` ("não repete a 1ª coluna... na lista de detalhe do Drawer") confirma que o rótulo da primeira coluna não aparece na lista quando o Drawer está aberto.
+
+## Cartão mobile da DataTable aninhava `<div>` dentro de `<p>` (HTML inválido)
+
+- **Data:** 2026-11-24
+- **Severidade:** baixa
+- **PR:** #81
+
+### O que aconteceu
+
+O cartão de cada linha, no layout mobile da `DataTable`, envolvia o conteúdo renderizado da 1ª/2ª coluna (`column.render(row)`) num `<p>` — mas `render()` pode devolver qualquer `ReactNode`, incluindo elementos de bloco (ex. um `<div>` com `Avatar` + texto, ou um grupo de `Badge` de permissão). `<div>` dentro de `<p>` é HTML inválido; o navegador fecha o `<p>` no primeiro elemento de bloco encontrado, quebrando a estrutura esperada pelo CSS (`truncate`, layout flex do cartão).
+
+### Como foi encontrado
+
+Notado ao montar a coluna de permissões da tela de Papéis (chips de `Badge` dentro de um `<div className="flex flex-wrap">`), antes de qualquer teste manual no navegador — a mesma coluna já usada pra Admins (`Avatar` + nome) tinha o problema, só não percebido antes por `Avatar` ser visualmente inline o bastante pra não quebrar perceptivelmente o layout.
+
+### Impacto
+
+Estrutura de DOM diferente da esperada pelo CSS em qualquer coluna cuja `render()` devolvesse um elemento de bloco — risco real de layout quebrado silenciosamente (sem erro, só HTML reestruturado pelo parser do navegador).
+
+### Correção
+
+Os dois wrappers (`primaryColumn`/`secondaryColumn`, cartão mobile) passaram de `<p>` pra `<div>` — conteúdo de bloco aninha sem violar a especificação HTML, mesmo efeito visual (`truncate` funciona igual num `<div>`).
+
+### Verificação
+
+Suíte de `DataTable.test.tsx` já cobria a renderização de cada coluna no cartão mobile; re-executada depois da troca de tag, continua verde — o comportamento visual não mudou, só a validade estrutural do HTML.

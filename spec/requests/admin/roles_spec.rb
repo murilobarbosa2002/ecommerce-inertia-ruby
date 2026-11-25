@@ -36,6 +36,12 @@ RSpec.describe "Admin::Roles", type: :request do
   end
 
   describe "GET /admin/roles" do
+    def inertia_props(params = {})
+      get admin_roles_path, params: params,
+                             headers: { "X-Inertia" => "true", "X-Inertia-Version" => InertiaRails.configuration.version.to_s }
+      JSON.parse(response.body).fetch("props")
+    end
+
     it "lista os papéis existentes" do
       admin = create(:admin, :with_two_factor_enabled, role: role_with_permission)
       sign_in(admin)
@@ -44,6 +50,16 @@ RSpec.describe "Admin::Roles", type: :request do
       get admin_roles_path
 
       expect(response).to have_http_status(:ok)
+    end
+
+    it "filtra pela busca enviada" do
+      admin = create(:admin, :with_two_factor_enabled, role: role_with_permission)
+      sign_in(admin)
+      create(:role, name: "Suporte")
+
+      props = inertia_props(roles_search: "Suporte")
+
+      expect(props.dig("roles", "records").pluck("name")).to eq([ "Suporte" ])
     end
   end
 

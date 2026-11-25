@@ -1,7 +1,10 @@
 import { tv } from "tailwind-variants";
 
 export const input = tv({
-  base: "block w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 shadow-sm transition-colors placeholder:text-gray-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500",
+  // [&::-webkit-search-cancel-button] remove o X nativo de type="search"
+  // (Chrome/Safari) — sem isso ele ignora qualquer cor/token do projeto,
+  // sempre azul/preto padrão do navegador, mesmo no tema escuro.
+  base: "block w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 shadow-sm transition-colors placeholder:text-gray-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none [&::-webkit-search-cancel-button]:appearance-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500",
   variants: {
     // border-red-500 (não red-300/red-700) nos dois modos — contraste real
     // contra o fundo do campo: red-300 só dava 1.90:1 contra branco e

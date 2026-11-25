@@ -28,6 +28,7 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 - Dashboard com números gerais (total de admins, quantos estão sem 2FA ativo), feed de atividade recente (login, bloqueio/desbloqueio de conta, reset de 2FA por outro admin, alteração de configurações da loja) restrito a quem tem a permissão `view_audit_log`, com filtro por tipo de evento e por intervalo de data/hora, e paginação.
 - Atalhos personalizáveis no dashboard ("novo admin", "novo papel", "configurações da loja") — cada admin escolhe quais ver, filtrado sempre pelas permissões que tem no momento.
 - Conta de admin passa a ter nome e sobrenome (obrigatórios) e celular (opcional) — exibidos na lista de admins e editáveis nas telas de criar/editar, com o mesmo rastro de auditoria (motivo + histórico de versões) já existente pra e-mail e papel.
+- Busca (por nome, e-mail ou papel, no caso de Admins; por nome, no caso de Papéis) e ordenação por coluna nas telas de gerenciar Admins e Papéis.
 
 ## Corrigido
 
@@ -56,3 +57,4 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 - A raiz do site (`/`) deixou de exibir a página de exemplo padrão do Inertia Rails e passou a redirecionar para o login do admin, único fluxo real disponível até a loja/painel existirem.
 - A obrigatoriedade do 2FA pra conta admin passa a ter efeito de verdade: criar conta/logar continuam funcionando sem o 2FA ativo, mas qualquer outra ação no painel fica bloqueada até ativar — um aviso aparece assim que o admin loga, explicando o motivo e levando direto pra tela de configurar. Trocar a senha pela tela de perfil desloga todas as sessões ativas da conta, igual ao fluxo de redefinir senha por e-mail.
 - As permissões `reset_two_factor` e `view_audit_log` passam a vir no papel `owner` por padrão, desde o bootstrap — antes, `reset_two_factor` exigia concessão manual pela tela de papéis.
+- Telas de gerenciar Admins e Papéis ganharam um cabeçalho de destaque (nome da tela, quantos registros existem, ação de criar) e a lista passou a ser paginada em vez de mostrar todos os registros de uma vez; no celular, cada linha vira um cartão que abre um painel com o detalhe completo e as ações (editar, resetar 2FA quando aplicável), em vez de uma tabela apertada — pode ser fechado arrastando pra baixo, além de Esc/clique fora/botão.
