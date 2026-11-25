@@ -1,6 +1,5 @@
+import { ChevronDown } from "lucide-react";
 import { Select as RadixSelect } from "radix-ui";
-
-import ChevronDownIcon from "@/components/shared/icons/chevron-down-icon/ChevronDownIcon";
 
 import { type SelectProps } from "./Select.types";
 import { selectContent, selectItem, selectTrigger } from "./Select.variants";
@@ -18,7 +17,7 @@ export default function Select({
       <RadixSelect.Trigger id={id} className={selectTrigger()}>
         <RadixSelect.Value placeholder={placeholder} />
         <RadixSelect.Icon>
-          <ChevronDownIcon />
+          <ChevronDown className="size-4" aria-hidden="true" />
         </RadixSelect.Icon>
       </RadixSelect.Trigger>
       <RadixSelect.Portal>

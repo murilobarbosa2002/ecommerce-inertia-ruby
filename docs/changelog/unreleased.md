@@ -67,3 +67,4 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 - Tela de perfil ganhou o mesmo cabeçalho de destaque das demais telas e organiza dois fatores/trocar senha em abas, em vez de duas seções seguidas na mesma página.
 - Tela de configurações da loja ganhou o mesmo cabeçalho de destaque das demais telas; a troca do logo passa a ser por arrastar-e-soltar (ou clicar para selecionar), com preview da imagem escolhida antes de salvar, em vez do seletor de arquivo nativo do navegador.
 - Logo da loja deixa de aceitar WebP — passa a aceitar só PNG, JPEG e SVG (os únicos formatos do novo seletor de arquivo), ainda até 2MB.
+- Ícones de alerta/sucesso (banner e notificação), seta do seletor e alternância de tema passam a usar o mesmo traço do restante dos ícones do painel, em vez do desenho preenchido original.

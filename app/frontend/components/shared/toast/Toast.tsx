@@ -1,12 +1,10 @@
 import { type ReactNode } from "react";
 import { AnimatePresence } from "motion/react";
-import { X } from "lucide-react";
+import { CircleCheck, TriangleAlert, X } from "lucide-react";
 import { Toast as RadixToast } from "radix-ui";
 import { useTranslation } from "react-i18next";
 
 import SlideFade from "@/components/motion/SlideFade";
-import CheckCircleIcon from "@/components/shared/icons/check-circle-icon/CheckCircleIcon";
-import ExclamationIcon from "@/components/shared/icons/exclamation-icon/ExclamationIcon";
 
 import { type ToastProps } from "./Toast.types";
 import { toast } from "./Toast.variants";
@@ -43,7 +41,17 @@ export default function Toast({
             role={tone === "notice" ? "status" : "alert"}
             className={toast({ tone })}
           >
-            {tone === "notice" ? <CheckCircleIcon /> : <ExclamationIcon />}
+            {tone === "notice" ? (
+              <CircleCheck
+                className="mt-0.5 size-4 shrink-0"
+                aria-hidden="true"
+              />
+            ) : (
+              <TriangleAlert
+                className="mt-0.5 size-4 shrink-0"
+                aria-hidden="true"
+              />
+            )}
             <RadixToast.Description className="flex-1">
               {children}
             </RadixToast.Description>
