@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -178,9 +178,8 @@ describe("Admin/Admins/Edit", () => {
       ).toBeInTheDocument();
     });
 
-    it("pede confirmação e envia a requisição quando confirmado", async () => {
+    it("pede confirmação antes de enviar a requisição", async () => {
       const user = userEvent.setup();
-      const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
       usePageMock.mockReturnValue({
         ...defaultPageProps,
         props: {
@@ -192,7 +191,30 @@ describe("Admin/Admins/Edit", () => {
       render(<AdminsEdit admin={admin} roles={roles} />);
       await user.click(screen.getByRole("button", { name: "Resetar 2FA" }));
 
-      expect(confirmSpy).toHaveBeenCalled();
+      expect(
+        screen.getByRole("heading", { name: "Resetar 2FA desse admin?" }),
+      ).toBeInTheDocument();
+      expect(routerPostMock).not.toHaveBeenCalled();
+    });
+
+    it("envia a requisição quando a confirmação é aceita", async () => {
+      const user = userEvent.setup();
+      usePageMock.mockReturnValue({
+        ...defaultPageProps,
+        props: {
+          ...defaultPageProps.props,
+          current_admin_permissions: ["manage_admins", "reset_two_factor"],
+        },
+      });
+
+      render(<AdminsEdit admin={admin} roles={roles} />);
+      await user.click(screen.getByRole("button", { name: "Resetar 2FA" }));
+
+      const dialog = screen.getByRole("alertdialog");
+      await user.click(
+        within(dialog).getByRole("button", { name: "Resetar 2FA" }),
+      );
+
       expect(routerPostMock).toHaveBeenCalledWith(
         reset_two_factor_admin_admin_path(admin.id),
       );
@@ -200,7 +222,6 @@ describe("Admin/Admins/Edit", () => {
 
     it("não envia nada quando a confirmação é cancelada", async () => {
       const user = userEvent.setup();
-      vi.spyOn(window, "confirm").mockReturnValue(false);
       usePageMock.mockReturnValue({
         ...defaultPageProps,
         props: {
@@ -212,7 +233,15 @@ describe("Admin/Admins/Edit", () => {
       render(<AdminsEdit admin={admin} roles={roles} />);
       await user.click(screen.getByRole("button", { name: "Resetar 2FA" }));
 
+      const dialog = screen.getByRole("alertdialog");
+      await user.click(
+        within(dialog).getByRole("button", { name: "Cancelar" }),
+      );
+
       expect(routerPostMock).not.toHaveBeenCalled();
+      await waitFor(() =>
+        expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument(),
+      );
     });
   });
 });

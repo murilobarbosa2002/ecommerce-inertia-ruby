@@ -307,9 +307,13 @@ describe("PanelLayout", () => {
 
     render(<PanelLayout title="Painel">{null}</PanelLayout>);
 
-    expect(screen.getByRole("status")).toHaveTextContent(
-      "Admin criado com sucesso",
-    );
+    // getByRole("status") pegaria também o anunciador oculto que o próprio
+    // Radix Toast mantém pra leitor de tela (role="status" fixo, independente
+    // do tone) — por isso localiza pelo texto visível e confere o role no
+    // elemento que o contém.
+    expect(
+      screen.getByText("Admin criado com sucesso").closest('[role="status"]'),
+    ).toBeInTheDocument();
   });
 
   it("mostra o flash de alert quando presente", () => {
@@ -320,7 +324,9 @@ describe("PanelLayout", () => {
 
     render(<PanelLayout title="Painel">{null}</PanelLayout>);
 
-    expect(screen.getByRole("alert")).toHaveTextContent("E-mail já cadastrado");
+    expect(
+      screen.getByText("E-mail já cadastrado").closest('[role="alert"]'),
+    ).toBeInTheDocument();
   });
 
   describe("aviso obrigatório de 2FA", () => {
