@@ -22,7 +22,13 @@ module AdminAuthentication
         @admin.update!(locked_at: Time.current)
         AuditEvents::RecordAuditEvent.call(event_type: :account_locked, admin: @admin, request: @request)
       else
-        AuditEvents::RecordAuditEvent.call(event_type: @event_type, admin: @admin, request: @request)
+        # attempt/max_attempts: pra tela de auditoria mostrar quantas
+        # tentativas faltam antes do bloqueio (achado real: antes disso não
+        # tinha como saber isso só olhando o evento).
+        AuditEvents::RecordAuditEvent.call(
+          event_type: @event_type, admin: @admin, request: @request,
+          metadata: { attempt: @admin.failed_login_attempts, max_attempts: MAX_ATTEMPTS }
+        )
       end
     end
   end

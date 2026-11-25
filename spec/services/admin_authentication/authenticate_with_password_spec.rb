@@ -23,6 +23,14 @@ RSpec.describe AdminAuthentication::AuthenticateWithPassword do
       expect(AuditEvent.last.event_type).to eq("password_verified")
     end
 
+    it "registra o próprio admin como performed_by_admin em password_verified, mesmo sem AdminSession ainda existir" do
+      admin = create(:admin)
+
+      described_class.call(email_address: admin.email_address, password: AdminCredentials::VALID_PASSWORD)
+
+      expect(AuditEvent.last.performed_by_admin).to eq(admin)
+    end
+
     it "normaliza o e-mail antes de buscar (case e espaços)" do
       admin = create(:admin, email_address: "normalizado@example.com")
 
@@ -95,6 +103,15 @@ RSpec.describe AdminAuthentication::AuthenticateWithPassword do
       described_class.call(email_address: admin.email_address, password: AdminCredentials::VALID_PASSWORD)
 
       expect(AuditEvent.where(event_type: :account_unlocked, admin: admin)).to exist
+    end
+
+    it "registra o próprio admin como performed_by_admin em account_unlocked, mesmo sem AdminSession ainda existir" do
+      admin = create(:admin, failed_login_attempts: 5, locked_at: 16.minutes.ago)
+
+      described_class.call(email_address: admin.email_address, password: AdminCredentials::VALID_PASSWORD)
+
+      unlocked_event = AuditEvent.find_by(event_type: :account_unlocked, admin: admin)
+      expect(unlocked_event.performed_by_admin).to eq(admin)
     end
 
     it "não re-bloqueia imediatamente numa senha errada logo depois do bloqueio expirar" do

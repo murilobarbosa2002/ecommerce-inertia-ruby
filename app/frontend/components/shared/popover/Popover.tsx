@@ -1,8 +1,15 @@
-import { useState } from "react";
+import {
+  cloneElement,
+  isValidElement,
+  useState,
+  type ReactElement,
+} from "react";
 import { AnimatePresence } from "motion/react";
 import { Popover as RadixPopover } from "radix-ui";
 
 import ScaleFade from "@/components/motion/ScaleFade";
+import Drawer from "@/components/shared/drawer/Drawer";
+import useMediaQuery from "@/hooks/useMediaQuery";
 
 import { type PopoverProps } from "./Popover.types";
 import { popoverContent, popoverScrollArea } from "./Popover.variants";
@@ -19,8 +26,36 @@ export default function Popover({
   trigger,
   children,
   align = "end",
+  drawerOnMobile = false,
+  title,
 }: PopoverProps) {
   const [open, setOpen] = useState(false);
+  // Mesmo breakpoint que DataTable usa pra decidir tabela vs cartão —
+  // "mobile", aqui, é tela abaixo do breakpoint `lg` do Tailwind.
+  const isMobile = useMediaQuery("(max-width: 1023px)");
+
+  if (drawerOnMobile && isMobile) {
+    // trigger não passa por Radix.Trigger aqui (o Drawer não tem conceito
+    // de gatilho, só open/onOpenChange controlados de fora) — clonar pra
+    // injetar onClick é o mesmo efeito do asChild+Slot do Radix, sem
+    // precisar de um segundo Root só pra isso.
+    const clonedTrigger = isValidElement(trigger)
+      ? cloneElement(trigger as ReactElement<{ onClick?: () => void }>, {
+          onClick: () => {
+            setOpen(true);
+          },
+        })
+      : trigger;
+
+    return (
+      <>
+        {clonedTrigger}
+        <Drawer open={open} onOpenChange={setOpen} title={title}>
+          {children}
+        </Drawer>
+      </>
+    );
+  }
 
   return (
     <RadixPopover.Root open={open} onOpenChange={setOpen}>

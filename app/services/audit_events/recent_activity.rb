@@ -1,17 +1,13 @@
 module AuditEvents
   class RecentActivity
     # Só os tipos relevantes como sinal de segurança do dia a dia pro
-    # dashboard — os passos intermediários de um fluxo (password_verified,
-    # two_factor_verified, recovery_code_used, reauthentication_failed,
-    # password_reset_requested/completed, password_changed, login
-    # bem-sucedido sem incidente nenhum intermediário já cobre isso) são
-    # ruído sem contexto de segurança adicional aqui.
+    # dashboard — login (sucesso/falha) e reset de 2FA por outro admin não
+    # têm mais sinal adicional aqui, com a tela de auditoria completa (todos
+    # os 17 tipos, filtro por tipo/usuário/período) existindo como destino
+    # natural pra quem quer esse detalhe.
     RELEVANT_EVENT_TYPES = %w[
-      login_succeeded
-      login_failed
       account_locked
       account_unlocked
-      two_factor_reset_by_admin
       store_settings_updated
     ].freeze
 

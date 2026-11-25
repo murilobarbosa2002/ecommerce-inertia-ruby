@@ -3,6 +3,7 @@ import { type ActivityData } from "@/components/admin/activity-feed/ActivityFeed
 export interface DashboardStats {
   total_admins: number;
   admins_without_two_factor: number;
+  locked_admins: number;
 }
 
 export interface DashboardShowProps {

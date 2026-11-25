@@ -24,6 +24,14 @@ RSpec.describe AdminAuthentication::RecordFailedLoginAttempt do
       expect(AuditEvent.last.admin).to eq(admin)
     end
 
+    it "registra em metadata quantas tentativas faltam antes do bloqueio" do
+      admin = create(:admin, failed_login_attempts: 3)
+
+      described_class.call(admin: admin)
+
+      expect(AuditEvent.last.metadata).to eq("attempt" => 4, "max_attempts" => described_class::MAX_ATTEMPTS)
+    end
+
     it "bloqueia a conta ao atingir o limite de tentativas" do
       admin = create(:admin, failed_login_attempts: described_class::MAX_ATTEMPTS - 1)
 

@@ -100,6 +100,61 @@ describe("useDataTable", () => {
     );
   });
 
+  it("persiste filtros extras (reload com extra) em recargas seguintes", () => {
+    const { result } = renderHook(() =>
+      useDataTable({ only: ["audit_events"], paramPrefix: "audit_events" }),
+    );
+
+    act(() => {
+      result.current.reload({
+        page: 1,
+        extra: { audit_events_actor_id: "7" },
+      });
+    });
+    routerReloadMock.mockClear();
+
+    act(() => {
+      result.current.changeSearch("ana");
+    });
+
+    expect(routerReloadMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          audit_events_search: "ana",
+          audit_events_actor_id: "7",
+        }) as Record<string, unknown>,
+      }),
+    );
+  });
+
+  it("mescla um novo extra com o que já estava persistido, sem perder chaves antigas", () => {
+    const { result } = renderHook(() =>
+      useDataTable({ only: ["audit_events"], paramPrefix: "audit_events" }),
+    );
+
+    act(() => {
+      result.current.reload({
+        page: 1,
+        extra: { audit_events_actor_id: "7" },
+      });
+    });
+    act(() => {
+      result.current.reload({
+        page: 1,
+        extra: { audit_events_from: "2026-01-01" },
+      });
+    });
+
+    expect(routerReloadMock).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          audit_events_actor_id: "7",
+          audit_events_from: "2026-01-01",
+        }) as Record<string, unknown>,
+      }),
+    );
+  });
+
   it("liga isLoading durante o reload e desliga quando ele termina", () => {
     const { result } = renderHook(() =>
       useDataTable({ only: ["admins"], paramPrefix: "admins" }),

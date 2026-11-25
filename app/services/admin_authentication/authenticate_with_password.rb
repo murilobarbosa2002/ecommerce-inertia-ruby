@@ -35,7 +35,12 @@ module AdminAuthentication
 
     def clear_expired_lock(admin)
       AdminAuthentication::ResetFailedLoginAttempts.call(admin: admin)
-      AuditEvents::RecordAuditEvent.call(event_type: :account_unlocked, admin: admin, request: @request)
+      # performed_by_admin: admin explícito — Current.admin ainda é nil
+      # aqui (nenhuma AdminSession existe até o login terminar), mas o
+      # admin já é conhecido e é ele mesmo quem agiu (auto-serviço).
+      AuditEvents::RecordAuditEvent.call(
+        event_type: :account_unlocked, admin: admin, performed_by_admin: admin, request: @request
+      )
     end
 
     def record_success(admin)
@@ -44,7 +49,12 @@ module AdminAuthentication
       # isso é só a primeira etapa (AdminPanel::SessionsController decide se
       # o login está completo ou se fica pendente de 2FA). login_succeeded
       # só dispara quando uma AdminSession de verdade é criada.
-      AuditEvents::RecordAuditEvent.call(event_type: :password_verified, admin: admin, request: @request)
+      #
+      # performed_by_admin: admin explícito, mesmo motivo de clear_expired_lock
+      # acima.
+      AuditEvents::RecordAuditEvent.call(
+        event_type: :password_verified, admin: admin, performed_by_admin: admin, request: @request
+      )
       admin
     end
 

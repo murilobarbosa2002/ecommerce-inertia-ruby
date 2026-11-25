@@ -13,7 +13,8 @@ module AdminPanel
     def stats_json
       {
         total_admins: Admin.count,
-        admins_without_two_factor: Admin.where(otp_required_for_login: false).count
+        admins_without_two_factor: Admin.where(otp_required_for_login: false).count,
+        locked_admins: Admin.currently_locked.count
       }
     end
 

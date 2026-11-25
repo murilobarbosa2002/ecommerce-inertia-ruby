@@ -18,6 +18,15 @@ class Admin < ApplicationRecord
   # nada a criptografar (encrypts já lida bem com valor nil).
   encrypts :phone
 
+  # Conta "bloqueada" de verdade, não só com locked_at preenchido — o
+  # bloqueio expira sozinho depois de LOCKOUT_DURATION, mas failed_login_attempts/
+  # locked_at só são zerados no próximo login (AuthenticateWithPassword), então
+  # locked_at.present? sozinho contaria também conta já destravada há tempo.
+  scope :currently_locked, -> {
+    where.not(locked_at: nil)
+      .where(locked_at: AdminAuthentication::AuthenticateWithPassword::LOCKOUT_DURATION.ago..)
+  }
+
   normalizes :email_address, with: ->(email_address) { email_address.strip.downcase }
   # Guarda só dígitos (remove DDD entre parênteses, hífen, espaço etc. que o
   # formulário aceitar) — a validação de formato abaixo já exige o formato

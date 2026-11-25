@@ -1,8 +1,15 @@
-import { LayoutDashboard, ShieldCheck, Store, Users } from "lucide-react";
+import {
+  History,
+  LayoutDashboard,
+  ShieldCheck,
+  Store,
+  Users,
+} from "lucide-react";
 
 import { type NavSection } from "@/lib/navigation/navigation.types";
 import {
   admin_admins_path,
+  admin_audit_events_path,
   admin_roles_path,
   admin_store_setting_path,
   edit_admin_store_setting_path,
@@ -49,6 +56,13 @@ const adminNavigation: NavSection[] = [
         href: edit_admin_store_setting_path,
         activePath: admin_store_setting_path,
         permission: "manage_store_settings",
+      },
+      {
+        key: "audit-events",
+        labelKey: "shared.panelLayout.nav.auditEvents",
+        icon: History,
+        href: admin_audit_events_path,
+        permission: "view_audit_log",
       },
     ],
   },

@@ -1,5 +1,5 @@
 import { Head, usePage } from "@inertiajs/react";
-import { ShieldOff, Users } from "lucide-react";
+import { Lock, ShieldOff, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import ActivityFeed from "@/components/admin/activity-feed/ActivityFeed";
@@ -31,7 +31,7 @@ export default function DashboardShow({
         description={t("admin.dashboard.show.description")}
       />
 
-      <div className="mb-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <div className="mb-8 grid grid-cols-1 gap-5 sm:grid-cols-3">
         <StatCard
           icon={Users}
           label={t("admin.dashboard.show.stats.totalAdmins")}
@@ -41,6 +41,11 @@ export default function DashboardShow({
           icon={ShieldOff}
           label={t("admin.dashboard.show.stats.adminsWithoutTwoFactor")}
           value={stats.admins_without_two_factor}
+        />
+        <StatCard
+          icon={Lock}
+          label={t("admin.dashboard.show.stats.lockedAdmins")}
+          value={stats.locked_admins}
         />
       </div>
 

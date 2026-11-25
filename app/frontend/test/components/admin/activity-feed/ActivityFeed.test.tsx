@@ -189,10 +189,10 @@ describe("ActivityFeed", () => {
     await openTypeFilter(user);
 
     expect(
-      screen.getByRole("checkbox", { name: "Login bem-sucedido" }),
+      screen.getByRole("checkbox", { name: "Conta bloqueada" }),
     ).toBeChecked();
     expect(
-      screen.getByRole("checkbox", { name: "Conta bloqueada" }),
+      screen.getByRole("checkbox", { name: "Conta desbloqueada" }),
     ).toBeChecked();
   });
 
@@ -201,13 +201,16 @@ describe("ActivityFeed", () => {
     render(<ActivityFeed activity={activity()} />);
 
     await openTypeFilter(user);
-    await user.type(screen.getByPlaceholderText("Buscar tipo..."), "bloqueada");
+    await user.type(
+      screen.getByPlaceholderText("Buscar tipo..."),
+      "desbloqueada",
+    );
 
     expect(
-      screen.getByRole("checkbox", { name: "Conta bloqueada" }),
+      screen.getByRole("checkbox", { name: "Conta desbloqueada" }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole("checkbox", { name: "Login bem-sucedido" }),
+      screen.queryByRole("checkbox", { name: "Conta bloqueada" }),
     ).not.toBeInTheDocument();
   });
 
@@ -216,9 +219,7 @@ describe("ActivityFeed", () => {
     render(<ActivityFeed activity={activity({ page: 2 })} />);
 
     await openTypeFilter(user);
-    await user.click(
-      screen.getByRole("checkbox", { name: "Login bem-sucedido" }),
-    );
+    await user.click(screen.getByRole("checkbox", { name: "Conta bloqueada" }));
 
     expect(routerReloadMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -226,7 +227,7 @@ describe("ActivityFeed", () => {
         data: expect.objectContaining({
           activity_page: 1,
           activity_event_types: expect.not.arrayContaining([
-            "login_succeeded",
+            "account_locked",
           ]) as string[],
         }) as Record<string, unknown>,
       }),
@@ -241,9 +242,7 @@ describe("ActivityFeed", () => {
     expect(within(trigger).queryByText("1")).not.toBeInTheDocument();
 
     await openTypeFilter(user);
-    await user.click(
-      screen.getByRole("checkbox", { name: "Login bem-sucedido" }),
-    );
+    await user.click(screen.getByRole("checkbox", { name: "Conta bloqueada" }));
 
     expect(within(trigger).getByText("1")).toBeInTheDocument();
   });
@@ -282,9 +281,7 @@ describe("ActivityFeed", () => {
     render(<ActivityFeed activity={activity()} />);
 
     await openTypeFilter(user);
-    await user.click(
-      screen.getByRole("checkbox", { name: "Login bem-sucedido" }),
-    );
+    await user.click(screen.getByRole("checkbox", { name: "Conta bloqueada" }));
     clickFirstCalendarDay();
     await user.click(screen.getByRole("button", { name: "Limpar filtros" }));
 

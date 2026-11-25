@@ -66,6 +66,11 @@ Rails.application.routes.draw do
     # a um papel através desta tela, nunca hardcoded/por rails console.
     resources :roles, only: %i[index new create edit update]
 
+    # Log de auditoria completo (todos os 17 tipos de AuditEvent#event_type,
+    # não só o resumo curado do dashboard) — gated por require_permission
+    # :view_audit_log (docs/adr/0021), só leitura (sem new/create/edit).
+    resources :audit_events, only: %i[index]
+
     # Perfil do próprio admin autenticado (trocar senha) — singular, não tem
     # :id porque é sempre o Current.admin, nunca outro registro.
     resource :profile, only: %i[show update]
