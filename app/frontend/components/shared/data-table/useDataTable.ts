@@ -6,6 +6,11 @@ import {
   type DataTableSortDirection,
 } from "./DataTable.types";
 
+// Mesmo shape que router.reload (Inertia) aceita em `data` — nunca
+// `unknown`/`Record<string, unknown>`, que o tipo de RequestPayload
+// rejeita.
+type ExtraParams = Record<string, string | number | boolean>;
+
 export interface UseDataTableOptions {
   // Prop(s) compartilhada(s) que essa tabela recarrega via Inertia
   // (router.reload só busca essas, sem recarregar a página inteira) —
@@ -26,6 +31,12 @@ export default function useDataTable({
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<DataTableSort | null>(defaultSort ?? null);
   const [isLoading, setIsLoading] = useState(false);
+  // Filtros fora de busca/ordenação/página (ex. tipo de evento, período,
+  // ator na tela de auditoria) — persistidos aqui pra toda chamada de
+  // reload incluir o valor atual deles, não só a mudança que disparou essa
+  // chamada específica. Admins/Papéis nunca passam `extra`, então isso
+  // nunca sai de `{}` nesses dois casos (sem efeito nenhum).
+  const [extraParams, setExtraParams] = useState<ExtraParams>({});
 
   // page nunca é estado local — a página atual sempre vem do prop que o
   // backend devolveu (ex. admins.page), igual ao ActivityFeed já faz; o
@@ -34,9 +45,15 @@ export default function useDataTable({
     page: number;
     search?: string;
     sort?: DataTableSort | null;
+    extra?: ExtraParams;
   }) => {
     const nextSearch = overrides.search ?? search;
     const nextSort = overrides.sort !== undefined ? overrides.sort : sort;
+    const nextExtra = overrides.extra
+      ? { ...extraParams, ...overrides.extra }
+      : extraParams;
+
+    if (overrides.extra) setExtraParams(nextExtra);
 
     setIsLoading(true);
     router.reload({
@@ -46,6 +63,7 @@ export default function useDataTable({
         [`${paramPrefix}_search`]: nextSearch,
         [`${paramPrefix}_sort`]: nextSort?.column ?? "",
         [`${paramPrefix}_direction`]: nextSort?.direction ?? "",
+        ...nextExtra,
       },
       onFinish: () => {
         setIsLoading(false);
@@ -71,5 +89,13 @@ export default function useDataTable({
     reload({ page });
   };
 
-  return { search, sort, isLoading, changeSearch, changeSort, changePage };
+  return {
+    search,
+    sort,
+    isLoading,
+    changeSearch,
+    changeSort,
+    changePage,
+    reload,
+  };
 }

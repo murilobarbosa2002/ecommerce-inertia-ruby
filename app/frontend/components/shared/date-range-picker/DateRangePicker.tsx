@@ -67,7 +67,7 @@ export default function DateRangePicker({
       <div className="mt-2 grid grid-cols-2 gap-3 border-t border-line pt-3">
         <div>
           <Label htmlFor="activity-from-time" className="text-xs">
-            {t("admin.dashboard.show.activity.filters.fromTimeLabel")}
+            {t("admin.auditEvents.filters.fromTimeLabel")}
           </Label>
           <TimeInput
             id="activity-from-time"
@@ -79,7 +79,7 @@ export default function DateRangePicker({
         </div>
         <div>
           <Label htmlFor="activity-to-time" className="text-xs">
-            {t("admin.dashboard.show.activity.filters.toTimeLabel")}
+            {t("admin.auditEvents.filters.toTimeLabel")}
           </Label>
           <TimeInput
             id="activity-to-time"

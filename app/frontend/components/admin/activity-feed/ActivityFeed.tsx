@@ -1,16 +1,7 @@
 import { useState } from "react";
 import { router } from "@inertiajs/react";
-import { type ParseKeys, type TFunction } from "i18next";
-import {
-  Filter,
-  Lock,
-  LogIn,
-  type LucideIcon,
-  ShieldAlert,
-  ShieldCheck,
-  Store,
-  Unlock,
-} from "lucide-react";
+import { type ParseKeys } from "i18next";
+import { Filter } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import Pagination from "@/components/admin/pagination/Pagination";
@@ -21,76 +12,24 @@ import DateRangePicker from "@/components/shared/date-range-picker/DateRangePick
 import EmptyState from "@/components/shared/empty-state/EmptyState";
 import MultiSelect from "@/components/shared/multi-select/MultiSelect";
 import Popover from "@/components/shared/popover/Popover";
-
 import {
-  type ActivityEvent,
-  type ActivityFeedProps,
-} from "./ActivityFeed.types";
+  getAuditEventIcon,
+  getAuditEventTone,
+} from "@/lib/audit-events/auditEventTypes";
+import getAuditEventDescription from "@/lib/audit-events/getAuditEventDescription";
 
-const EVENT_ICONS: Record<string, LucideIcon> = {
-  login_succeeded: LogIn,
-  login_failed: ShieldAlert,
-  account_locked: Lock,
-  account_unlocked: Unlock,
-  two_factor_reset_by_admin: ShieldCheck,
-  store_settings_updated: Store,
-};
-
-const EVENT_TONE: Record<string, string> = {
-  login_succeeded: "bg-success-soft text-success-text",
-  login_failed: "bg-danger-soft text-danger-text",
-  account_locked: "bg-danger-soft text-danger-text",
-  account_unlocked: "bg-success-soft text-success-text",
-  two_factor_reset_by_admin: "bg-warning-soft text-warning-text",
-  store_settings_updated: "bg-info-soft text-info-text",
-};
+import { type ActivityFeedProps } from "./ActivityFeed.types";
 
 // Mesma lista de AuditEvents::RecentActivity::RELEVANT_EVENT_TYPES — o
 // backend é quem de fato restringe o que é aceito; esta só desenha o
-// combobox de filtro.
-const FILTERABLE_EVENT_TYPES = Object.keys(EVENT_ICONS);
-
-// i18next só aceita string | number pra interpolação — os campos de
-// e-mail do backend vêm string | null (admin/performed_by_admin podem não
-// existir, ex. login_failed sem conta correspondente), e metadata é
-// Record<string, unknown>, então o fallback precisa de um cast explícito.
-function emailOrFallback(value: unknown): string {
-  return typeof value === "string" ? value : "";
-}
-
-function eventDescription(event: ActivityEvent, t: TFunction): string {
-  switch (event.event_type) {
-    case "login_succeeded":
-      return t("admin.dashboard.show.activity.loginSucceeded", {
-        email: emailOrFallback(event.admin_email),
-      });
-    case "login_failed":
-      return t("admin.dashboard.show.activity.loginFailed", {
-        email: emailOrFallback(
-          event.admin_email ?? event.metadata.email_address,
-        ),
-      });
-    case "account_locked":
-      return t("admin.dashboard.show.activity.accountLocked", {
-        email: emailOrFallback(event.admin_email),
-      });
-    case "account_unlocked":
-      return t("admin.dashboard.show.activity.accountUnlocked", {
-        email: emailOrFallback(event.admin_email),
-      });
-    case "two_factor_reset_by_admin":
-      return t("admin.dashboard.show.activity.twoFactorResetByAdmin", {
-        email: emailOrFallback(event.admin_email),
-        actorEmail: emailOrFallback(event.performed_by_admin_email),
-      });
-    case "store_settings_updated":
-      return t("admin.dashboard.show.activity.storeSettingsUpdated", {
-        actorEmail: emailOrFallback(event.performed_by_admin_email),
-      });
-    default:
-      return event.event_type;
-  }
-}
+// combobox de filtro. Dashboard mostra só um subconjunto curado dos 17
+// tipos reais (lib/audit-events/auditEventTypes.ts) — a tela de auditoria
+// completa mostra todos.
+const FILTERABLE_EVENT_TYPES = [
+  "account_locked",
+  "account_unlocked",
+  "store_settings_updated",
+];
 
 // Combina data + hora escolhidas num timestamp que o backend entende
 // (Time.zone.parse) — hora em branco cai num padrão sensato (início do
@@ -119,9 +58,7 @@ export default function ActivityFeed({ activity }: ActivityFeedProps) {
 
   const eventTypeOptions = FILTERABLE_EVENT_TYPES.map((eventType) => ({
     value: eventType,
-    label: t(
-      `admin.dashboard.show.activity.filters.types.${eventType}` as ParseKeys,
-    ),
+    label: t(`admin.auditEvents.types.${eventType}` as ParseKeys),
   }));
 
   const reload = (overrides: {
@@ -182,10 +119,12 @@ export default function ActivityFeed({ activity }: ActivityFeedProps) {
         </h2>
 
         <Popover
+          drawerOnMobile
+          title={t("admin.auditEvents.filters.trigger")}
           trigger={
             <Button type="button" intent="outline" size="sm">
               <Filter className="size-4" aria-hidden="true" />
-              {t("admin.dashboard.show.activity.filters.trigger")}
+              {t("admin.auditEvents.filters.trigger")}
               {activeFilterCount > 0 && (
                 <Badge tone="brand" size="sm">
                   {activeFilterCount}
@@ -198,28 +137,23 @@ export default function ActivityFeed({ activity }: ActivityFeedProps) {
             <div>
               <MultiSelect
                 id="activity-type-search"
-                label={t(
-                  "admin.dashboard.show.activity.filters.eventTypesLabel",
-                )}
+                label={t("admin.auditEvents.filters.eventTypesLabel")}
                 options={eventTypeOptions}
                 selected={eventTypes}
                 onChange={changeEventTypes}
                 searchPlaceholder={t(
-                  "admin.dashboard.show.activity.filters.searchPlaceholder",
+                  "admin.auditEvents.filters.searchPlaceholder",
                 )}
                 summary={(selectedOptions) => {
                   if (selectedOptions.length === eventTypeOptions.length) {
-                    return t("admin.dashboard.show.activity.filters.allTypes");
+                    return t("admin.auditEvents.filters.allTypes");
                   }
                   if (selectedOptions.length === 0) {
-                    return t(
-                      "admin.dashboard.show.activity.filters.noneSelected",
-                    );
+                    return t("admin.auditEvents.filters.noneSelected");
                   }
-                  return t(
-                    "admin.dashboard.show.activity.filters.selectedCount",
-                    { count: selectedOptions.length },
-                  );
+                  return t("admin.auditEvents.filters.selectedCount", {
+                    count: selectedOptions.length,
+                  });
                 }}
               />
             </div>
@@ -251,7 +185,7 @@ export default function ActivityFeed({ activity }: ActivityFeedProps) {
               fullWidth
               onClick={clearFilters}
             >
-              {t("admin.dashboard.show.activity.filters.clear")}
+              {t("admin.auditEvents.filters.clear")}
             </Button>
           </div>
         </Popover>
@@ -272,9 +206,8 @@ export default function ActivityFeed({ activity }: ActivityFeedProps) {
           className="space-y-1"
         >
           {activity.events.map((event) => {
-            const Icon = EVENT_ICONS[event.event_type] ?? ShieldAlert;
-            const tone =
-              EVENT_TONE[event.event_type] ?? "bg-surface-muted text-fg-muted";
+            const Icon = getAuditEventIcon(event.event_type);
+            const tone = getAuditEventTone(event.event_type);
 
             return (
               <li key={event.id}>
@@ -286,7 +219,7 @@ export default function ActivityFeed({ activity }: ActivityFeedProps) {
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm text-fg">
-                      {eventDescription(event, t)}
+                      {getAuditEventDescription(event, t)}
                     </p>
                     <time
                       dateTime={event.happened_at}

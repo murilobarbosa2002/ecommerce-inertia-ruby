@@ -215,3 +215,33 @@ Quem ganha ou perde uma permissão (ex. `manage_admins`, `delete_admins`) é exa
 ### Verificação
 
 Dois specs em `spec/requests/admin/roles_spec.rb`: o teste existente de concessão foi reforçado pra checar `change_reason`/`whodunnit` da versão, não só o `event`; um teste novo de revogação confirma que uma versão de `destroy` é criada com `whodunnit`/`change_reason` corretos mesmo o registro sendo removido do banco. Ambos confirmados vermelhos revertendo as duas linhas da correção de propósito (motivo descartado num, nenhuma versão de destroy no outro) e verdes com elas restauradas.
+
+## `performed_by_admin` ficava sempre nulo em `password_verified`/`account_unlocked`
+
+- **Data:** 2026-11-25
+- **Severidade:** média
+- **PR:** #82
+
+### O que aconteceu
+
+Na tela de auditoria completa (log de todos os `AuditEvent`, não só o feed resumido do dashboard), todo evento `password_verified` e `account_unlocked` aparecia sem usuário identificado na coluna "Usuário" — mesmo sendo, por definição, um evento de auto-serviço (o próprio admin agindo sobre a própria conta), onde o campo deveria sempre coincidir com o sujeito do evento. Investigando diretamente no banco de dev (`bin/rails runner`, já que a conexão MCP com o servidor de desenvolvimento não estava disponível na sessão), confirmou-se que isso acontecia mesmo para eventos criados minutos antes — não era só dado histórico de antes da coluna `performed_by_admin_id` existir (essa coluna foi adicionada em 2026-11-09; eventos mais antigos legitimamente não a têm, e isso não é bug).
+
+### Causa raiz
+
+`AuditEvents::RecordAuditEvent` preenche `performed_by_admin` com `Current.admin` por padrão (mesmo racional do `whodunnit` do PaperTrail — nunca depender de cada call site lembrar de passar isso manualmente). Mas `password_verified` e `account_unlocked` (`AdminAuthentication::AuthenticateWithPassword#record_success`/`#clear_expired_lock`) são registrados **antes** de existir uma `AdminSession` — são etapas intermediárias do fluxo de login (a senha pode estar correta mas o login não ter terminado, se a conta tiver 2FA pendente). `Current.admin` só é populado depois que `AdminPanel::SessionsController` cria a sessão; nesse ponto do fluxo, ele é sempre `nil`, mesmo o `admin:` (sujeito do evento) já sendo conhecido pelo call site.
+
+### Como foi encontrado
+
+Visualmente, na tela de auditoria completa recém-implementada: vários tipos de evento apareciam sem usuário identificado na coluna "Usuário". Isolar causa de dado legítimo exigiu traçar `RecordAuditEvent`/`AuthenticateWithPassword`/`SessionsController` e consultar o banco de dev diretamente, comparando a data de criação dos eventos nulos com a data da migration que adicionou `performed_by_admin_id` — concluindo que `password_verified`/`account_unlocked` são sempre nulos (bug), enquanto nulos antigos em `login_succeeded`/`two_factor_verified`/`logout` são só dado legítimo de antes da coluna existir (não é bug).
+
+### Impacto
+
+Rastreabilidade de quem verificou a própria senha ou desbloqueou a própria conta ficava sempre incompleta no log de auditoria completo — um admin investigando um incidente de segurança não conseguia confirmar, só pelo evento, que foi o próprio titular da conta quem fez essas duas ações (mesmo sendo sempre verdade, por definição, pra esses dois tipos específicos).
+
+### Correção
+
+`AuditEvents::RecordAuditEvent#initialize` passou a aceitar `performed_by_admin:` como parâmetro explícito (ainda com `Current.admin` como padrão, preservando o comportamento pra todo o resto dos call sites). `AuthenticateWithPassword#record_success`/`#clear_expired_lock` passaram a passar `performed_by_admin: admin` explicitamente — o call site já conhece o admin certo mesmo sem `Current.admin` disponível ainda.
+
+### Verificação
+
+Dois specs novos em `spec/services/admin_authentication/authenticate_with_password_spec.rb` (um pra `password_verified`, um pra `account_unlocked`), ambos confirmados vermelhos revertendo as duas linhas de `performed_by_admin: admin` de propósito (`performed_by_admin` voltava a `nil`) e verdes com elas restauradas.

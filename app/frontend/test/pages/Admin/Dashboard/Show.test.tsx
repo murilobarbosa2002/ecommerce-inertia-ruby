@@ -20,7 +20,7 @@ vi.mock("@inertiajs/react", () => ({
 }));
 
 const baseProps = {
-  stats: { total_admins: 3, admins_without_two_factor: 1 },
+  stats: { total_admins: 3, admins_without_two_factor: 1, locked_admins: 2 },
   activity: null,
   quick_action_keys: [],
 };
@@ -39,6 +39,8 @@ describe("Admin/Dashboard/Show", () => {
     expect(screen.getByText("Total de admins")).toBeInTheDocument();
     expect(screen.getByText("1")).toBeInTheDocument();
     expect(screen.getByText("Sem 2FA ativo")).toBeInTheDocument();
+    expect(screen.getByText("2")).toBeInTheDocument();
+    expect(screen.getByText("Contas bloqueadas")).toBeInTheDocument();
   });
 
   it("não mostra o card de atividade quando activity é null (sem permissão view_audit_log)", () => {

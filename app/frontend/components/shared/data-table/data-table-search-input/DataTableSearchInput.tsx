@@ -10,9 +10,10 @@ export default function DataTableSearchInput({
   value,
   onChange,
   placeholder,
+  className,
 }: DataTableSearchInputProps) {
   return (
-    <div className="relative mb-4 max-w-sm">
+    <div className={`relative ${className ?? "mb-4 max-w-sm"}`}>
       <Search
         className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-fg-subtle"
         aria-hidden="true"

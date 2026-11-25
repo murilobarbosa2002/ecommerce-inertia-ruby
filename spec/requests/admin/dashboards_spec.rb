@@ -84,13 +84,15 @@ RSpec.describe "Admin::Dashboards", type: :request do
       JSON.parse(response.body).fetch("props")
     end
 
-    it "conta o total de admins e quantos estão sem 2FA ativo" do
+    it "conta o total de admins, quantos estão sem 2FA ativo e quantos estão com a conta bloqueada" do
       create(:admin, :with_two_factor_enabled)
       create(:admin)
-      create(:admin)
+      create(:admin, locked_at: Time.current)
       sign_in(create(:admin, :with_two_factor_enabled))
 
-      expect(inertia_props["stats"]).to eq("total_admins" => 4, "admins_without_two_factor" => 2)
+      expect(inertia_props["stats"]).to eq(
+        "total_admins" => 4, "admins_without_two_factor" => 2, "locked_admins" => 1
+      )
     end
   end
 
@@ -113,43 +115,40 @@ RSpec.describe "Admin::Dashboards", type: :request do
 
     it "lista os eventos relevantes, do mais recente pro mais antigo, pra quem tem a permissão" do
       target = create(:admin)
-      create(:audit_event, event_type: :login_succeeded, admin: target, performed_by_admin: target, created_at: 2.days.ago)
+      create(:audit_event, event_type: :account_unlocked, admin: target, performed_by_admin: target, created_at: 2.days.ago)
       create(:audit_event, event_type: :account_locked, admin: target, created_at: 1.hour.ago)
       create(:audit_event, event_type: :password_verified) # fora da lista de relevantes
-      # sign_in também gera um login_succeeded (relevante) pro próprio admin
-      # que está logando agora — é o mais recente de todos, sempre.
       sign_in(create(:admin, :with_two_factor_enabled, role: role_with_permission))
 
       event_types = inertia_props.dig("activity", "events").pluck("event_type")
 
-      expect(event_types).to eq([ "login_succeeded", "account_locked", "login_succeeded" ])
+      expect(event_types).to eq([ "account_locked", "account_unlocked" ])
     end
 
-    it "expõe o metadata do evento (ex. o e-mail digitado num login_failed sem conta correspondente)" do
-      create(:audit_event, event_type: :login_failed, admin: nil, metadata: { email_address: "inexistente@example.com" })
+    it "expõe o metadata do evento (ex. o motivo digitado numa alteração das configurações da loja)" do
+      create(:audit_event, event_type: :store_settings_updated, admin: nil, metadata: { change_reason: "Atualização de marca" })
       sign_in(create(:admin, :with_two_factor_enabled, role: role_with_permission))
 
-      login_failed_event = inertia_props.dig("activity", "events").find { |event| event["event_type"] == "login_failed" }
+      event = inertia_props.dig("activity", "events").find { |e| e["event_type"] == "store_settings_updated" }
 
-      expect(login_failed_event["admin_email"]).to be_nil
-      expect(login_failed_event["metadata"]).to eq("email_address" => "inexistente@example.com")
+      expect(event["metadata"]).to eq("change_reason" => "Atualização de marca")
     end
 
     it "pagina os resultados, expondo page/per_page/total_count/total_pages" do
-      create_list(:audit_event, 15, event_type: :login_succeeded)
+      create_list(:audit_event, 15, event_type: :account_locked)
       sign_in(create(:admin, :with_two_factor_enabled, role: role_with_permission))
 
       props = inertia_props(activity_page: 2)
 
-      expect(props.dig("activity", "events").size).to eq(6) # 16 no total (15 + o login do sign_in), página 2 de 10
+      expect(props.dig("activity", "events").size).to eq(5) # 15 no total, página 2 de 10
       expect(props.dig("activity", "page")).to eq(2)
       expect(props.dig("activity", "per_page")).to eq(10)
-      expect(props.dig("activity", "total_count")).to eq(16)
+      expect(props.dig("activity", "total_count")).to eq(15)
       expect(props.dig("activity", "total_pages")).to eq(2)
     end
 
     it "filtra por event_type via activity_event_types (string separada por vírgula)" do
-      create(:audit_event, event_type: :login_succeeded)
+      create(:audit_event, event_type: :store_settings_updated)
       create(:audit_event, event_type: :account_locked)
       sign_in(create(:admin, :with_two_factor_enabled, role: role_with_permission))
 
@@ -159,7 +158,7 @@ RSpec.describe "Admin::Dashboards", type: :request do
     end
 
     it "activity_event_types vazio (todos desmarcados no filtro) não mostra nenhum evento" do
-      create(:audit_event, event_type: :login_succeeded)
+      create(:audit_event, event_type: :store_settings_updated)
       create(:audit_event, event_type: :account_locked)
       sign_in(create(:admin, :with_two_factor_enabled, role: role_with_permission))
 
@@ -170,19 +169,18 @@ RSpec.describe "Admin::Dashboards", type: :request do
 
     it "sem activity_event_types algum (nenhum filtro aplicado ainda) mostra todos os tipos relevantes" do
       create(:audit_event, event_type: :account_locked)
+      create(:audit_event, event_type: :store_settings_updated)
       sign_in(create(:admin, :with_two_factor_enabled, role: role_with_permission))
 
-      # sign_in também gera um login_succeeded (relevante) pro admin que
-      # está logando agora, além do account_locked criado acima.
       props = inertia_props
 
       expect(props.dig("activity", "events").pluck("event_type"))
-        .to contain_exactly("login_succeeded", "account_locked")
+        .to contain_exactly("account_locked", "store_settings_updated")
     end
 
     it "filtra por intervalo de data via activity_from/activity_to" do
-      create(:audit_event, event_type: :login_succeeded, created_at: 10.days.ago)
-      recent = create(:audit_event, event_type: :login_succeeded, created_at: 2.days.ago)
+      create(:audit_event, event_type: :account_locked, created_at: 10.days.ago)
+      recent = create(:audit_event, event_type: :account_locked, created_at: 2.days.ago)
       sign_in(create(:admin, :with_two_factor_enabled, role: role_with_permission))
 
       props = inertia_props(activity_from: 5.days.ago.to_date.iso8601, activity_to: 1.day.ago.to_date.iso8601)
@@ -192,8 +190,8 @@ RSpec.describe "Admin::Dashboards", type: :request do
     end
 
     it "filtra por hora dentro do mesmo dia (activity_from/activity_to com horário)" do
-      morning = create(:audit_event, event_type: :login_succeeded, created_at: Time.zone.parse("2026-11-10 08:00"))
-      create(:audit_event, event_type: :login_succeeded, created_at: Time.zone.parse("2026-11-10 20:00"))
+      morning = create(:audit_event, event_type: :account_locked, created_at: Time.zone.parse("2026-11-10 08:00"))
+      create(:audit_event, event_type: :account_locked, created_at: Time.zone.parse("2026-11-10 20:00"))
       sign_in(create(:admin, :with_two_factor_enabled, role: role_with_permission))
 
       props = inertia_props(activity_from: "2026-11-10T07:00", activity_to: "2026-11-10T12:00")

@@ -25,10 +25,11 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 - Tela de gerenciar papéis (listar, criar e editar), restrita a quem tem a permissão correspondente — cada papel tem um nome e um conjunto de permissões configurável por checkbox; criar ou editar um papel pede motivo da alteração (auditável), inclusive quando só a lista de permissões muda, sem renomear o papel.
 - Resetar o 2FA de outro admin (tela de gerenciar admins), restrito a quem tem a permissão `reset_two_factor` — fluxo de recuperação pra quando um admin perde o autenticador e os códigos de recuperação ao mesmo tempo; nunca permite resetar o próprio 2FA por essa tela. `bin/rails admin:disable_two_factor[email]` existe como último recurso (acesso de shell) pro caso em que nem isso resolve.
 - Tela de configurações da loja (nome e logo), restrita a quem tem a permissão `manage_store_settings` — qualquer alteração (nome e/ou logo) pede motivo e gera evento de auditoria.
-- Dashboard com números gerais (total de admins, quantos estão sem 2FA ativo), feed de atividade recente (login, bloqueio/desbloqueio de conta, reset de 2FA por outro admin, alteração de configurações da loja) restrito a quem tem a permissão `view_audit_log`, com filtro por tipo de evento e por intervalo de data/hora, e paginação.
+- Dashboard com números gerais (total de admins, quantos estão sem 2FA ativo, quantas contas estão bloqueadas no momento), feed de atividade recente (bloqueio/desbloqueio de conta, alteração de configurações da loja) restrito a quem tem a permissão `view_audit_log`, com filtro por tipo de evento e por intervalo de data/hora, e paginação.
 - Atalhos personalizáveis no dashboard ("novo admin", "novo papel", "configurações da loja") — cada admin escolhe quais ver, filtrado sempre pelas permissões que tem no momento.
 - Conta de admin passa a ter nome e sobrenome (obrigatórios) e celular (opcional) — exibidos na lista de admins e editáveis nas telas de criar/editar, com o mesmo rastro de auditoria (motivo + histórico de versões) já existente pra e-mail e papel.
 - Busca (por nome, e-mail ou papel, no caso de Admins; por nome, no caso de Papéis) e ordenação por coluna nas telas de gerenciar Admins e Papéis.
+- Tela de log de auditoria completo (todo evento, não só o resumo do dashboard), restrita a quem tem a permissão `view_audit_log` — busca por e-mail, filtro por tipo de evento (múltiplo, com busca) e por usuário (múltiplo, com busca), período, ordenação por data e paginação. A coluna de usuário mostra o papel junto do e-mail, e, quando não há usuário identificado (ex. tentativa de login com e-mail inexistente), mostra o IP de quem tentou; o evento de login falhado mostra quantas tentativas faltam antes do bloqueio da conta.
 
 ## Corrigido
 
@@ -47,6 +48,7 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 - As animações de entrada do dashboard e de abrir/fechar de popover e modal passam a respeitar a preferência de movimento reduzido do sistema operacional.
 - O menu da conta (topo do painel) passa a mostrar o nome do admin logado, além do e-mail e do papel; o avatar usa as iniciais do nome, não mais do e-mail. Nome e e-mail truncados (muito longos) mostram o texto completo num tooltip ao passar o mouse.
 - Tooltips (ex. os da sidebar recolhida) passam a ter animação de entrada/saída, igual a popover e modal.
+- Confirmar a senha ou desbloquear a própria conta (etapas intermediárias do login) passam a registrar o próprio admin como quem realizou a ação no log de auditoria (antes ficava sempre em branco, mesmo sendo sempre auto-serviço).
 
 ## Alterado
 
@@ -58,3 +60,4 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 - A obrigatoriedade do 2FA pra conta admin passa a ter efeito de verdade: criar conta/logar continuam funcionando sem o 2FA ativo, mas qualquer outra ação no painel fica bloqueada até ativar — um aviso aparece assim que o admin loga, explicando o motivo e levando direto pra tela de configurar. Trocar a senha pela tela de perfil desloga todas as sessões ativas da conta, igual ao fluxo de redefinir senha por e-mail.
 - As permissões `reset_two_factor` e `view_audit_log` passam a vir no papel `owner` por padrão, desde o bootstrap — antes, `reset_two_factor` exigia concessão manual pela tela de papéis.
 - Telas de gerenciar Admins e Papéis ganharam um cabeçalho de destaque (nome da tela, quantos registros existem, ação de criar) e a lista passou a ser paginada em vez de mostrar todos os registros de uma vez; no celular, cada linha vira um cartão que abre um painel com o detalhe completo e as ações (editar, resetar 2FA quando aplicável), em vez de uma tabela apertada — pode ser fechado arrastando pra baixo, além de Esc/clique fora/botão.
+- O painel de filtros (Atividade recente e Log de auditoria) passa a abrir como um painel deslizante vindo de baixo no celular (com botão de fechar e arrastar pra baixo pra descartar), em vez do popover ancorado no botão "Filtros", que ficava posicionado de forma estranha em telas estreitas.

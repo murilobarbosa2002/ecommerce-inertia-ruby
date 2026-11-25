@@ -391,3 +391,33 @@ O frontend passou a enviar os tipos escolhidos como uma única string separada p
 ### Verificação
 
 Specs de `AuditEvents::RecentActivity` e do request `GET /` cobrindo os três casos (`event_types: nil` → todos; `event_types: []` → nenhum; string vazia via `activity_event_types: ""` no request real → nenhum) — confirmados vermelhos com a lógica antiga (fallback único pra `nil`/`[]`), verdes depois da correção.
+
+## `window.matchMedia` ausente no jsdom quebrava qualquer teste que monta `Popover`
+
+- **Data:** 2026-11-25
+- **Severidade:** alta
+- **PR:** #82
+
+### O que aconteceu
+
+Um hook novo (`useMediaQuery`, pra decidir se o popover de filtro vira um Drawer no mobile) chama `window.matchMedia` incondicionalmente — React não permite chamar hooks condicionalmente, então todo `Popover` passa a chamar isso no mount, com ou sem a nova opção `drawerOnMobile`. Rodar a suíte derrubou com `TypeError: window.matchMedia is not a function` em todo teste que monta um `Popover` (diretamente ou por trás de `MultiSelect`/`Select`/`DateRangePicker`), não só nos nenhum novo.
+
+### Causa raiz
+
+jsdom (ambiente de teste do Vitest) não implementa `window.matchMedia` — mesma categoria de lacuna já documentada pra `ResizeObserver`/`hasPointerCapture`/`scrollIntoView` em `test/setup.ts`, mas essa API específica nunca tinha sido necessária até existir um hook que a chama de verdade.
+
+### Como foi encontrado
+
+Rodando a suíte completa do frontend depois de implementar `useMediaQuery` e usá-lo em `Popover` — toda a suíte que toca um componente com `Popover` por trás (boa parte do design system) quebrou com o mesmo erro.
+
+### Impacto
+
+Sem a correção, a suíte de frontend inteira ficaria vermelha assim que qualquer componente passasse a usar `useMediaQuery`, inclusive em testes sem nenhuma relação direta com a mudança — um bloqueio bem maior que o escopo real da mudança (um hook novo, uma opção nova no Popover).
+
+### Correção
+
+Stub de `window.matchMedia` em `test/setup.ts`, mesmo padrão já usado pros outros gaps do jsdom: só registrado se a API ainda não existir, sempre retornando `matches: false` (o cenário "desktop", assumido por padrão em todo teste que não testa explicitamente o comportamento mobile). Um teste que precisa simular mobile sobrescreve `window.matchMedia` localmente (ver `test/components/shared/popover/Popover.test.tsx`).
+
+### Verificação
+
+Suíte completa (498 testes) rodada antes (vermelha, erro em cascata) e depois (verde) do stub — mais 3 testes novos em `Popover.test.tsx` cobrindo especificamente o comportamento de `drawerOnMobile` com `matchMedia` simulado como mobile.

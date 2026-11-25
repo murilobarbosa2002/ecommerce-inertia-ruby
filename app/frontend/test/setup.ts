@@ -42,3 +42,24 @@ if (typeof Element.prototype.scrollIntoView !== "function") {
   Element.prototype.scrollIntoView = function (): void {};
 }
 /* eslint-enable @typescript-eslint/no-empty-function */
+
+// jsdom também não implementa matchMedia (useMediaQuery, ex. Popover
+// drawerOnMobile) — stub sempre "não corresponde" (desktop) por padrão;
+// um teste que precisa simular mobile sobrescreve window.matchMedia só
+// nele (ex. test/components/shared/popover/Popover.test.tsx).
+if (typeof window.matchMedia !== "function") {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function -- stub
+  const noop = (): void => {};
+  window.matchMedia = (query: string): MediaQueryList => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    // eslint-disable-next-line @typescript-eslint/no-deprecated -- MediaQueryList exige, mesmo deprecated
+    addListener: noop,
+    // eslint-disable-next-line @typescript-eslint/no-deprecated -- MediaQueryList exige, mesmo deprecated
+    removeListener: noop,
+    addEventListener: noop,
+    removeEventListener: noop,
+    dispatchEvent: () => false,
+  });
+}

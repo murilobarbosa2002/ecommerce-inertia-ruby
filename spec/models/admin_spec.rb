@@ -94,6 +94,26 @@ RSpec.describe Admin, type: :model do
     end
   end
 
+  describe ".currently_locked" do
+    it "inclui conta com locked_at dentro da janela de bloqueio" do
+      locked = create(:admin, locked_at: 5.minutes.ago)
+
+      expect(described_class.currently_locked).to contain_exactly(locked)
+    end
+
+    it "exclui conta sem locked_at" do
+      create(:admin, locked_at: nil)
+
+      expect(described_class.currently_locked).to be_empty
+    end
+
+    it "exclui conta cujo bloqueio já expirou (locked_at além da janela), mesmo sem ter sido limpo ainda" do
+      create(:admin, locked_at: 16.minutes.ago)
+
+      expect(described_class.currently_locked).to be_empty
+    end
+  end
+
   describe "has_secure_password" do
     it "autentica com a senha correta" do
       admin = create(:admin)
