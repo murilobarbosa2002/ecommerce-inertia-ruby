@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import Drawer from "@/components/shared/drawer/Drawer";
+import Drawer, { shouldDismissOnDrag } from "@/components/shared/drawer/Drawer";
 
 describe("Drawer", () => {
   it("renderiza título e conteúdo quando open", () => {
@@ -52,5 +52,26 @@ describe("Drawer", () => {
     await user.click(screen.getByRole("button", { name: "Fechar" }));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  // Simular um gesto de arrastar de verdade (ponteiro + velocidade) via
+  // Motion não é algo que jsdom reproduz de forma confiável — por isso a
+  // decisão em si foi extraída (shouldDismissOnDrag) pra testar isolada.
+  describe("shouldDismissOnDrag", () => {
+    it("não fecha com arrasto curto e lento", () => {
+      expect(shouldDismissOnDrag(50, 100)).toBe(false);
+    });
+
+    it("fecha quando o offset passa de 120px, mesmo devagar", () => {
+      expect(shouldDismissOnDrag(121, 0)).toBe(true);
+    });
+
+    it("fecha quando a velocidade passa de 500px/s, mesmo com pouco offset (flick)", () => {
+      expect(shouldDismissOnDrag(10, 501)).toBe(true);
+    });
+
+    it("não fecha exatamente nos limites (> estrito, não >=)", () => {
+      expect(shouldDismissOnDrag(120, 500)).toBe(false);
+    });
   });
 });
