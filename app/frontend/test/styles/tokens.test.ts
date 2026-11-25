@@ -32,6 +32,11 @@ const REQUIRED_PAIRS: [string, string, number][] = [
   ["success-text", "success-soft", TEXT],
   ["warning-text", "warning-soft", TEXT],
   ["danger-text", "danger-soft", TEXT],
+  // FieldError (mensagem de validação) fica direto sobre o fundo da
+  // página/campo, não sobre danger-soft — par adicional exigido pela
+  // migração de FieldError.variants.ts pros tokens (docs/adr/0031).
+  ["danger-text", "canvas", TEXT],
+  ["danger-text", "surface", TEXT],
   ["info-text", "info-soft", TEXT],
   ["focus-ring", "canvas", UI],
   ["focus-ring", "surface", UI],
