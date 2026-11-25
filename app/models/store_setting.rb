@@ -8,7 +8,7 @@ class StoreSetting < ApplicationRecord
   # attachment (confirmado via Context7 antes de escrever isso — só gems
   # terceiras como active_storage_validations têm; não adicionar uma gem
   # nova só pra isso) — validação explícita direto no blob.
-  ALLOWED_LOGO_CONTENT_TYPES = %w[image/png image/jpeg image/svg+xml image/webp].freeze
+  ALLOWED_LOGO_CONTENT_TYPES = %w[image/png image/jpeg image/svg+xml].freeze
   MAX_LOGO_SIZE = 2.megabytes
 
   validates :name, length: { maximum: 100 }

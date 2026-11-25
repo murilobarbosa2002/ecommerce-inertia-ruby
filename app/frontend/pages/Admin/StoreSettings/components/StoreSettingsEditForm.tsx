@@ -1,9 +1,12 @@
+import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
 import Button from "@/components/shared/button/Button";
+import FileDropzone from "@/components/shared/file-dropzone/FileDropzone";
 import FormField from "@/components/shared/form-field/FormField";
 import Label from "@/components/shared/label/Label";
 
+import { ALLOWED_LOGO_TYPES, MAX_LOGO_SIZE } from "../Edit.schema";
 import { type StoreSettingsEditProps } from "../Edit.types";
 import useStoreSettingsEditForm from "../useStoreSettingsEditForm";
 
@@ -12,9 +15,8 @@ export default function StoreSettingsEditForm({
   logo_url,
 }: StoreSettingsEditProps) {
   const { t } = useTranslation();
-  const { register, errors, isSubmitting, onSubmit } = useStoreSettingsEditForm(
-    { name, logo_url },
-  );
+  const { register, control, errors, isSubmitting, onSubmit } =
+    useStoreSettingsEditForm({ name, logo_url });
 
   return (
     <form
@@ -36,19 +38,24 @@ export default function StoreSettingsEditForm({
 
       <div>
         <Label htmlFor="logo">{t("admin.storeSettings.edit.logoLabel")}</Label>
-        {logo_url && (
-          <img
-            src={logo_url}
-            alt={t("admin.storeSettings.edit.currentLogoAlt")}
-            className="mb-2 size-16 rounded-sm border border-gray-200 object-contain dark:border-gray-800"
-          />
-        )}
-        <input
-          id="logo"
-          type="file"
-          accept="image/png,image/jpeg,image/svg+xml,image/webp"
-          className="block w-full text-sm text-gray-700 dark:text-gray-300"
-          {...register("logo")}
+        <Controller
+          name="logo"
+          control={control}
+          render={({ field }) => (
+            <FileDropzone
+              id="logo"
+              value={field.value ?? null}
+              onChange={field.onChange}
+              accept={ALLOWED_LOGO_TYPES}
+              maxSize={MAX_LOGO_SIZE}
+              previewUrl={logo_url}
+              previewAlt={t("admin.storeSettings.edit.currentLogoAlt")}
+              instructions={t("admin.storeSettings.edit.logoInstructions")}
+              removeLabel={t("admin.storeSettings.edit.logoCancelSelection")}
+              invalidTypeError={t("admin.storeSettings.edit.logoInvalidType")}
+              tooLargeError={t("admin.storeSettings.edit.logoTooLarge")}
+            />
+          )}
         />
       </div>
 

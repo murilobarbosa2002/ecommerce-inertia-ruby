@@ -15,6 +15,7 @@ export default function useStoreSettingsEditForm({
 }: StoreSettingsEditProps) {
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<StoreSettingsEditFormValues>({
@@ -34,9 +35,9 @@ export default function useStoreSettingsEditForm({
     router.patch(admin_store_setting_path(), {
       name: data.name,
       change_reason: data.change_reason,
-      logo: data.logo?.[0],
+      logo: data.logo,
     });
   });
 
-  return { register, errors, isSubmitting, onSubmit };
+  return { register, control, errors, isSubmitting, onSubmit };
 }

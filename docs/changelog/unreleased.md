@@ -65,3 +65,5 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 - Mensagens de sucesso/erro do painel autenticado (ex. "Admin criado com sucesso") passam a aparecer como notificação no canto da tela (toast), que fecha sozinha ou manualmente, em vez de um bloco fixo no topo do conteúdo. Na tela de login/verificação de 2FA/reset de senha (antes do painel) continuam como estavam.
 - Resetar o 2FA de outro admin passa a pedir confirmação por uma janela de diálogo do próprio painel, em vez do alerta nativo do navegador.
 - Tela de perfil ganhou o mesmo cabeçalho de destaque das demais telas e organiza dois fatores/trocar senha em abas, em vez de duas seções seguidas na mesma página.
+- Tela de configurações da loja ganhou o mesmo cabeçalho de destaque das demais telas; a troca do logo passa a ser por arrastar-e-soltar (ou clicar para selecionar), com preview da imagem escolhida antes de salvar, em vez do seletor de arquivo nativo do navegador.
+- Logo da loja deixa de aceitar WebP — passa a aceitar só PNG, JPEG e SVG (os únicos formatos do novo seletor de arquivo), ainda até 2MB.
