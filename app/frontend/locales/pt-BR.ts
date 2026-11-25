@@ -369,10 +369,16 @@ export const ptBR = {
     storeSettings: {
       edit: {
         title: "Configurações da loja",
+        description: "Nome e logo exibidos pro cliente e no painel.",
         nameLabel: "Nome da loja",
         nameTooLong: "O nome não pode passar de 100 caracteres",
         logoLabel: "Logo",
         currentLogoAlt: "Logo atual da loja",
+        logoInstructions:
+          "Arraste uma imagem aqui ou clique para selecionar (PNG, JPEG ou SVG, até 2MB)",
+        logoCancelSelection: "Cancelar seleção",
+        logoInvalidType: "O arquivo precisa ser PNG, JPEG ou SVG",
+        logoTooLarge: "O arquivo não pode passar de 2MB",
         changeReasonLabel: "Motivo da alteração",
         changeReasonRequired: "Informe o motivo da alteração",
         submit: "Salvar alterações",

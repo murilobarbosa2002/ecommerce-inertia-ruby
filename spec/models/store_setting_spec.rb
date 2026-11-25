@@ -62,6 +62,26 @@ RSpec.describe StoreSetting, type: :model do
       expect(setting).to be_valid
     end
 
+    it "rejeita WebP (fora da lista suportada pelo FileDropzone do painel)" do
+      setting = described_class.instance
+      setting.change_reason = "Logo webp"
+      setting.logo.attach(
+        io: File.open(Rails.root.join("spec/fixtures/files/logo.png")),
+        filename: "logo.webp",
+        content_type: "image/webp",
+        # Sem isso, o Active Storage reidentifica o content_type a partir
+        # dos bytes reais do arquivo (é um PNG de verdade) e ignora o que
+        # foi declarado aqui — não tem fixture .webp de verdade commitada
+        # (evita inflar o repositório com mais um binário só pra este
+        # teste, mesmo racional do fixture gerado em memória pro teste de
+        # tamanho, abaixo).
+        identify: false,
+      )
+
+      expect(setting).not_to be_valid
+      expect(setting.errors[:logo]).to include("precisa ser PNG, JPEG ou SVG")
+    end
+
     it "rejeita content type que não seja imagem" do
       setting = described_class.instance
       setting.change_reason = "Logo inválido"
@@ -72,7 +92,7 @@ RSpec.describe StoreSetting, type: :model do
       )
 
       expect(setting).not_to be_valid
-      expect(setting.errors[:logo]).to include("precisa ser PNG, JPEG, SVG ou WebP")
+      expect(setting.errors[:logo]).to include("precisa ser PNG, JPEG ou SVG")
     end
 
     it "rejeita arquivo maior que o limite" do
