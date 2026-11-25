@@ -2,7 +2,14 @@ import { Head } from "@inertiajs/react";
 import { useTranslation } from "react-i18next";
 
 import PanelLayout from "@/components/admin/panel-layout/PanelLayout";
+import PageHeader from "@/components/admin/page-header/PageHeader";
 import Link from "@/components/shared/link/Link";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/shared/tabs/Tabs";
 import { new_admin_two_factor_path } from "@/routes";
 
 import ChangePasswordForm from "./components/ChangePasswordForm";
@@ -16,39 +23,45 @@ export default function ProfileShow({ two_factor_enabled }: ProfileShowProps) {
     <PanelLayout title={t("admin.profile.title")}>
       <Head title={t("admin.profile.title")} />
 
-      <h1 className="mb-6 text-xl font-semibold text-gray-900 dark:text-gray-100">
-        {t("admin.profile.title")}
-      </h1>
+      <PageHeader
+        title={t("admin.profile.title")}
+        description={t("admin.profile.description")}
+      />
 
-      <section className="mb-8">
-        <h2 className="mb-4 text-base font-semibold text-gray-900 dark:text-gray-100">
-          {t("admin.profile.twoFactorTitle")}
-        </h2>
-        {two_factor_enabled ? (
-          <>
-            <p className="mb-3 text-sm text-gray-600 dark:text-gray-400">
-              {t("admin.profile.twoFactorEnabled")}
-            </p>
-            <DisableTwoFactorForm />
-          </>
-        ) : (
-          <>
-            <p className="mb-3 text-sm text-gray-600 dark:text-gray-400">
-              {t("admin.profile.twoFactorDisabled")}
-            </p>
-            <Link href={new_admin_two_factor_path()}>
-              {t("admin.profile.enableTwoFactorLink")}
-            </Link>
-          </>
-        )}
-      </section>
+      <Tabs defaultValue="two-factor">
+        <TabsList>
+          <TabsTrigger value="two-factor">
+            {t("admin.profile.tabs.twoFactor")}
+          </TabsTrigger>
+          <TabsTrigger value="change-password">
+            {t("admin.profile.tabs.changePassword")}
+          </TabsTrigger>
+        </TabsList>
 
-      <section>
-        <h2 className="mb-4 text-base font-semibold text-gray-900 dark:text-gray-100">
-          {t("admin.profile.changePasswordTitle")}
-        </h2>
-        <ChangePasswordForm />
-      </section>
+        <TabsContent value="two-factor">
+          {two_factor_enabled ? (
+            <>
+              <p className="mb-3 text-sm text-fg-muted">
+                {t("admin.profile.twoFactorEnabled")}
+              </p>
+              <DisableTwoFactorForm />
+            </>
+          ) : (
+            <>
+              <p className="mb-3 text-sm text-fg-muted">
+                {t("admin.profile.twoFactorDisabled")}
+              </p>
+              <Link href={new_admin_two_factor_path()}>
+                {t("admin.profile.enableTwoFactorLink")}
+              </Link>
+            </>
+          )}
+        </TabsContent>
+
+        <TabsContent value="change-password">
+          <ChangePasswordForm />
+        </TabsContent>
+      </Tabs>
     </PanelLayout>
   );
 }
