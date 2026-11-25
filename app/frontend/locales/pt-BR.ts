@@ -44,6 +44,12 @@ export const ptBR = {
     dialog: {
       close: "Fechar",
     },
+    confirmDialog: {
+      cancel: "Cancelar",
+    },
+    toast: {
+      close: "Fechar",
+    },
     pagination: {
       previous: "Anterior",
       next: "Próxima",
@@ -225,6 +231,7 @@ export const ptBR = {
         submit: "Salvar alterações",
         submitting: "Salvando...",
         resetTwoFactorButton: "Resetar 2FA",
+        resetTwoFactorConfirmTitle: "Resetar 2FA desse admin?",
         resetTwoFactorConfirm:
           "Isso desativa o 2FA desse admin agora, forçando reconfiguração no próximo login. Continuar?",
         backToList: "Voltar pra lista",
