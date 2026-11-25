@@ -5,6 +5,7 @@ import { z } from "zod";
 export const loginSchema = z.object({
   email_address: z.string().min(1).max(254),
   password: z.string().min(1),
+  remember_me: z.boolean(),
 });
 
 export type LoginFormValues = z.infer<typeof loginSchema>;

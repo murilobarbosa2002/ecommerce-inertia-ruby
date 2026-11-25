@@ -12,6 +12,38 @@ RSpec.describe "Admin::Sessions", type: :request do
       expect(admin.admin_sessions.count).to eq(1)
     end
 
+    it "sem remember_me, a sessão expira em 24h a partir de agora" do
+      admin = create(:admin)
+
+      travel_to "2026-01-01 12:00:00" do
+        post admin_session_path, params: { email_address: admin.email_address, password: AdminCredentials::VALID_PASSWORD }
+      end
+
+      expect(admin.admin_sessions.last.expires_at).to eq(Time.zone.parse("2026-01-02 12:00:00"))
+    end
+
+    it "com remember_me, a sessão expira em 30 dias a partir de agora" do
+      admin = create(:admin)
+
+      travel_to "2026-01-01 12:00:00" do
+        post admin_session_path, params: {
+          email_address: admin.email_address, password: AdminCredentials::VALID_PASSWORD, remember_me: "1"
+        }
+      end
+
+      expect(admin.admin_sessions.last.expires_at).to eq(Time.zone.parse("2026-01-31 12:00:00"))
+    end
+
+    it "trata sessão expirada como deslogada, mesmo com o cookie ainda presente" do
+      admin = create(:admin)
+      post admin_session_path, params: { email_address: admin.email_address, password: AdminCredentials::VALID_PASSWORD }
+      admin.admin_sessions.last.update!(expires_at: 1.second.ago)
+
+      get root_path
+
+      expect(response).to redirect_to(new_admin_session_path)
+    end
+
     it "registra password_verified e login_succeeded quando não há 2FA" do
       admin = create(:admin)
 

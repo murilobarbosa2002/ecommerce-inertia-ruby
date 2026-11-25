@@ -287,6 +287,9 @@ export const ptBR = {
         passwordLabel: "Senha",
         emailRequired: "Informe o e-mail",
         passwordRequired: "Informe a senha",
+        rememberMeLabel: "Lembrar de mim",
+        rememberMeWarning:
+          "Mantém você conectado por 30 dias neste dispositivo, não recomendado em computadores compartilhados. Sem marcar, a sessão dura 24 horas.",
         submit: "Entrar",
         submitting: "Entrando...",
         forgotPassword: "Esqueci minha senha",

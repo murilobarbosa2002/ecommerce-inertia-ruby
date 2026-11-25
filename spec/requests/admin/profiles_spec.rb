@@ -34,7 +34,9 @@ RSpec.describe "Admin::Profiles", type: :request do
     it "destrói todas as sessões ativas da conta ao trocar a senha" do
       admin = create(:admin)
       sign_in(admin)
-      other_session = admin.admin_sessions.create!(user_agent: "outro dispositivo", ip_address: "127.0.0.1")
+      other_session = admin.admin_sessions.create!(
+        user_agent: "outro dispositivo", ip_address: "127.0.0.1", expires_at: 24.hours.from_now
+      )
 
       patch admin_profile_path, params: {
         current_password: AdminCredentials::VALID_PASSWORD,
