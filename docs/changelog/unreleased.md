@@ -68,3 +68,4 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 - Tela de configurações da loja ganhou o mesmo cabeçalho de destaque das demais telas; a troca do logo passa a ser por arrastar-e-soltar (ou clicar para selecionar), com preview da imagem escolhida antes de salvar, em vez do seletor de arquivo nativo do navegador.
 - Logo da loja deixa de aceitar WebP — passa a aceitar só PNG, JPEG e SVG (os únicos formatos do novo seletor de arquivo), ainda até 2MB.
 - Ícones de alerta/sucesso (banner e notificação), seta do seletor e alternância de tema passam a usar o mesmo traço do restante dos ícones do painel, em vez do desenho preenchido original.
+- Telas de login, verificação de dois fatores e redefinição de senha ganham um painel de marca (logo e nome da loja) ao lado do formulário em telas largas; no celular continuam só com o formulário, como antes. As cores fixas dessas telas também passam a usar os tokens do design system.
