@@ -41,6 +41,10 @@ const REQUIRED_PAIRS: [string, string, number][] = [
   ["focus-ring", "canvas", UI],
   ["focus-ring", "surface", UI],
   ["danger-solid", "surface", UI],
+  // Borda da aba ativa em Tabs (shared/tabs) — indicador de estado de UI,
+  // mesmo a aba ativa também mudando a cor do texto.
+  ["accent", "canvas", UI],
+  ["accent", "surface", UI],
 ];
 
 const themes = {

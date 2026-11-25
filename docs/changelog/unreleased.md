@@ -64,3 +64,4 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 - Campos de formulário (texto, seleção, checkbox, rótulo e mensagem de erro) passam a usar os mesmos tokens de cor do resto do painel, em vez de cores fixas — consolida o visual (inclusive no tema escuro) com o restante do design system.
 - Mensagens de sucesso/erro do painel autenticado (ex. "Admin criado com sucesso") passam a aparecer como notificação no canto da tela (toast), que fecha sozinha ou manualmente, em vez de um bloco fixo no topo do conteúdo. Na tela de login/verificação de 2FA/reset de senha (antes do painel) continuam como estavam.
 - Resetar o 2FA de outro admin passa a pedir confirmação por uma janela de diálogo do próprio painel, em vez do alerta nativo do navegador.
+- Tela de perfil ganhou o mesmo cabeçalho de destaque das demais telas e organiza dois fatores/trocar senha em abas, em vez de duas seções seguidas na mesma página.

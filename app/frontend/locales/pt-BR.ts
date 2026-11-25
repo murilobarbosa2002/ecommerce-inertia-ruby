@@ -344,7 +344,11 @@ export const ptBR = {
     },
     profile: {
       title: "Perfil",
-      changePasswordTitle: "Trocar senha",
+      description: "Segurança da sua conta e troca de senha.",
+      tabs: {
+        twoFactor: "Dois fatores",
+        changePassword: "Trocar senha",
+      },
       currentPasswordLabel: "Senha atual",
       currentPasswordRequired: "Informe a senha atual",
       passwordLabel: "Nova senha",
@@ -354,7 +358,6 @@ export const ptBR = {
       passwordMismatch: "As senhas não coincidem",
       submit: "Trocar senha",
       submitting: "Trocando...",
-      twoFactorTitle: "Autenticação de dois fatores",
       twoFactorEnabled: "Ativa",
       twoFactorDisabled: "Inativa",
       enableTwoFactorLink: "Ativar",

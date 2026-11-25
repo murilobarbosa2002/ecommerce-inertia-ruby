@@ -38,6 +38,7 @@ describe("Admin/Profile/Show", () => {
     const user = userEvent.setup();
     render(<ProfileShow two_factor_enabled />);
 
+    await user.click(screen.getByRole("tab", { name: "Trocar senha" }));
     await user.type(screen.getByLabelText("Senha atual"), "senha-atual-123");
     await user.type(screen.getByLabelText("Nova senha"), "senha-nova-456");
     await user.type(
@@ -59,6 +60,7 @@ describe("Admin/Profile/Show", () => {
     const user = userEvent.setup();
     render(<ProfileShow two_factor_enabled />);
 
+    await user.click(screen.getByRole("tab", { name: "Trocar senha" }));
     await user.type(screen.getByLabelText("Senha atual"), "senha-atual-123");
     await user.type(screen.getByLabelText("Nova senha"), "senha-nova-456");
     await user.type(
