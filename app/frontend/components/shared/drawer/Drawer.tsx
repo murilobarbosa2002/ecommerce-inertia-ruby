@@ -17,6 +17,14 @@ import { drawerContent, drawerOverlay } from "./Drawer.variants";
 const DISMISS_OFFSET = 120;
 const DISMISS_VELOCITY = 500;
 
+// Extraída e exportada só pra ser testável: simular um gesto de arrastar
+// de verdade (ponteiro + velocidade) via Motion não é algo que jsdom
+// consiga reproduzir de forma confiável — testar a decisão em si,
+// isolada, é o jeito real de cobrir esse comportamento.
+export function shouldDismissOnDrag(offsetY: number, velocityY: number) {
+  return offsetY > DISMISS_OFFSET || velocityY > DISMISS_VELOCITY;
+}
+
 // Bottom sheet: painel ancorado na borda inferior, pro caso de detalhe de
 // linha no mobile (DataTable) — sempre fechável (Esc, clique fora, botão,
 // ou arrastando pra baixo, affordance real de bottom sheet no mobile).
@@ -52,10 +60,7 @@ export default function Drawer({
                 dragElastic={{ top: 0, bottom: 0.5 }}
                 dragSnapToOrigin
                 onDragEnd={(_event, info) => {
-                  if (
-                    info.offset.y > DISMISS_OFFSET ||
-                    info.velocity.y > DISMISS_VELOCITY
-                  ) {
+                  if (shouldDismissOnDrag(info.offset.y, info.velocity.y)) {
                     onOpenChange(false);
                   }
                 }}

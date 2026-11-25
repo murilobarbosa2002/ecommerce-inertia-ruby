@@ -104,6 +104,43 @@ describe("Admin/AuditEvents/Index", () => {
     expect(table.getByText("localhost")).toBeInTheDocument();
   });
 
+  it("mostra '127.0.0.1' também como 'localhost', e um IP normal sem alteração", () => {
+    render(
+      <AuditEventsIndex
+        audit_events={{
+          records: [
+            {
+              id: 10,
+              event_type: "login_failed",
+              happened_at: "2026-11-24T12:00:00Z",
+              admin_email: null,
+              performed_by_admin_email: null,
+              ip_address: "127.0.0.1",
+              metadata: {},
+            },
+            {
+              id: 11,
+              event_type: "login_failed",
+              happened_at: "2026-11-24T12:05:00Z",
+              admin_email: null,
+              performed_by_admin_email: null,
+              ip_address: "203.0.113.5",
+              metadata: {},
+            },
+          ],
+          page: 1,
+          total_pages: 1,
+          total_count: 2,
+        }}
+        actors={actors}
+      />,
+    );
+
+    const table = within(desktopTable());
+    expect(table.getByText("localhost")).toBeInTheDocument();
+    expect(table.getByText("203.0.113.5")).toBeInTheDocument();
+  });
+
   it("busca dispara um reload com a prop audit_events e o termo digitado", async () => {
     const user = userEvent.setup();
     render(<AuditEventsIndex audit_events={auditEvents} actors={actors} />);

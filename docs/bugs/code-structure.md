@@ -524,4 +524,4 @@ Os dois wrappers (`primaryColumn`/`secondaryColumn`, cartão mobile) passaram de
 
 ### Verificação
 
-Suíte de `DataTable.test.tsx` já cobria a renderização de cada coluna no cartão mobile; re-executada depois da troca de tag, continua verde — o comportamento visual não mudou, só a validade estrutural do HTML.
+Teste novo e específico pra esse bug (revisão de 2026-11-25 encontrou que a verificação original só reexecutava a suíte existente, que não tinha nenhuma asserção de estrutura de nó — não cobria a regressão de fato): coluna de teste cujo `render()` devolve um `<div>` aninhado, confirmando via `parentElement?.tagName` que o wrapper do cartão mobile nunca é `<p>`. Confirmado vermelho trocando a tag de volta pra `<p>`, verde restaurando o `<div>`.

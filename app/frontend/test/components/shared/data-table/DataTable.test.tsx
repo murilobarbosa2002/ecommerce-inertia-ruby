@@ -132,6 +132,44 @@ describe("DataTable", () => {
     ).toBeInTheDocument();
   });
 
+  it("o wrapper de cada coluna no cartão mobile nunca é <p> (render() pode devolver um elemento de bloco, ex. Avatar/Badge — docs/bugs/code-structure.md)", () => {
+    const blockColumns: DataTableColumn<Row>[] = [
+      {
+        key: "email",
+        header: "E-mail",
+        render: (row) => (
+          <div data-testid={`primary-${String(row.id)}`}>
+            <div>{row.email}</div>
+          </div>
+        ),
+      },
+      {
+        key: "role",
+        header: "Papel",
+        render: (row) => (
+          <div data-testid={`secondary-${String(row.id)}`}>owner</div>
+        ),
+      },
+    ];
+
+    render(
+      <DataTable
+        columns={blockColumns}
+        rows={rows}
+        getRowKey={(row) => row.id}
+        emptyTitle="Nenhum admin"
+      />,
+    );
+
+    const mobileList = within(screen.getByRole("list"));
+    expect(mobileList.getByTestId("primary-1").parentElement?.tagName).not.toBe(
+      "P",
+    );
+    expect(
+      mobileList.getByTestId("secondary-1").parentElement?.tagName,
+    ).not.toBe("P");
+  });
+
   it("tocar um cartão no mobile abre o Drawer com as colunas que não são o título", async () => {
     const user = userEvent.setup();
     render(
