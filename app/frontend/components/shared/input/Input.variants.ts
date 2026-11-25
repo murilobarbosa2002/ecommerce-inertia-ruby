@@ -4,17 +4,17 @@ export const input = tv({
   // [&::-webkit-search-cancel-button] remove o X nativo de type="search"
   // (Chrome/Safari) — sem isso ele ignora qualquer cor/token do projeto,
   // sempre azul/preto padrão do navegador, mesmo no tema escuro.
-  base: "block w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 shadow-sm transition-colors placeholder:text-gray-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none [&::-webkit-search-cancel-button]:appearance-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500",
+  // Tokens semânticos (docs/adr/0031), trocam sozinhos entre os temas — sem
+  // dark: repetido. focus-visible:ring-2 ring-focus-ring é o mesmo
+  // tratamento de foco já usado em MultiSelect/Button, não o glow de
+  // ring-4/10 do design antigo.
+  base: "block w-full rounded-control border border-line-strong bg-surface px-3.5 py-2.5 text-sm text-fg shadow-sm transition-colors placeholder:text-fg-subtle focus:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring [&::-webkit-search-cancel-button]:appearance-none",
   variants: {
-    // border-red-500 (não red-300/red-700) nos dois modos — contraste real
-    // contra o fundo do campo: red-300 só dava 1.90:1 contra branco e
-    // red-700 só 2.27:1 contra gray-800 (fundo do input no dark mode),
-    // abaixo do mínimo de 3:1 que WCAG 1.4.11 exige pra um indicador de
-    // estado de UI (não é texto, é a borda em si). red-500 passa nos dois
-    // (3.76:1 claro, 3.90:1 escuro) — mesmo tom já usado no estado de foco,
-    // agora consistente também no estado de repouso.
+    // border-danger-solid, não danger-text: é a borda em si (indicador de
+    // estado de UI, WCAG 1.4.11, mínimo 3:1), não texto — danger-solid é o
+    // par já validado contra `surface` em test/styles/tokens.test.ts.
     invalid: {
-      true: "border-red-500 focus:border-red-500 focus:ring-red-500/10 dark:border-red-500",
+      true: "border-danger-solid focus-visible:ring-danger-solid",
     },
   },
 });

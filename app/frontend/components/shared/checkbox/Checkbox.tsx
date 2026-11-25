@@ -6,7 +6,7 @@ import { checkbox } from "./Checkbox.variants";
 export default function Checkbox({ className, ...props }: CheckboxProps) {
   return (
     <RadixCheckbox.Root className={checkbox({ className })} {...props}>
-      <RadixCheckbox.Indicator className="text-white">
+      <RadixCheckbox.Indicator className="text-accent-fg">
         <svg
           viewBox="0 0 16 16"
           fill="none"
