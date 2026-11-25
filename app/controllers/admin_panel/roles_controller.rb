@@ -3,8 +3,20 @@ module AdminPanel
     require_permission :manage_roles
 
     def index
+      result = Roles::Search.call(
+        query: params[:roles_search],
+        sort: params[:roles_sort],
+        direction: params[:roles_direction],
+        page: params[:roles_page]
+      )
+
       render inertia: "Admin/Roles/Index", props: {
-        roles: Role.includes(:permissions).order(:name).map { |role| role_json(role) }
+        roles: {
+          records: result.roles.map { |role| role_json(role) },
+          page: result.page,
+          total_pages: result.total_pages,
+          total_count: result.total_count
+        }
       }
     end
 

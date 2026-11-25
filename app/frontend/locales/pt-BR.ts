@@ -123,11 +123,18 @@ export const ptBR = {
     admins: {
       index: {
         title: "Admins",
+        description_one: "{{count}} admin no total",
+        description_other: "{{count}} admins no total",
         newButtonLabel: "Novo admin",
+        searchPlaceholder: "Buscar por nome, e-mail ou papel...",
         nameColumn: "Nome",
         emailColumn: "E-mail",
         roleColumn: "Papel",
+        phoneColumn: "Celular",
         editLink: "Editar",
+        rowActionsLabel: "Ações",
+        emptyTitle: "Nenhum admin encontrado",
+        emptyDescription: "Tente outra busca ou crie um admin novo.",
       },
       new: {
         title: "Novo admin",
@@ -179,10 +186,18 @@ export const ptBR = {
     roles: {
       index: {
         title: "Papéis",
+        description_one: "{{count}} papel no total",
+        description_other: "{{count}} papéis no total",
         newButtonLabel: "Novo papel",
+        searchPlaceholder: "Buscar por nome...",
         nameColumn: "Nome",
         permissionsColumn: "Permissões",
+        morePermissions_one: "+{{count}}",
+        morePermissions_other: "+{{count}}",
         editLink: "Editar",
+        rowActionsLabel: "Ações",
+        emptyTitle: "Nenhum papel encontrado",
+        emptyDescription: "Tente outra busca ou crie um papel novo.",
       },
       new: {
         title: "Novo papel",

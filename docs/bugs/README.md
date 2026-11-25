@@ -72,6 +72,9 @@ Registro completo e detalhado de todo bug real encontrado neste projeto, organiz
 | 2026-11-22 | Estrutura de código | Linha divisória do drawer mobile parava antes do botão de fechar | Baixa | #69 | [code-structure.md](code-structure.md) |
 | 2026-11-23 | Acessibilidade | Animações de entrada do dashboard ignoravam `prefers-reduced-motion` | Média | #76 | [accessibility.md](accessibility.md) |
 | 2026-11-24 | Estrutura de código | Nome/sobrenome do admin logado nunca chegavam ao menu da conta nem ao avatar | Média | #80 | [code-structure.md](code-structure.md) |
+| 2026-11-24 | Estrutura de código | Ordenação por nome (duas colunas) só aplicava a direção na segunda coluna | Média | #81 | [code-structure.md](code-structure.md) |
+| 2026-11-24 | Estrutura de código | Drawer de detalhe (DataTable, mobile) repetia a primeira coluna como título e na lista | Baixa | #81 | [code-structure.md](code-structure.md) |
+| 2026-11-24 | Estrutura de código | Cartão mobile da DataTable aninhava `<div>` dentro de `<p>` (HTML inválido) | Baixa | #81 | [code-structure.md](code-structure.md) |
 
 ## Categorias
 

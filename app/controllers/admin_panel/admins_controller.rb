@@ -4,8 +4,20 @@ module AdminPanel
     require_permission :reset_two_factor, only: :reset_two_factor
 
     def index
+      result = Admins::Search.call(
+        query: params[:admins_search],
+        sort: params[:admins_sort],
+        direction: params[:admins_direction],
+        page: params[:admins_page]
+      )
+
       render inertia: "Admin/Admins/Index", props: {
-        admins: Admin.includes(:role).order(:email_address).map { |admin| admin_json(admin) }
+        admins: {
+          records: result.admins.map { |admin| admin_json(admin) },
+          page: result.page,
+          total_pages: result.total_pages,
+          total_count: result.total_count
+        }
       }
     end
 

@@ -6,5 +6,10 @@ export interface RoleRow {
 }
 
 export interface RolesIndexProps {
-  roles: RoleRow[];
+  roles: {
+    records: RoleRow[];
+    page: number;
+    total_pages: number;
+    total_count: number;
+  };
 }

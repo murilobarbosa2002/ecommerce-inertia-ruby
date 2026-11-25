@@ -38,6 +38,12 @@ RSpec.describe "Admin::Admins", type: :request do
   end
 
   describe "GET /admin/admins" do
+    def inertia_props(params = {})
+      get admin_admins_path, params: params,
+                              headers: { "X-Inertia" => "true", "X-Inertia-Version" => InertiaRails.configuration.version.to_s }
+      JSON.parse(response.body).fetch("props")
+    end
+
     it "lista os admins existentes" do
       admin = create(:admin, :with_two_factor_enabled, role: role_with_permission)
       sign_in(admin)
@@ -46,6 +52,27 @@ RSpec.describe "Admin::Admins", type: :request do
       get admin_admins_path
 
       expect(response).to have_http_status(:ok)
+    end
+
+    it "filtra pela busca enviada" do
+      admin = create(:admin, :with_two_factor_enabled, role: role_with_permission)
+      sign_in(admin)
+      create(:admin, first_name: "Carla", email_address: "carla@example.com", role: role_without_permission)
+
+      props = inertia_props(admins_search: "Carla")
+
+      expect(props.dig("admins", "records").pluck("email_address")).to eq([ "carla@example.com" ])
+    end
+
+    it "pagina os resultados" do
+      admin = create(:admin, :with_two_factor_enabled, role: role_with_permission)
+      sign_in(admin)
+      3.times { |n| create(:admin, first_name: "Admin#{n}", role: role_without_permission) }
+
+      props = inertia_props(admins_page: 2, admins_sort: "name")
+
+      expect(props.dig("admins", "page")).to eq(2)
+      expect(props.dig("admins", "total_count")).to eq(4)
     end
   end
 
