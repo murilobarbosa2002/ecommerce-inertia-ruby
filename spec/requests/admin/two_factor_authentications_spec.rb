@@ -9,8 +9,10 @@ RSpec.describe "Admin::TwoFactorAuthentications", type: :request do
     [ admin.reload, recovery_codes ]
   end
 
-  def start_pending_login(admin)
-    post admin_session_path, params: { email_address: admin.email_address, password: AdminCredentials::VALID_PASSWORD }
+  def start_pending_login(admin, remember_me: false)
+    post admin_session_path, params: {
+      email_address: admin.email_address, password: AdminCredentials::VALID_PASSWORD, remember_me: remember_me
+    }
   end
 
   describe "POST /admin/login com 2FA ativo" do
@@ -56,6 +58,22 @@ RSpec.describe "Admin::TwoFactorAuthentications", type: :request do
         event_types = AuditEvent.last(2).map(&:event_type)
         expect(event_types).to contain_exactly("two_factor_verified", "login_succeeded")
       end
+    end
+
+    it "aplica remember_me escolhido no passo da senha à sessão criada depois do código" do
+      admin, = admin_with_two_factor
+      start_pending_login(admin, remember_me: true)
+
+      # +31s (não mais que isso): precisa ficar bem dentro da janela de 5min
+      # da sessão de verificação pendente, só o suficiente pra gerar um
+      # código TOTP novo (mesmo racional do teste acima, "completa o login
+      # com código TOTP válido").
+      travel_to 31.seconds.from_now do
+        code = ROTP::TOTP.new(admin.otp_secret).now
+        post admin_two_factor_authentication_path, params: { otp_code: code }
+      end
+
+      expect(admin.admin_sessions.last.expires_at).to be_within(35.seconds).of(30.days.from_now)
     end
 
     it "completa o login com código de recuperação válido" do

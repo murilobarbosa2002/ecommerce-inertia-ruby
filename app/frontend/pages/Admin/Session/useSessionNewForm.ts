@@ -9,15 +9,17 @@ import { loginSchema, type LoginFormValues } from "./New.schema";
 export default function useSessionNewForm() {
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
+    defaultValues: { remember_me: false },
   });
 
   const onSubmit = handleSubmit((data) => {
     router.post(admin_session_path(), data);
   });
 
-  return { register, errors, isSubmitting, onSubmit };
+  return { register, control, errors, isSubmitting, onSubmit };
 }

@@ -70,3 +70,4 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 - Ícones de alerta/sucesso (banner e notificação), seta do seletor e alternância de tema passam a usar o mesmo traço do restante dos ícones do painel, em vez do desenho preenchido original.
 - Telas de login, verificação de dois fatores e redefinição de senha ganham um painel de marca (logo e nome da loja) ao lado do formulário em telas largas; no celular continuam só com o formulário, como antes. As cores fixas dessas telas também passam a usar os tokens do design system.
 - Todo campo de senha ganha um botão de olho dentro do campo pra mostrar/ocultar a senha digitada.
+- Sessão de admin deixa de durar indefinidamente: passa a expirar em 24h a partir do login, ou em 30 dias se marcar a nova opção "Lembrar de mim" na tela de login (com aviso explicando a duração).

@@ -19,12 +19,14 @@ module AdminPanel
         # Estado "senha certa, 2FA pendente" fica na sessão assinada padrão
         # do Rails (nunca cria a AdminSession real até o código ser
         # confirmado) — expira em 5min, checado em TwoFactorAuthentications
-        # Controller#set_pending_admin.
+        # Controller#set_pending_admin. "Lembrar de mim" escolhido aqui
+        # precisa sobreviver até lá, pra valer na sessão real.
         session[:pending_admin_id] = admin.id
         session[:pending_admin_expires_at] = 5.minutes.from_now
+        session[:pending_admin_remember_me] = remember_me_param
         redirect_to new_admin_two_factor_authentication_path
       elsif admin
-        start_new_admin_session_for(admin)
+        start_new_admin_session_for(admin, remember_me: remember_me_param)
         AuditEvents::RecordAuditEvent.call(event_type: :login_succeeded, admin: admin, request: request)
         redirect_to after_admin_authentication_url
       else
@@ -37,6 +39,12 @@ module AdminPanel
       terminate_admin_session
       AuditEvents::RecordAuditEvent.call(event_type: :logout, admin: admin, request: request)
       redirect_to new_admin_session_path, status: :see_other
+    end
+
+    private
+
+    def remember_me_param
+      ActiveModel::Type::Boolean.new.cast(params[:remember_me])
     end
   end
 end

@@ -11,9 +11,11 @@ module AdminPanel
       result = AdminAuthentication::CompleteTwoFactorLogin.call(admin: @admin, code: params[:otp_code], request: request)
 
       if result
+        remember_me = session[:pending_admin_remember_me]
         session.delete(:pending_admin_id)
         session.delete(:pending_admin_expires_at)
-        start_new_admin_session_for(@admin)
+        session.delete(:pending_admin_remember_me)
+        start_new_admin_session_for(@admin, remember_me: remember_me)
         event_type = result == :recovery_code ? :recovery_code_used : :two_factor_verified
         AuditEvents::RecordAuditEvent.call(event_type: event_type, admin: @admin, request: request)
         # login_succeeded é o marcador único de "uma AdminSession de verdade
@@ -50,6 +52,7 @@ module AdminPanel
     def clear_pending_admin_session
       session.delete(:pending_admin_id)
       session.delete(:pending_admin_expires_at)
+      session.delete(:pending_admin_remember_me)
     end
   end
 end

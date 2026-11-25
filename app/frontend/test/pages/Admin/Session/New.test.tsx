@@ -19,7 +19,7 @@ describe("Admin/Session/New", () => {
     routerPostMock.mockClear();
   });
 
-  it("envia e-mail e senha pra /admin/login", async () => {
+  it("envia e-mail e senha pra /admin/login, com lembrar de mim desmarcado por padrão", async () => {
     const user = userEvent.setup();
     render(<SessionNew />);
 
@@ -31,6 +31,25 @@ describe("Admin/Session/New", () => {
       expect(routerPostMock).toHaveBeenCalledWith(admin_session_path(), {
         email_address: "admin@example.com",
         password: "senha-correta",
+        remember_me: false,
+      });
+    });
+  });
+
+  it("envia remember_me true quando a caixa é marcada", async () => {
+    const user = userEvent.setup();
+    render(<SessionNew />);
+
+    await user.type(screen.getByLabelText("E-mail"), "admin@example.com");
+    await user.type(screen.getByLabelText("Senha"), "senha-correta");
+    await user.click(screen.getByRole("checkbox", { name: "Lembrar de mim" }));
+    await user.click(screen.getByRole("button", { name: "Entrar" }));
+
+    await waitFor(() => {
+      expect(routerPostMock).toHaveBeenCalledWith(admin_session_path(), {
+        email_address: "admin@example.com",
+        password: "senha-correta",
+        remember_me: true,
       });
     });
   });
