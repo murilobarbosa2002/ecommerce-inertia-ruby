@@ -6,7 +6,6 @@ import MobileNav from "@/components/admin/mobile-nav/MobileNav";
 import Sidebar from "@/components/admin/sidebar/Sidebar";
 import Topbar from "@/components/admin/topbar/Topbar";
 import UserMenu from "@/components/admin/user-menu/UserMenu";
-import Dialog from "@/components/shared/dialog/Dialog";
 import Link from "@/components/shared/link/Link";
 import ThemeToggle from "@/components/shared/theme-toggle/ThemeToggle";
 import Toast, { ToastProvider } from "@/components/shared/toast/Toast";
@@ -21,9 +20,9 @@ import {
 } from "@/routes";
 import { type FlashData, type SharedProps } from "@/types";
 
-// Páginas do próprio fluxo de ativar o 2FA — o aviso obrigatório não
-// aparece nelas, senão o próprio caminho pra resolver o aviso ficaria
-// bloqueado visualmente por ele (docs/adr/0023).
+// Páginas do próprio fluxo de ativar o 2FA — o aviso não aparece nelas,
+// senão o próprio caminho pra resolver o aviso ficaria poluído por ele
+// (docs/adr/0023, docs/adr/0040).
 const TWO_FACTOR_SETUP_PAGES = [
   "Admin/TwoFactor/New",
   "Admin/TwoFactor/RecoveryCodes",
@@ -79,9 +78,27 @@ export default function PanelLayout({
     setAlertToast(flash.alert);
   }
 
-  const showTwoFactorRequiredDialog =
+  // Dispensável (ao contrário do antigo Dialog não-fechável) porque agora
+  // só aparece sobre telas que o próprio admin sem 2FA já tem permissão de
+  // ver — dashboard e perfil (docs/adr/0040); qualquer outra rota já nem
+  // chega a renderizar, o servidor redireciona antes. Reaparece a cada
+  // navegação enquanto o 2FA continuar desativado, mesmo padrão de
+  // "comparar com o último valor visto durante o render" já usado acima
+  // pros toasts de flash — aqui comparando `component` em vez do texto do
+  // flash, já que esta condição não vem de uma mensagem one-shot.
+  const [twoFactorToastDismissed, setTwoFactorToastDismissed] = useState(false);
+  const [lastTwoFactorToastComponent, setLastTwoFactorToastComponent] =
+    useState(component);
+
+  if (component !== lastTwoFactorToastComponent) {
+    setLastTwoFactorToastComponent(component);
+    setTwoFactorToastDismissed(false);
+  }
+
+  const showTwoFactorRequiredToast =
     !current_admin_two_factor_enabled &&
-    !TWO_FACTOR_SETUP_PAGES.includes(component);
+    !TWO_FACTOR_SETUP_PAGES.includes(component) &&
+    !twoFactorToastDismissed;
 
   const sections = filterNavigation(adminNavigation, current_admin_permissions);
   const active = findActiveNavItem(sections, url ?? "");
@@ -159,15 +176,24 @@ export default function PanelLayout({
           {alertToast}
         </Toast>
 
-        <Dialog
-          open={showTwoFactorRequiredDialog}
-          title={t("shared.panelLayout.twoFactorRequiredTitle")}
-          description={t("shared.panelLayout.twoFactorRequiredDescription")}
+        <Toast
+          tone="alert"
+          open={showTwoFactorRequiredToast}
+          onOpenChange={(open) => {
+            if (!open) setTwoFactorToastDismissed(true);
+          }}
         >
-          <Link href={new_admin_two_factor_path()}>
+          <p className="font-medium">
+            {t("shared.panelLayout.twoFactorRequiredTitle")}
+          </p>
+          <p>{t("shared.panelLayout.twoFactorRequiredDescription")}</p>
+          <Link
+            href={new_admin_two_factor_path()}
+            className="font-medium underline"
+          >
             {t("shared.panelLayout.twoFactorRequiredButton")}
           </Link>
-        </Dialog>
+        </Toast>
       </div>
     </ToastProvider>
   );

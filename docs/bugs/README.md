@@ -77,6 +77,7 @@ Registro completo e detalhado de todo bug real encontrado neste projeto, organiz
 | 2026-11-24 | Estrutura de código | Cartão mobile da DataTable aninhava `<div>` dentro de `<p>` (HTML inválido) | Baixa | #81 | [code-structure.md](code-structure.md) |
 | 2026-11-25 | Audit logging | `performed_by_admin` ficava sempre nulo em `password_verified`/`account_unlocked` | Média | #82 | [audit-logging.md](audit-logging.md) |
 | 2026-11-25 | Testes e ferramentas | `window.matchMedia` ausente no jsdom quebrava qualquer teste que monta `Popover` | Alta | #82 | [testing-and-tooling.md](testing-and-tooling.md) |
+| 2026-11-25 | 2FA | Obrigatoriedade do 2FA não bloqueava visualização, só mutação | Alta | #94 | [two-factor-authentication.md](two-factor-authentication.md) |
 
 ## Categorias
 

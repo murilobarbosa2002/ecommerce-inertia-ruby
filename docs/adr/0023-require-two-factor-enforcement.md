@@ -2,7 +2,7 @@
 
 ## Status
 
-Aceito
+Aceito. A parte que liberava `GET`/`HEAD` incondicionalmente pra um admin sem 2FA ativo foi substituída por `docs/adr/0040` (passa a bloquear também visualização, exceto dashboard e perfil). O restante — aplicação em dois níveis, bloqueio de mutação, mecânica de exceção por `skip_before_action` — continua vigente, sem mudança.
 
 ## Contexto
 
