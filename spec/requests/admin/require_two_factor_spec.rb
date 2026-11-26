@@ -11,7 +11,7 @@ RSpec.describe "AdminPanel::RequireTwoFactor", type: :request do
   let(:manage_admins) { create(:permission, key: "manage_admins") }
   let(:role_with_permission) { create(:role).tap { |role| role.permissions << manage_admins } }
 
-  it "libera GET pra admin autenticado sem 2FA ativo" do
+  it "libera GET no dashboard pra admin autenticado sem 2FA ativo" do
     admin = create(:admin)
     sign_in(admin)
 
@@ -20,11 +20,53 @@ RSpec.describe "AdminPanel::RequireTwoFactor", type: :request do
     expect(response).to have_http_status(:ok)
   end
 
-  it "libera HEAD pra admin autenticado sem 2FA ativo (HEAD não é request.get?)" do
+  it "libera HEAD no dashboard pra admin autenticado sem 2FA ativo" do
     admin = create(:admin)
     sign_in(admin)
 
     head root_path
+
+    expect(response).to have_http_status(:ok)
+  end
+
+  it "libera GET no próprio perfil pra admin autenticado sem 2FA ativo" do
+    admin = create(:admin)
+    sign_in(admin)
+
+    get admin_profile_path
+
+    expect(response).to have_http_status(:ok)
+  end
+
+  # Bug real (docs/bugs/two-factor-authentication.md): antes desta regra
+  # cobrir GET, qualquer página respondia normalmente a um admin sem 2FA —
+  # só um modal no cliente escondia o conteúdo já entregue. Navegar direto
+  # pra uma URL sem passar pela UI (ou chamar o endpoint via curl/script)
+  # via GET nunca era bloqueado por nada no servidor.
+  it "bloqueia GET em qualquer página fora do dashboard/perfil/configurar 2FA, redirecionando pra configurar o 2FA" do
+    admin = create(:admin, role: role_with_permission)
+    sign_in(admin)
+
+    get admin_admins_path
+
+    expect(response).to redirect_to(new_admin_two_factor_path)
+    expect(flash[:alert]).to eq("Ative a autenticação de dois fatores pra continuar")
+  end
+
+  it "bloqueia HEAD do mesmo jeito que GET" do
+    admin = create(:admin, role: role_with_permission)
+    sign_in(admin)
+
+    head admin_admins_path
+
+    expect(response).to redirect_to(new_admin_two_factor_path)
+  end
+
+  it "permite GET na mesma página pra admin autenticado com 2FA ativo" do
+    admin = create(:admin, :with_two_factor_enabled, role: role_with_permission)
+    sign_in(admin)
+
+    get admin_admins_path
 
     expect(response).to have_http_status(:ok)
   end
@@ -45,7 +87,7 @@ RSpec.describe "AdminPanel::RequireTwoFactor", type: :request do
       }
     end.not_to change(Admin, :count)
 
-    expect(response).to redirect_to(root_path)
+    expect(response).to redirect_to(new_admin_two_factor_path)
     expect(flash[:alert]).to eq("Ative a autenticação de dois fatores pra continuar")
   end
 
@@ -66,7 +108,7 @@ RSpec.describe "AdminPanel::RequireTwoFactor", type: :request do
     end.to change(Admin, :count).by(1)
   end
 
-  it "não bloqueia ativar o próprio 2FA mesmo sem 2FA ativo ainda" do
+  it "não bloqueia ver nem ativar o próprio 2FA mesmo sem 2FA ativo ainda" do
     admin = create(:admin)
     sign_in(admin)
     get new_admin_two_factor_path
@@ -75,6 +117,19 @@ RSpec.describe "AdminPanel::RequireTwoFactor", type: :request do
     post admin_two_factor_path, params: { otp_code: code }
 
     expect(admin.reload.otp_required_for_login?).to be true
+  end
+
+  it "não bloqueia trocar a própria senha mesmo sem 2FA ativo" do
+    admin = create(:admin)
+    sign_in(admin)
+
+    patch admin_profile_path, params: {
+      current_password: AdminCredentials::VALID_PASSWORD,
+      password: "NovaSenha123!",
+      password_confirmation: "NovaSenha123!"
+    }
+
+    expect(response).to redirect_to(new_admin_session_path)
   end
 
   it "não bloqueia deslogar mesmo sem 2FA ativo" do

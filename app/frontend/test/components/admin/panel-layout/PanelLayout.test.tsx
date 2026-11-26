@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -41,9 +41,7 @@ vi.mock("@inertiajs/react", () => ({
 
 // Com 2FA ativo (igual à maioria dos testes, que não são sobre o aviso
 // obrigatório) e numa página qualquer fora do fluxo de setup — sem isso, o
-// Dialog apareceria e esconderia o resto da página via aria-hidden
-// (hideOthers do Radix), quebrando getByRole nos testes que não são sobre
-// o próprio Dialog.
+// toast de aviso apareceria em todo teste que não é sobre ele.
 const defaultPage: MockPage = {
   props: {
     current_admin_permissions: [],
@@ -362,6 +360,33 @@ describe("PanelLayout", () => {
       expect(
         screen.queryByText("Autenticação de dois fatores obrigatória"),
       ).not.toBeInTheDocument();
+    });
+
+    it("some ao ser fechado e reaparece numa navegação pra outra página", async () => {
+      const user = userEvent.setup();
+      usePageMock.mockReturnValue(withoutTwoFactor("Admin/Dashboard/Show"));
+
+      const { rerender } = render(
+        <PanelLayout title="Painel">{null}</PanelLayout>,
+      );
+
+      await user.click(screen.getByRole("button", { name: "Fechar" }));
+
+      // AnimatePresence só remove do DOM depois da transição de saída —
+      // sem waitFor, a assertion rodaria no meio da animação e ainda
+      // encontraria o elemento.
+      await waitFor(() => {
+        expect(
+          screen.queryByText("Autenticação de dois fatores obrigatória"),
+        ).not.toBeInTheDocument();
+      });
+
+      usePageMock.mockReturnValue(withoutTwoFactor("Admin/Profile/Show"));
+      rerender(<PanelLayout title="Painel">{null}</PanelLayout>);
+
+      expect(
+        screen.getByText("Autenticação de dois fatores obrigatória"),
+      ).toBeInTheDocument();
     });
   });
 });

@@ -55,7 +55,7 @@ RSpec.describe "Admin::QuickActions", type: :request do
 
       patch admin_quick_actions_path, params: { quick_action_keys: [ "new_admin" ] }
 
-      expect(response).to redirect_to(root_path)
+      expect(response).to redirect_to(new_admin_two_factor_path)
       expect(admin.reload.quick_action_keys).to eq([])
     end
 

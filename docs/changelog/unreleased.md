@@ -49,6 +49,7 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 - O menu da conta (topo do painel) passa a mostrar o nome do admin logado, além do e-mail e do papel; o avatar usa as iniciais do nome, não mais do e-mail. Nome e e-mail truncados (muito longos) mostram o texto completo num tooltip ao passar o mouse.
 - Tooltips (ex. os da sidebar recolhida) passam a ter animação de entrada/saída, igual a popover e modal.
 - Confirmar a senha ou desbloquear a própria conta (etapas intermediárias do login) passam a registrar o próprio admin como quem realizou a ação no log de auditoria (antes ficava sempre em branco, mesmo sendo sempre auto-serviço).
+- Um admin sem a autenticação de dois fatores ativa deixa de conseguir ver qualquer tela do painel além do dashboard e do próprio perfil (antes, só não conseguia fazer ações — a visualização de outras telas, com dado real, não era bloqueada).
 
 ## Alterado
 

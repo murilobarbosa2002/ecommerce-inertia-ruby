@@ -16,7 +16,7 @@ RSpec.describe "Admin::AuditEvents", type: :request do
 
   describe "autorização" do
     it "bloqueia GET /admin/audit_events pra admin sem a permissão view_audit_log" do
-      admin = create(:admin, role: role_without_permission)
+      admin = create(:admin, :with_two_factor_enabled, role: role_without_permission)
       sign_in(admin)
 
       get admin_audit_events_path

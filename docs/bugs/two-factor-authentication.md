@@ -185,3 +185,33 @@ Guarda `unless target.otp_required_for_login?` adicionada no controller, redirec
 ### Verificação
 
 Teste em `spec/requests/admin/admins_spec.rb` ("não reseta e avisa quando o admin alvo já está sem 2FA ativo"), confirmando que nenhum `AuditEvent` novo é criado. Confirmado vermelho removendo a guarda de propósito (o teste falhava mostrando que um `AuditEvent` era criado mesmo assim) e verde com ela restaurada.
+
+## Obrigatoriedade do 2FA não bloqueava visualização, só mutação
+
+- **Data:** 2026-11-25
+- **Severidade:** alta
+- **PR:** #94
+
+### O que aconteceu
+
+`docs/adr/0023` decidiu deliberadamente liberar `GET`/`HEAD` sempre pra um admin autenticado sem 2FA ativo (`AdminPanel::RequireTwoFactor#require_two_factor_for_mutation` só olhava pra verbo de mutação), com a justificativa de o dashboard precisar renderizar pra mostrar o aviso obrigatório. Na prática, qualquer página do painel — não só o dashboard — respondia normalmente a esse `GET`, incluindo páginas com dado real de outras contas (`Admin/Admins/Index`, com e-mail e papel de todo admin cadastrado). O único obstáculo era um `Dialog` renderizado no cliente por cima do conteúdo já entregue.
+
+### Causa raiz
+
+A exceção de verbo foi desenhada pra um caso (o dashboard precisar renderizar) mas implementada de forma ampla demais (toda página, não só o dashboard) — o `before_action` não tinha como saber "que página é essa", só "que verbo é esse". Sem uma lista explícita de rotas permitidas, qualquer GET passava.
+
+### Como foi encontrado
+
+Verificação visual manual (chrome-devtools MCP) de uma mudança não relacionada (entrada animada nas linhas do `DataTable`): ao criar um admin de teste e navegar direto pra `/admin/admins` antes de configurar o 2FA dele, a lista real de 12 admins (e-mail, papel) apareceu renderizada por trás do modal de aviso obrigatório.
+
+### Impacto
+
+Alto: qualquer admin autenticado, mesmo sem 2FA configurado, conseguia ler dado real de qualquer tela do painel (lista de admins, papéis, log de auditoria completo, configurações da loja) só navegando direto pra URL ou chamando o endpoint via `curl`/script — o "não consegue fazer nada" de `docs/adr/0023` nunca cobriu visualização de fato, contrariando a própria premissa de `docs/adr/0010` ("validação sempre no servidor").
+
+### Correção
+
+`docs/adr/0040` reverte a parte de `docs/adr/0023` que liberava GET/HEAD. `require_two_factor_for_mutation` vira `require_two_factor!`, roda em todo verbo, e passa a redirecionar pra `new_admin_two_factor_path` (não mais `root_path`). Só `DashboardsController`, `ProfilesController#show`/`#update` e `TwoFactorsController#new`/`#create`/`#destroy` ficam com `skip_before_action :require_two_factor!` explícito — qualquer outra rota bloqueia visualização, não só mutação. No cliente, o `Dialog` não-fechável de `PanelLayout` vira um `Toast` dispensável (só aparece sobre as duas telas que o próprio admin sem 2FA já pode ver).
+
+### Verificação
+
+`spec/requests/admin/require_two_factor_spec.rb` ganha casos cobrindo GET/HEAD bloqueados fora do dashboard/perfil (redirecionando pra `new_admin_two_factor_path`), e confirmando que dashboard/perfil continuam acessíveis. Confirmado vermelho rodando os novos testes antes da correção no `require_two_factor.rb` (falhavam esperando redirect e recebendo `200 OK` com o corpo da página real) e verde depois.

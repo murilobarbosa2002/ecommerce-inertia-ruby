@@ -1,5 +1,10 @@
 module AdminPanel
   class DashboardsController < AdminPanel::BaseController
+    # É a única tela que um admin sem 2FA pode ver além do próprio perfil
+    # (docs/adr/0040) — tem que renderizar normalmente pra mostrar o aviso
+    # obrigatório e o caminho pra resolver.
+    skip_before_action :require_two_factor!
+
     def show
       render inertia: "Admin/Dashboard/Show", props: {
         stats: stats_json,

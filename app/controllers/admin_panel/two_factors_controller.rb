@@ -1,9 +1,10 @@
 module AdminPanel
   class TwoFactorsController < AdminPanel::BaseController
-    # Sem isso, um admin sem 2FA nunca conseguiria ativar o próprio 2FA
-    # (docs/adr/0023) — create/destroy são as únicas mutações que um admin
-    # sem 2FA precisa poder fazer.
-    skip_before_action :require_two_factor_for_mutation, only: %i[create destroy]
+    # Sem isso, um admin sem 2FA nunca conseguiria ativar o próprio 2FA —
+    # new/create são o próprio fluxo de configurar, e destroy é a única
+    # mutação que um admin sem 2FA precisa poder fazer (docs/adr/0023,
+    # docs/adr/0040).
+    skip_before_action :require_two_factor!, only: %i[new create destroy]
 
     def new
       if Current.admin.otp_required_for_login?

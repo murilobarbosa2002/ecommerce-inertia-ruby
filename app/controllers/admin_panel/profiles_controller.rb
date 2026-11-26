@@ -2,8 +2,10 @@ module AdminPanel
   class ProfilesController < AdminPanel::BaseController
     # Trocar a senha não devia depender de ter 2FA ativo (docs/adr/0023) —
     # senão um admin sem 2FA que esqueceu/precisa trocar a senha ficaria
-    # travado sem conseguir fazer a única coisa que resolveria isso.
-    skip_before_action :require_two_factor_for_mutation, only: :update
+    # travado sem conseguir fazer a única coisa que resolveria isso. `show`
+    # também precisa ficar visível (docs/adr/0040), senão não haveria como
+    # chegar no formulário de troca de senha pela UI.
+    skip_before_action :require_two_factor!, only: %i[show update]
 
     def show
       render inertia: "Admin/Profile/Show", props: {

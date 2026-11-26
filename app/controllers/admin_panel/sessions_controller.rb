@@ -2,7 +2,7 @@ module AdminPanel
   class SessionsController < AdminPanel::BaseController
     allow_unauthenticated_admin_access only: %i[new create]
     # Sempre pode deslogar, com ou sem 2FA ativo (docs/adr/0023).
-    skip_before_action :require_two_factor_for_mutation, only: :destroy
+    skip_before_action :require_two_factor!, only: :destroy
 
     def new
       render inertia: "Admin/Session/New"

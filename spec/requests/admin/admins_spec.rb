@@ -18,7 +18,7 @@ RSpec.describe "Admin::Admins", type: :request do
 
   describe "autorização" do
     it "bloqueia GET /admin/admins pra admin sem a permissão manage_admins" do
-      admin = create(:admin, role: role_without_permission)
+      admin = create(:admin, :with_two_factor_enabled, role: role_without_permission)
       sign_in(admin)
 
       get admin_admins_path
