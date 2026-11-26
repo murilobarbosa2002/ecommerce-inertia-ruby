@@ -1,5 +1,7 @@
 import { ChevronRight } from "lucide-react";
 
+import StaggerGroup from "@/components/motion/StaggerGroup";
+import StaggerItem from "@/components/motion/StaggerItem";
 import Drawer from "@/components/shared/drawer/Drawer";
 import EmptyState from "@/components/shared/empty-state/EmptyState";
 import Skeleton from "@/components/shared/skeleton/Skeleton";
@@ -51,6 +53,10 @@ export default function DataTable<Row>({
   const skeletonKeys = Array.from({ length: skeletonRows }, (_, index) =>
     String(index),
   );
+  // Força o StaggerGroup a reanimar quando o conjunto de linhas muda de
+  // verdade (paginação, ordenação, busca) — mesmo racional de key em
+  // ActivityFeed.tsx, não um id estável de render qualquer.
+  const rowsKey = rows.map((row) => getRowKey(row)).join(",");
 
   return (
     <>
@@ -74,74 +80,86 @@ export default function DataTable<Row>({
               {rowActions && <th scope="col" className={slots.td()} />}
             </tr>
           </thead>
-          <tbody className={slots.tbody()}>
-            {isLoading
-              ? skeletonKeys.map((key) => (
-                  <tr key={`skeleton-${key}`}>
-                    {columns.map((column) => (
-                      <td key={column.key} className={slots.td()}>
-                        <Skeleton className="h-4 w-full max-w-40" />
-                      </td>
-                    ))}
-                    {rowActions && <td className={slots.td()} />}
-                  </tr>
-                ))
-              : rows.map((row) => (
-                  <tr key={getRowKey(row)}>
-                    {columns.map((column) => (
-                      <td
-                        key={column.key}
-                        className={`${slots.td()} ${column.align === "end" ? "text-right" : ""}`}
-                      >
-                        {column.render(row)}
-                      </td>
-                    ))}
-                    {rowActions && (
-                      <td className={`${slots.td()} text-right`}>
-                        {rowActions(row, "table")}
-                      </td>
-                    )}
-                  </tr>
-                ))}
-          </tbody>
+          {isLoading ? (
+            <tbody className={slots.tbody()}>
+              {skeletonKeys.map((key) => (
+                <tr key={`skeleton-${key}`}>
+                  {columns.map((column) => (
+                    <td key={column.key} className={slots.td()}>
+                      <Skeleton className="h-4 w-full max-w-40" />
+                    </td>
+                  ))}
+                  {rowActions && <td className={slots.td()} />}
+                </tr>
+              ))}
+            </tbody>
+          ) : (
+            <StaggerGroup as="tbody" key={rowsKey} className={slots.tbody()}>
+              {rows.map((row) => (
+                <StaggerItem as="tr" key={getRowKey(row)}>
+                  {columns.map((column) => (
+                    <td
+                      key={column.key}
+                      className={`${slots.td()} ${column.align === "end" ? "text-right" : ""}`}
+                    >
+                      {column.render(row)}
+                    </td>
+                  ))}
+                  {rowActions && (
+                    <td className={`${slots.td()} text-right`}>
+                      {rowActions(row, "table")}
+                    </td>
+                  )}
+                </StaggerItem>
+              ))}
+            </StaggerGroup>
+          )}
         </table>
       </div>
 
-      <ul className="divide-y divide-line overflow-hidden rounded-card border border-line bg-surface shadow-card lg:hidden">
-        {isLoading
-          ? skeletonKeys.map((key) => (
-              <li key={`skeleton-${key}`} className="p-4">
-                <Skeleton className="mb-2 h-4 w-2/3" />
-                <Skeleton className="h-3 w-1/2" />
-              </li>
-            ))
-          : rows.map((row) => (
-              <li key={getRowKey(row)}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    openDrawer(row);
-                  }}
-                  className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left hover:bg-surface-muted"
-                >
-                  <div className="min-w-0">
-                    <div className="truncate text-sm font-medium text-fg">
-                      {primaryColumn.render(row)}
-                    </div>
-                    {secondaryColumn && (
-                      <div className="truncate text-xs text-fg-subtle">
-                        {secondaryColumn.render(row)}
-                      </div>
-                    )}
+      {isLoading ? (
+        <ul className="divide-y divide-line overflow-hidden rounded-card border border-line bg-surface shadow-card lg:hidden">
+          {skeletonKeys.map((key) => (
+            <li key={`skeleton-${key}`} className="p-4">
+              <Skeleton className="mb-2 h-4 w-2/3" />
+              <Skeleton className="h-3 w-1/2" />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <StaggerGroup
+          as="ul"
+          key={rowsKey}
+          className="divide-y divide-line overflow-hidden rounded-card border border-line bg-surface shadow-card lg:hidden"
+        >
+          {rows.map((row) => (
+            <StaggerItem as="li" key={getRowKey(row)}>
+              <button
+                type="button"
+                onClick={() => {
+                  openDrawer(row);
+                }}
+                className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left hover:bg-surface-muted"
+              >
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-medium text-fg">
+                    {primaryColumn.render(row)}
                   </div>
-                  <ChevronRight
-                    className="size-4 shrink-0 text-fg-subtle"
-                    aria-hidden="true"
-                  />
-                </button>
-              </li>
-            ))}
-      </ul>
+                  {secondaryColumn && (
+                    <div className="truncate text-xs text-fg-subtle">
+                      {secondaryColumn.render(row)}
+                    </div>
+                  )}
+                </div>
+                <ChevronRight
+                  className="size-4 shrink-0 text-fg-subtle"
+                  aria-hidden="true"
+                />
+              </button>
+            </StaggerItem>
+          ))}
+        </StaggerGroup>
+      )}
 
       <Drawer
         open={openRow !== null}

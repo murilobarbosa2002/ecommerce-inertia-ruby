@@ -1,7 +1,7 @@
 import { motion, useReducedMotion } from "motion/react";
 import { type ReactNode } from "react";
 
-type StaggerItemElement = "div" | "li";
+type StaggerItemElement = "div" | "li" | "tr";
 
 const DISTANCE = 12;
 
