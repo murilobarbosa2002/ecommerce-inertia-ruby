@@ -74,3 +74,4 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 - Sessão de admin deixa de durar indefinidamente: passa a expirar em 24h a partir do login, ou em 30 dias se marcar a nova opção "Lembrar de mim" na tela de login (com aviso explicando a duração).
 - Tela de códigos de recuperação do 2FA ganha um botão de copiar os códigos (além de baixar .txt/imagem, que já existiam) e cabeçalho de destaque, visual de cartão e entrada animada, igual ao resto do painel.
 - Tela de configurar o 2FA (QR code) ganha cabeçalho de destaque, layout em duas colunas e um aviso sobre os códigos de recuperação que vêm a seguir.
+- Linhas das telas de listagem (Admins, Papéis, Log de auditoria) ganham entrada animada em cascata, tanto na tabela (telas largas) quanto nos cartões (celular).

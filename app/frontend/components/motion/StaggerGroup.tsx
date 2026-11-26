@@ -6,7 +6,7 @@ import { type ReactNode } from "react";
 // props explícitas, não HTMLMotionProps<"div"> espalhado, porque o tipo de
 // evento nativo muda conforme `as` — div/ul/ol não compartilham o mesmo
 // shape de propriedades DOM).
-type StaggerElement = "div" | "ul" | "ol";
+type StaggerElement = "div" | "ul" | "ol" | "tbody";
 
 // Pai de StaggerItem: qualquer lista de itens (códigos de recuperação,
 // linhas de tabela, cards de um grid) entra em cascata só envolvendo os
