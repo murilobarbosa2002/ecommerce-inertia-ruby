@@ -20,9 +20,6 @@ import {
 } from "@/routes";
 import { type FlashData, type SharedProps } from "@/types";
 
-// Páginas do próprio fluxo de ativar o 2FA — o aviso não aparece nelas,
-// senão o próprio caminho pra resolver o aviso ficaria poluído por ele
-// (docs/adr/0023, docs/adr/0040).
 const TWO_FACTOR_SETUP_PAGES = [
   "Admin/TwoFactor/New",
   "Admin/TwoFactor/RecoveryCodes",
@@ -55,14 +52,6 @@ export default function PanelLayout({
   } = pageProps;
   const { collapsed, toggleCollapsed } = useSidebarState();
 
-  // Guardado em estado (em vez de ler `flash` direto): o toast some depois
-  // de alguns segundos ou ao ser fechado, mas `flash` só muda numa próxima
-  // navegação Inertia — sem estado próprio, ele reapareceria sozinho a cada
-  // rerender enquanto a página não mudasse. Ajustado durante o render (não
-  // em useEffect) comparando com o último valor visto — padrão recomendado
-  // pra "resposta a uma mudança de prop" que não é sincronização com
-  // sistema externo; usa useState (não ref) pro valor anterior porque o
-  // ref-lint deste projeto proíbe ler/escrever ref durante o render.
   const [noticeToast, setNoticeToast] = useState<string | null>(null);
   const [alertToast, setAlertToast] = useState<string | null>(null);
   const [lastNotice, setLastNotice] = useState<string | undefined>(undefined);
@@ -78,14 +67,6 @@ export default function PanelLayout({
     setAlertToast(flash.alert);
   }
 
-  // Dispensável (ao contrário do antigo Dialog não-fechável) porque agora
-  // só aparece sobre telas que o próprio admin sem 2FA já tem permissão de
-  // ver — dashboard e perfil (docs/adr/0040); qualquer outra rota já nem
-  // chega a renderizar, o servidor redireciona antes. Reaparece a cada
-  // navegação enquanto o 2FA continuar desativado, mesmo padrão de
-  // "comparar com o último valor visto durante o render" já usado acima
-  // pros toasts de flash — aqui comparando `component` em vez do texto do
-  // flash, já que esta condição não vem de uma mensagem one-shot.
   const [twoFactorToastDismissed, setTwoFactorToastDismissed] = useState(false);
   const [lastTwoFactorToastComponent, setLastTwoFactorToastComponent] =
     useState(component);
