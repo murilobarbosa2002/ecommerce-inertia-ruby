@@ -1,74 +1,89 @@
 import { Head, router } from "@inertiajs/react";
+import { Copy, FileDown, ImageDown, ShieldAlert } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
+import PageHeader from "@/components/admin/page-header/PageHeader";
 import PanelLayout from "@/components/admin/panel-layout/PanelLayout";
+import Reveal from "@/components/motion/Reveal";
+import StaggerGroup from "@/components/motion/StaggerGroup";
+import StaggerItem from "@/components/motion/StaggerItem";
 import Button from "@/components/shared/button/Button";
-import downloadRecoveryCodesImage from "@/lib/downloadRecoveryCodesImage";
-import downloadTextFile from "@/lib/downloadTextFile";
+import Card from "@/components/shared/card/Card";
 import { root_path } from "@/routes";
 
 import { type RecoveryCodesProps } from "./RecoveryCodes.types";
+import useTwoFactorRecoveryCodes from "./useTwoFactorRecoveryCodes";
 
 export default function TwoFactorRecoveryCodes({
   recovery_codes,
 }: RecoveryCodesProps) {
   const { t } = useTranslation();
-
-  const handleDownloadTxt = () => {
-    downloadTextFile("codigos-de-recuperacao.txt", recovery_codes.join("\n"));
-  };
-
-  const handleDownloadImage = () => {
-    downloadRecoveryCodesImage(
-      recovery_codes,
-      t("admin.twoFactor.recoveryCodes.title"),
-      "codigos-de-recuperacao.png",
-    );
-  };
+  const { copied, handleCopy, handleDownloadTxt, handleDownloadImage } =
+    useTwoFactorRecoveryCodes(recovery_codes);
 
   return (
     <PanelLayout title={t("admin.twoFactor.recoveryCodes.title")}>
       <Head title={t("admin.twoFactor.recoveryCodes.title")} />
 
-      <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-        {t("admin.twoFactor.recoveryCodes.title")}
-      </h1>
-      <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-        {t("admin.twoFactor.recoveryCodes.description")}
-      </p>
-      <p className="mt-1 mb-6 text-sm font-medium text-red-600 dark:text-red-400">
-        {t("admin.twoFactor.recoveryCodes.warning")}
-      </p>
+      <PageHeader
+        title={t("admin.twoFactor.recoveryCodes.title")}
+        description={t("admin.twoFactor.recoveryCodes.description")}
+      />
 
-      <ul className="mb-6 grid grid-cols-2 gap-2">
-        {recovery_codes.map((code) => (
-          <li
-            key={code}
-            className="rounded-sm bg-gray-100 px-3 py-2 text-center font-mono text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-100"
+      <Reveal direction="up" duration={0.4}>
+        <Card>
+          <div className="mb-6 flex items-start gap-2.5 rounded-control border border-danger-text/30 bg-danger-soft px-3.5 py-3 text-sm text-danger-text">
+            <ShieldAlert
+              className="mt-0.5 size-4 shrink-0"
+              aria-hidden="true"
+            />
+            <span>{t("admin.twoFactor.recoveryCodes.warning")}</span>
+          </div>
+
+          <StaggerGroup as="ul" className="mb-6 grid grid-cols-2 gap-2">
+            {recovery_codes.map((code) => (
+              <StaggerItem
+                as="li"
+                key={code}
+                className="rounded-control border border-line bg-canvas px-3 py-2.5 text-center font-mono text-sm text-fg"
+              >
+                {code}
+              </StaggerItem>
+            ))}
+          </StaggerGroup>
+
+          <div className="mb-5 flex flex-wrap gap-3">
+            <Button type="button" intent="outline" onClick={handleCopy}>
+              <Copy className="size-4" aria-hidden="true" />
+              {copied
+                ? t("admin.twoFactor.recoveryCodes.copied")
+                : t("admin.twoFactor.recoveryCodes.copy")}
+            </Button>
+            <Button type="button" intent="outline" onClick={handleDownloadTxt}>
+              <FileDown className="size-4" aria-hidden="true" />
+              {t("admin.twoFactor.recoveryCodes.downloadTxt")}
+            </Button>
+            <Button
+              type="button"
+              intent="outline"
+              onClick={handleDownloadImage}
+            >
+              <ImageDown className="size-4" aria-hidden="true" />
+              {t("admin.twoFactor.recoveryCodes.downloadImage")}
+            </Button>
+          </div>
+
+          <Button
+            type="button"
+            fullWidth
+            onClick={() => {
+              router.visit(root_path());
+            }}
           >
-            {code}
-          </li>
-        ))}
-      </ul>
-
-      <div className="mb-4 flex gap-3">
-        <Button type="button" intent="ghost" onClick={handleDownloadTxt}>
-          {t("admin.twoFactor.recoveryCodes.downloadTxt")}
-        </Button>
-        <Button type="button" intent="ghost" onClick={handleDownloadImage}>
-          {t("admin.twoFactor.recoveryCodes.downloadImage")}
-        </Button>
-      </div>
-
-      <Button
-        type="button"
-        fullWidth
-        onClick={() => {
-          router.visit(root_path());
-        }}
-      >
-        {t("admin.twoFactor.recoveryCodes.continueButton")}
-      </Button>
+            {t("admin.twoFactor.recoveryCodes.continueButton")}
+          </Button>
+        </Card>
+      </Reveal>
     </PanelLayout>
   );
 }

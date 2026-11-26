@@ -333,6 +333,8 @@ export const ptBR = {
           "Escaneie o QR code com seu aplicativo autenticador (Google Authenticator, Authy, etc.) e digite o código gerado pra confirmar.",
         qrCodeInstructions:
           "Não consegue escanear? Digite o código manualmente no app:",
+        afterConfirmInfo:
+          "Depois de confirmar, você recebe 10 códigos de recuperação de uso único — guarde-os num lugar seguro.",
         codeLabel: "Código de confirmação",
         codeRequired: "Informe o código",
         submit: "Ativar",
@@ -344,6 +346,8 @@ export const ptBR = {
           "Use um desses códigos pra entrar se você perder acesso ao seu aplicativo autenticador. Cada código só pode ser usado uma vez.",
         warning:
           "Esses códigos não aparecem de novo depois que você sair desta página.",
+        copy: "Copiar",
+        copied: "Copiado!",
         downloadTxt: "Baixar .txt",
         downloadImage: "Salvar como imagem",
         continueButton: "Continuar",

@@ -38,6 +38,16 @@ describe("Admin/TwoFactor/New", () => {
     expect(screen.getByText(props.provisioning_uri)).toBeInTheDocument();
   });
 
+  it("mostra o aviso sobre os códigos de recuperação depois de confirmar", () => {
+    render(<TwoFactorNew {...props} />);
+
+    expect(
+      screen.getByText(
+        "Depois de confirmar, você recebe 10 códigos de recuperação de uso único — guarde-os num lugar seguro.",
+      ),
+    ).toBeInTheDocument();
+  });
+
   it("envia o código de confirmação pra ativar o 2FA", async () => {
     const user = userEvent.setup();
     render(<TwoFactorNew {...props} />);

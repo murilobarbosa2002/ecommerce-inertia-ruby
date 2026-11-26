@@ -57,6 +57,21 @@ describe("Admin/TwoFactor/RecoveryCodes", () => {
     expect(routerVisitMock).toHaveBeenCalledWith(root_path());
   });
 
+  it("copia os códigos pra área de transferência e muda o texto do botão", async () => {
+    const user = userEvent.setup({ writeToClipboard: false });
+    const writeTextSpy = vi
+      .spyOn(navigator.clipboard, "writeText")
+      .mockResolvedValue(undefined);
+    render(<TwoFactorRecoveryCodes recovery_codes={recoveryCodes} />);
+
+    await user.click(screen.getByRole("button", { name: "Copiar" }));
+
+    expect(writeTextSpy).toHaveBeenCalledWith(recoveryCodes.join("\n"));
+    expect(
+      await screen.findByRole("button", { name: "Copiado!" }),
+    ).toBeInTheDocument();
+  });
+
   it("baixa os códigos como .txt ao clicar em Baixar .txt", async () => {
     const user = userEvent.setup();
     render(<TwoFactorRecoveryCodes recovery_codes={recoveryCodes} />);
