@@ -79,3 +79,4 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 - O papel owner passa a ter sempre toda permissão existente, automaticamente, incluindo as que antes exigiam concessão manual pela tela de papéis (configurar a loja, excluir admin).
 - Telas de criar/editar admin e criar/editar papel ganham o mesmo cabeçalho de destaque, visual de cartão e entrada animada do resto do painel.
 - Números gerais e atalhos do dashboard, e a barra de busca/filtros da tela de auditoria completa, ganham entrada animada.
+- Tela de perfil (abas de 2FA/trocar senha) e tela de configurações da loja ganham entrada animada.
