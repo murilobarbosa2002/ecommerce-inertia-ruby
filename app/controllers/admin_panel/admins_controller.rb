@@ -2,6 +2,7 @@ module AdminPanel
   class AdminsController < AdminPanel::BaseController
     require_permission :manage_admins
     require_permission :reset_two_factor, only: :reset_two_factor
+    require_permission :delete_admin, only: :destroy
 
     def index
       result = Admins::Search.call(
@@ -81,7 +82,59 @@ module AdminPanel
       redirect_to edit_admin_admin_path(target), notice: I18n.t("admin.admins.reset_two_factor.success")
     end
 
+    def destroy
+      target = Admin.find(params[:id])
+
+      if target == Current.admin
+        redirect_to edit_admin_admin_path(target), alert: I18n.t("admin.admins.destroy.cannot_delete_self")
+        return
+      end
+
+      if last_owner?(target)
+        redirect_to edit_admin_admin_path(target), alert: I18n.t("admin.admins.destroy.cannot_delete_last_owner")
+        return
+      end
+
+      unless Current.admin.authenticate(params[:password])
+        AdminAuthentication::RecordFailedLoginAttempt.call(
+          admin: Current.admin, request: request, event_type: :reauthentication_failed
+        )
+        redirect_to edit_admin_admin_path(target), alert: I18n.t("admin.admins.destroy.invalid_password")
+        return
+      end
+
+      destroyed = false
+      Admin.transaction do
+        # Registrado ANTES do destroy, na mesma transação: admin_id (deste
+        # e de todo evento histórico do alvo) vira nulo logo depois, via
+        # on_delete: :nullify (docs/adr/0041) — metadata é o único jeito de
+        # a auditoria continuar identificando quem foi excluído. Inserir
+        # depois do destroy não dá: a FK não existiria mais pra apontar.
+        # Envolto na mesma transação do destroy pra nenhum evento sobrar
+        # registrado caso o destroy aborte (ex. change_reason em branco).
+        AuditEvents::RecordAuditEvent.call(
+          event_type: :admin_deleted,
+          admin: target,
+          request: request,
+          metadata: { deleted_admin_email: target.email_address, deleted_admin_role_name: target.role.name }
+        )
+        target.change_reason = params[:change_reason]
+        destroyed = target.destroy
+        raise ActiveRecord::Rollback unless destroyed
+      end
+
+      if destroyed
+        redirect_to admin_admins_path, notice: I18n.t("admin.admins.destroy.success")
+      else
+        redirect_to edit_admin_admin_path(target), alert: target.errors.full_messages.to_sentence
+      end
+    end
+
     private
+
+    def last_owner?(target)
+      target.role.name == "owner" && Admin.joins(:role).where(roles: { name: "owner" }).count <= 1
+    end
 
     def admin_json(admin)
       {

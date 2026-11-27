@@ -11,7 +11,7 @@ function emailOrFallback(value: unknown): string {
 }
 
 // Reusado pelo ActivityFeed (dashboard) e pela tela de auditoria completa —
-// cobre os 17 tipos reais de AuditEvent#event_type, não só o subconjunto
+// cobre os 18 tipos reais de AuditEvent#event_type, não só o subconjunto
 // curado que o dashboard mostra.
 export default function getAuditEventDescription(
   event: AuditEventRecord,
@@ -81,6 +81,15 @@ export default function getAuditEventDescription(
       return t("admin.auditEvents.descriptions.storeSettingsUpdated", {
         actorEmail,
       });
+    case "admin_deleted": {
+      const deletedEmail = emailOrFallback(
+        event.admin_email ?? event.metadata.deleted_admin_email,
+      );
+      return t("admin.auditEvents.descriptions.adminDeleted", {
+        email: deletedEmail,
+        actorEmail,
+      });
+    }
     default:
       return event.event_type;
   }

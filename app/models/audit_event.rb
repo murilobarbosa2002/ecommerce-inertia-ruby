@@ -46,7 +46,13 @@ class AuditEvent < ApplicationRecord
     # — logo não é atributo rastreado por object_changes do PaperTrail
     # (não é coluna), então este é o único rastro estruturado que diz QUAL
     # campo mudou.
-    store_settings_updated: 16
+    store_settings_updated: 16,
+    # Admin com a permissão delete_admin excluindo a conta de OUTRO admin
+    # (docs/adr/0041) — admin aponta pra quem foi excluído, mas vira nulo
+    # (on_delete: :nullify) logo depois do destroy, inclusive neste evento;
+    # metadata guarda e-mail/papel de quem foi excluído, único jeito de a
+    # tela de auditoria continuar identificando o alvo depois disso.
+    admin_deleted: 17
   }
 
   validates :event_type, presence: true

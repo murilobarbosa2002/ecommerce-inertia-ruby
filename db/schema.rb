@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_25_192125) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_26_015041) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -145,8 +145,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_25_192125) do
   add_foreign_key "admin_recovery_codes", "admins"
   add_foreign_key "admin_sessions", "admins"
   add_foreign_key "admins", "roles"
-  add_foreign_key "audit_events", "admins"
   add_foreign_key "audit_events", "admins", column: "performed_by_admin_id", on_delete: :nullify
+  add_foreign_key "audit_events", "admins", on_delete: :nullify
   add_foreign_key "role_permissions", "permissions"
   add_foreign_key "role_permissions", "roles"
 end

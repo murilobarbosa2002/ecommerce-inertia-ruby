@@ -141,6 +141,7 @@ export const ptBR = {
         password_changed: "Senha alterada",
         two_factor_reset_by_admin: "2FA resetado por outro admin",
         store_settings_updated: "Configurações da loja alteradas",
+        admin_deleted: "Admin excluído",
       },
       descriptions: {
         loginSucceeded: "{{email}} fez login",
@@ -163,6 +164,7 @@ export const ptBR = {
         passwordChanged: "{{email}} trocou a senha",
         twoFactorResetByAdmin: "{{actorEmail}} resetou o 2FA de {{email}}",
         storeSettingsUpdated: "{{actorEmail}} alterou as configurações da loja",
+        adminDeleted: "{{actorEmail}} excluiu a conta de {{email}}",
       },
       index: {
         title: "Log de auditoria",
@@ -239,6 +241,18 @@ export const ptBR = {
         resetTwoFactorConfirm:
           "Isso desativa o 2FA desse admin agora, forçando reconfiguração no próximo login. Continuar?",
         backToList: "Voltar pra lista",
+      },
+      destroy: {
+        deleteButton: "Excluir",
+        dialogTitle: "Excluir esse admin?",
+        dialogDescription:
+          "Isso exclui a conta permanentemente. O histórico de auditoria continua existindo, sem a conta associada. Confirme com a senha atual e o motivo.",
+        passwordLabel: "Sua senha atual",
+        passwordRequired: "Informe a senha atual",
+        changeReasonLabel: "Motivo da exclusão",
+        changeReasonRequired: "Informe o motivo da exclusão",
+        submit: "Excluir admin",
+        submitting: "Excluindo...",
       },
     },
     roles: {

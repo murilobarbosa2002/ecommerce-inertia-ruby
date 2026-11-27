@@ -19,11 +19,15 @@ export default function useAdminRowActions(admin: AdminRow) {
     current_admin_permissions.includes("reset_two_factor") &&
     admin.id !== current_admin_id;
 
+  const canDelete =
+    current_admin_permissions.includes("delete_admin") &&
+    admin.id !== current_admin_id;
+
   const resetTwoFactor = () => {
     if (window.confirm(t("admin.admins.edit.resetTwoFactorConfirm"))) {
       router.post(reset_two_factor_admin_admin_path(admin.id));
     }
   };
 
-  return { canResetTwoFactor, resetTwoFactor };
+  return { canResetTwoFactor, canDelete, resetTwoFactor };
 }

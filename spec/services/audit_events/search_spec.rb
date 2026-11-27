@@ -6,12 +6,12 @@ RSpec.describe AuditEvents::Search do
   end
 
   describe "tipos de evento" do
-    it "sem event_types retorna todos os 17 tipos" do
+    it "sem event_types retorna todos os 18 tipos" do
       AuditEvent.event_types.each_key { |type| create(:audit_event, event_type: type) }
 
       result = call
 
-      expect(result.total_count).to eq(17)
+      expect(result.total_count).to eq(18)
     end
 
     it "filtra por um subconjunto de tipos" do

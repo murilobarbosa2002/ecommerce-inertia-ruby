@@ -46,6 +46,11 @@ pt-BR:
         success: "2FA resetado — esse admin vai precisar configurar de novo no próximo login"
         cannot_reset_self: "Não é possível resetar o próprio 2FA por aqui — use a tela de perfil"
         not_enabled: "Esse admin já está sem 2FA ativo"
+      destroy:
+        success: "Admin excluído com sucesso"
+        cannot_delete_self: "Não é possível excluir a própria conta"
+        cannot_delete_last_owner: "Não é possível excluir o último admin com o papel owner"
+        invalid_password: "Senha incorreta"
     roles:
       create:
         success: "Papel criado com sucesso"
