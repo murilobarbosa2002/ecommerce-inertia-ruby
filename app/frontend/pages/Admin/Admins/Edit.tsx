@@ -1,7 +1,10 @@
 import { Head } from "@inertiajs/react";
 import { useTranslation } from "react-i18next";
 
+import PageHeader from "@/components/admin/page-header/PageHeader";
 import PanelLayout from "@/components/admin/panel-layout/PanelLayout";
+import Reveal from "@/components/motion/Reveal";
+import Card from "@/components/shared/card/Card";
 import Link from "@/components/shared/link/Link";
 import { admin_admins_path } from "@/routes";
 
@@ -16,13 +19,15 @@ export default function AdminsEdit({ admin, roles }: AdminsEditProps) {
     <PanelLayout title={t("admin.admins.edit.title")}>
       <Head title={t("admin.admins.edit.title")} />
 
-      <h1 className="mb-6 text-xl font-semibold text-gray-900 dark:text-gray-100">
-        {t("admin.admins.edit.title")}
-      </h1>
+      <PageHeader title={t("admin.admins.edit.title")} />
 
-      <AdminsEditForm admin={admin} roles={roles} />
+      <Reveal direction="up" duration={0.4}>
+        <Card>
+          <AdminsEditForm admin={admin} roles={roles} />
 
-      <ResetTwoFactorButton adminId={admin.id} />
+          <ResetTwoFactorButton adminId={admin.id} />
+        </Card>
+      </Reveal>
 
       <p className="mt-6 text-sm">
         <Link href={admin_admins_path()}>

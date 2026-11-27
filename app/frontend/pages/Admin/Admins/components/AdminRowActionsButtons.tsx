@@ -11,9 +11,6 @@ import { type AdminRow } from "../Index.types";
 import DeleteAdminDialog from "./DeleteAdminDialog";
 import useAdminRowActions from "./useAdminRowActions";
 
-// Drawer (mobile) tem a largura toda do painel — ação atrás de um menu ali
-// seria pouco descobrível, então os botões ficam com rótulo visível direto
-// (achado real testando no navegador, ADR 0037).
 export default function AdminRowActionsButtons({ admin }: { admin: AdminRow }) {
   const { t } = useTranslation();
   const { canResetTwoFactor, canDelete, resetTwoFactor } =

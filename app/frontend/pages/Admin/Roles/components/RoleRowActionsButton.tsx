@@ -7,9 +7,6 @@ import { edit_admin_role_path } from "@/routes";
 
 import { type RoleRow } from "../Index.types";
 
-// Drawer (mobile) tem a largura toda do painel — ação atrás de um menu ali
-// seria pouco descobrível, então o botão fica com rótulo visível direto
-// (achado real testando no navegador, ADR 0037).
 export default function RoleRowActionsButton({ role }: { role: RoleRow }) {
   const { t } = useTranslation();
 
