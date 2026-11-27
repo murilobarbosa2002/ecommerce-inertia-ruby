@@ -20,21 +20,12 @@ import getAuditEventDescription from "@/lib/audit-events/getAuditEventDescriptio
 
 import { type ActivityFeedProps } from "./ActivityFeed.types";
 
-// Mesma lista de AuditEvents::RecentActivity::RELEVANT_EVENT_TYPES — o
-// backend é quem de fato restringe o que é aceito; esta só desenha o
-// combobox de filtro. Dashboard mostra só um subconjunto curado dos 18
-// tipos reais (lib/audit-events/auditEventTypes.ts) — a tela de auditoria
-// completa mostra todos.
 const FILTERABLE_EVENT_TYPES = [
   "account_locked",
   "account_unlocked",
   "store_settings_updated",
 ];
 
-// Combina data + hora escolhidas num timestamp que o backend entende
-// (Time.zone.parse) — hora em branco cai num padrão sensato (início do
-// dia pro início do intervalo, fim do dia pro fim), não trava o filtro
-// numa janela de minutos só porque a pessoa só escolheu o dia.
 function toTimestamp(date: string, time: string, fallbackTime: string): string {
   if (!date) return "";
   return `${date}T${time || fallbackTime}`;

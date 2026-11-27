@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import Pagination from "@/components/admin/pagination/Pagination";
 import PageHeader from "@/components/admin/page-header/PageHeader";
 import PanelLayout from "@/components/admin/panel-layout/PanelLayout";
+import Reveal from "@/components/motion/Reveal";
 import DataTable from "@/components/shared/data-table/DataTable";
 import DataTableSearchInput from "@/components/shared/data-table/data-table-search-input/DataTableSearchInput";
 import useDataTable from "@/components/shared/data-table/useDataTable";
@@ -44,15 +45,17 @@ export default function AuditEventsIndex({
         })}
       />
 
-      <div className="mb-4 flex items-center gap-3">
-        <DataTableSearchInput
-          value={search}
-          onChange={changeSearch}
-          placeholder={t("admin.auditEvents.index.searchPlaceholder")}
-          className="max-w-none flex-1"
-        />
-        <AuditEventFilters actors={actors} reload={reload} />
-      </div>
+      <Reveal direction="up" duration={0.3}>
+        <div className="mb-4 flex items-center gap-3">
+          <DataTableSearchInput
+            value={search}
+            onChange={changeSearch}
+            placeholder={t("admin.auditEvents.index.searchPlaceholder")}
+            className="max-w-none flex-1"
+          />
+          <AuditEventFilters actors={actors} reload={reload} />
+        </div>
+      </Reveal>
 
       <DataTable
         columns={columns}
