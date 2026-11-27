@@ -16,7 +16,7 @@ A pergunta central: dá pra permitir excluir a conta sem perder o rastro de audi
 
 **Banco:** `audit_events.admin_id` ganha `on_delete: :nullify` (migration trocando a FK existente), igual a `performed_by_admin_id`. `admin_sessions`/`admin_recovery_codes` já cascateiam via `dependent: :destroy` existente em `Admin`.
 
-**Permissão:** `delete_admin`, própria — não reaproveita `manage_admins`. Quem pode criar/editar um admin não necessariamente pode excluir um; é a ação mais destrutiva (e menos reversível) da tela de gerenciar admins. Segue o precedente de `manage_store_settings`: não é concedida à role `owner` por padrão no seed, exige concessão deliberada pela tela de papéis — diferente de `reset_two_factor`/`view_audit_log`, que já vêm no `owner` desde o bootstrap.
+**Permissão:** `delete_admin`, própria — não reaproveita `manage_admins`. Quem pode criar/editar um admin não necessariamente pode excluir um; é a ação mais destrutiva (e menos reversível) da tela de gerenciar admins, concedível a qualquer outro papel só por decisão deliberada pela tela de papéis. A role `owner` sempre tem essa permissão (e qualquer outra) desde o bootstrap — `docs/adr/0042`.
 
 **Guardas no `AdminsController#destroy`:**
 
@@ -31,7 +31,7 @@ A pergunta central: dá pra permitir excluir a conta sem perder o rastro de audi
 
 ## Consequências
 
-- Excluir um admin deixa de ser impossível, mas continua sendo a ação mais protegida do painel: permissão própria (não concedida por padrão), bloqueio de autoexclusão, bloqueio do último `owner`, reautenticação por senha e motivo obrigatório — nenhuma dessas guardas dispensa as outras.
+- Excluir um admin deixa de ser impossível, mas continua sendo a ação mais protegida do painel: permissão própria (concedida por padrão só ao `owner`, `docs/adr/0042`), bloqueio de autoexclusão, bloqueio do último `owner`, reautenticação por senha e motivo obrigatório — nenhuma dessas guardas dispensa as outras.
 - O histórico de auditoria de uma conta excluída sobrevive à exclusão (eventos continuam existindo, só sem a associação `admin`) — consistente com a mesma garantia que `performed_by_admin_id` já oferece desde antes.
 - A tela de auditoria (e o feed do dashboard) precisam tratar um evento com `admin` nulo mas `metadata` preenchida como um caso de exibição normal, não um erro — mesmo recurso que `login_failed` já usa pra um e-mail sem conta correspondente.
 - Qualquer tela futura que também referencie `Admin` por uma FK sem `on_delete` configurado herda a mesma limitação que `audit_events.admin_id` tinha até aqui — vale revisitar caso a caso se outra tela algum dia depender de excluir um admin que tenha registros lá.
