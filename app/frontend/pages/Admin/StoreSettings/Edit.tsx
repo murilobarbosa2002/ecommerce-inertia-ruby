@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 
 import PanelLayout from "@/components/admin/panel-layout/PanelLayout";
 import PageHeader from "@/components/admin/page-header/PageHeader";
+import Reveal from "@/components/motion/Reveal";
+import Card from "@/components/shared/card/Card";
 
 import StoreSettingsEditForm from "./components/StoreSettingsEditForm";
 import { type StoreSettingsEditProps } from "./Edit.types";
@@ -22,7 +24,11 @@ export default function StoreSettingsEdit({
         description={t("admin.storeSettings.edit.description")}
       />
 
-      <StoreSettingsEditForm name={name} logo_url={logo_url} />
+      <Reveal direction="up" duration={0.4}>
+        <Card>
+          <StoreSettingsEditForm name={name} logo_url={logo_url} />
+        </Card>
+      </Reveal>
     </PanelLayout>
   );
 }
