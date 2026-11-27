@@ -176,7 +176,7 @@ Nenhum efeito funcional observado neste caso específico, mas é sinal real de u
 
 ### Correção
 
-`useAdminsNewForm` passou a declarar `defaultValues` com string vazia pra todo campo (incluindo `role_id`), garantindo que o `Select` já nasce "controlled". Regra geral documentada em `CONTRIBUTING.md`, seção "Padrões de código".
+`useAdminsNewForm` passou a declarar `defaultValues` com string vazia pra todo campo (incluindo `role_id`), garantindo que o `Select` já nasce "controlled". Regra geral documentada em `docs/contributing/frontend-conventions.md`.
 
 ### Verificação
 
@@ -312,7 +312,7 @@ Visual apenas (nenhum dado ou permissão envolvidos). Sintoma (1): o tooltip pre
 
 ### Correção
 
-Para (1): `Tooltip` (`components/shared/tooltip/`) passou a embrulhar o trigger incondicionalmente; só o `Content` (dentro do `Portal`) é renderizado condicionalmente, conforme o `content` recebido seja truthy. `Sidebar` e `SidebarItem` foram ajustados para sempre passar o botão/link pelo mesmo `Tooltip`, variando apenas o `content` (`collapsed ? rótulo : null`) em vez de alternar a presença do wrapper. Gotcha generalizável documentado em `CONTRIBUTING.md`, seção "Padrões de código": nenhum elemento controlado por um primitivo Radix de abrir/fechar deve alternar entre "com wrapper"/"sem wrapper" via ternário de tipo.
+Para (1): `Tooltip` (`components/shared/tooltip/`) passou a embrulhar o trigger incondicionalmente; só o `Content` (dentro do `Portal`) é renderizado condicionalmente, conforme o `content` recebido seja truthy. `Sidebar` e `SidebarItem` foram ajustados para sempre passar o botão/link pelo mesmo `Tooltip`, variando apenas o `content` (`collapsed ? rótulo : null`) em vez de alternar a presença do wrapper. Gotcha generalizável documentado em `docs/contributing/frontend-conventions.md`: nenhum elemento controlado por um primitivo Radix de abrir/fechar deve alternar entre "com wrapper"/"sem wrapper" via ternário de tipo.
 
 Para (2): `open` do `RadixTooltip.Root` passou a ser totalmente controlado por `Tooltip` (`useState` próprio), e todo pedido de abrir (`onOpenChange(true)`) vindo do Radix só é aceito quando há `content` disponível (`hasContent`) — fechar (`onOpenChange(false)`) continua sempre aceito. Isso elimina o "quero abrir" latente que o Radix guardava durante o hover sem conteúdo, impedindo que ele resurja quando `content` volta a ter valor.
 
@@ -348,7 +348,7 @@ Visual apenas, cosmético: nenhum dado, navegação ou permissão envolvidos —
 
 ### Correção
 
-`SidebarNav` passou a declarar `overflow-x-hidden` explicitamente (além do `overflow-y-auto` já existente), fixando o eixo X como sempre oculto — nunca mais computa como `auto`, então nenhuma barra de rolagem horizontal é desenhada, mesmo durante a janela de overflow momentâneo da transição (o conteúdo é só cortado, de forma imperceptível, já que a largura alcança o conteúdo antes dos ~200ms da transição terminarem). Gotcha generalizável documentado em `CONTRIBUTING.md`, seção "Padrões de código": sempre declarar `overflow-x`/`overflow-y` juntos ao usar qualquer um dos dois, nunca confiar no valor inicial (`visible`) do outro eixo.
+`SidebarNav` passou a declarar `overflow-x-hidden` explicitamente (além do `overflow-y-auto` já existente), fixando o eixo X como sempre oculto — nunca mais computa como `auto`, então nenhuma barra de rolagem horizontal é desenhada, mesmo durante a janela de overflow momentâneo da transição (o conteúdo é só cortado, de forma imperceptível, já que a largura alcança o conteúdo antes dos ~200ms da transição terminarem). Gotcha generalizável documentado em `docs/contributing/frontend-conventions.md`: sempre declarar `overflow-x`/`overflow-y` juntos ao usar qualquer um dos dois, nunca confiar no valor inicial (`visible`) do outro eixo.
 
 ### Verificação
 

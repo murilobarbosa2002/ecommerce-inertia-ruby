@@ -61,7 +61,7 @@ Extensão `davidanson.vscode-markdownlint` instalada no VS Code (Remote-WSL). Re
 
 Status: feito.
 
-Extensão `gruntfuggly.todo-tree` instalada no VS Code (Remote-WSL). Convenção de tags documentada em `CONTRIBUTING.md`, seção "Padrões de código" — `TODO`, `FIXME` e `PENDING-FRONTEND` (tag própria deste projeto, pra pendência de backend que só é resolvível quando a página/tela correspondente do frontend existir). Configuração compartilhada em `.vscode/settings.json` (cores/ícones por tag, pastas excluídas do scan).
+Extensão `gruntfuggly.todo-tree` instalada no VS Code (Remote-WSL). Convenção de tags documentada em `docs/contributing/code-style-and-architecture.md` — `TODO`, `FIXME` e `PENDING-FRONTEND` (tag própria deste projeto, pra pendência de backend que só é resolvível quando a página/tela correspondente do frontend existir). Configuração compartilhada em `.vscode/settings.json` (cores/ícones por tag, pastas excluídas do scan).
 
 **Pegadinha real encontrada (dupla):**
 
@@ -249,7 +249,7 @@ Verificação: `RAILS_ENV=test bin/rails runner 'puts Rails.application.credenti
 
 Esta seção é atualizada com os comandos reais conforme cada item é de fato feito, não antes:
 
-- [ ] Playwright instalado como dependência de dev e usado em testes reais (entra quando houver fluxo de UI real pra testar, ver `CONTRIBUTING.md` — o Playwright MCP já conecta, ver seção "MCP servers" acima, mas isso é só a ferramenta de automação, não os testes em si)
+- [ ] Playwright instalado como dependência de dev e usado em testes reais (entra quando houver fluxo de UI real pra testar, ver `docs/contributing/testing.md` — o Playwright MCP já conecta, ver seção "MCP servers" acima, mas isso é só a ferramenta de automação, não os testes em si)
 
 ### Scaffold da aplicação (Rails + Inertia + React + pnpm)
 
