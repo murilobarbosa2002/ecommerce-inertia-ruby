@@ -43,4 +43,11 @@ RSpec.describe "db/seeds.rb" do
     expect { load Rails.root.join("db/seeds.rb") }
       .not_to change(StoreSetting, :count)
   end
+
+  it "cria a permissão delete_admin sem atribuí-la a nenhum papel" do
+    load Rails.root.join("db/seeds.rb")
+
+    expect(Permission.find_by(key: "delete_admin")).to be_present
+    expect(Role.find_by(name: "owner").permission?("delete_admin")).to be false
+  end
 end

@@ -57,6 +57,15 @@ Permission.find_or_create_by!(key: "manage_store_settings") do |permission|
   permission.description = "Configurar o nome e o logo da loja"
 end
 
+# delete_admin segue a mesma regra de manage_store_settings: existe (pra ser
+# atribuível pela tela de papéis), mas nunca é atribuída a nenhum papel por
+# padrão — é a ação mais destrutiva/irreversível da tela de gerenciar
+# admins, separada de propósito de manage_admins (quem pode criar/editar
+# não necessariamente pode excluir).
+Permission.find_or_create_by!(key: "delete_admin") do |permission|
+  permission.description = "Excluir a conta de outro admin"
+end
+
 # StoreSetting.instance também cria sozinho se faltar (fallback pra banco
 # não seedado), mas seedar aqui garante a linha sem depender desse
 # fallback em produção — mesmo racional do Role "owner" acima.

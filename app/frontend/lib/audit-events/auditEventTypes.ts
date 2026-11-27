@@ -10,11 +10,12 @@ import {
   ShieldOff,
   Store,
   Unlock,
+  UserX,
   type LucideIcon,
 } from "lucide-react";
 
 // Mesma ordem do enum AuditEvent#event_type (app/models/audit_event.rb) —
-// os 17 tipos reais que existem hoje. Reusado pelo ActivityFeed (dashboard,
+// os 18 tipos reais que existem hoje. Reusado pelo ActivityFeed (dashboard,
 // que só mostra um subconjunto curado) e pela tela de auditoria completa,
 // pra não duplicar ícone/tom/tradução em dois lugares.
 export const AUDIT_EVENT_TYPES = [
@@ -35,6 +36,7 @@ export const AUDIT_EVENT_TYPES = [
   "password_changed",
   "two_factor_reset_by_admin",
   "store_settings_updated",
+  "admin_deleted",
 ] as const;
 
 export type AuditEventType = (typeof AUDIT_EVENT_TYPES)[number];
@@ -57,6 +59,7 @@ export const AUDIT_EVENT_ICONS: Record<AuditEventType, LucideIcon> = {
   password_changed: KeyRound,
   two_factor_reset_by_admin: ShieldCheck,
   store_settings_updated: Store,
+  admin_deleted: UserX,
 };
 
 export const AUDIT_EVENT_TONES: Record<AuditEventType, string> = {
@@ -77,6 +80,7 @@ export const AUDIT_EVENT_TONES: Record<AuditEventType, string> = {
   password_changed: "bg-success-soft text-success-text",
   two_factor_reset_by_admin: "bg-warning-soft text-warning-text",
   store_settings_updated: "bg-info-soft text-info-text",
+  admin_deleted: "bg-danger-soft text-danger-text",
 };
 
 export function isAuditEventType(value: string): value is AuditEventType {

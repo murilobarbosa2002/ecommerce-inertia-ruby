@@ -17,11 +17,11 @@ RSpec.describe AuditEvent, type: :model do
         two_factor_enabled two_factor_disabled two_factor_verified two_factor_failed
         recovery_code_used password_reset_requested password_reset_completed
         password_verified reauthentication_failed password_changed two_factor_reset_by_admin
-        store_settings_updated
+        store_settings_updated admin_deleted
       ]
     end
 
-    it "mapeia exatamente os eventos de negócio decididos até agora (docs/adr/0013, docs/adr/0023)" do
+    it "mapeia exatamente os eventos de negócio decididos até agora (docs/adr/0013, docs/adr/0023, docs/adr/0041)" do
       expect(AuditEvent.event_types.keys).to contain_exactly(*expected_event_types)
     end
 

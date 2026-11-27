@@ -211,3 +211,33 @@ Chaves `activerecord.attributes.role.name`/`change_reason` adicionadas em `confi
 ### Verificação
 
 Teste em `spec/requests/admin/roles_spec.rb` ("exige motivo da alteração mesmo quando só a lista de permissões muda") comparando a mensagem completa esperada — confirmado vermelho antes da tradução existir, verde depois.
+
+## Novo `AuditEvent#event_type` ganhou ícone/tom/descrição mas não o rótulo do badge "Tipo"
+
+- **Data:** 2026-11-26
+- **Severidade:** baixa
+- **PR:** #97
+
+### O que aconteceu
+
+Ao adicionar `admin_deleted` como novo `event_type` (feature de excluir admin, docs/adr/0041), a badge "Tipo" na tela de auditoria completa mostrava a própria chave i18next crua (`admin.auditEvents.types.admin_deleted`) em vez de um rótulo traduzido — só percebido ao rodar o fluxo de verdade no navegador (chrome-devtools) depois de excluir um admin de teste, não pelos testes automatizados.
+
+### Causa raiz
+
+Toda vez que um `event_type` novo é adicionado, três lugares precisam de atualização em `app/frontend/lib/audit-events/auditEventTypes.ts`/`getAuditEventDescription.ts` (ícone, tom, descrição completa) e um quarto, separado, em `app/frontend/locales/pt-BR.ts`: o bloco `admin.auditEvents.types` (rótulo curto do badge, lido direto por `auditEventColumns.tsx`/`AuditEventFilters.tsx`/`ActivityFeed.tsx`, montando a chave de tradução a partir do `event_type`), nunca pelas duas funções já atualizadas. Nenhum teste existia cobrindo esse quarto lugar — os testes de `getAuditEventIcon`/`getAuditEventTone` e de `getAuditEventDescription` passavam normalmente, porque cobrem só os outros três.
+
+### Como foi encontrado
+
+Verificação visual (chrome-devtools) do fluxo de excluir admin, navegando até a tela de auditoria completa pra conferir o evento `admin_deleted` registrado — a chave crua apareceu como texto do badge "Tipo", em vez de "Admin excluído".
+
+### Impacto
+
+Baixo: só afeta exibição (badge ilegível pra esse um tipo de evento), nenhum dado incorreto ou falha de segurança — mas some despercebido por qualquer suíte de teste que não rode a tela de verdade num navegador.
+
+### Correção
+
+Chave `admin.auditEvents.types.admin_deleted: "Admin excluído"` adicionada em `app/frontend/locales/pt-BR.ts`.
+
+### Verificação
+
+Teste novo em `app/frontend/test/lib/audit-events/auditEventTypes.test.ts` ("tem rótulo traduzido (não a chave crua) pra todos os 18 tipos reais") — itera `AUDIT_EVENT_TYPES` e confirma que `i18n.t(\`admin.auditEvents.types.${tipo}\`)` nunca devolve a própria chave (comportamento padrão do i18next pra chave ausente). Confirmado vermelho removendo a chave de propósito, verde com ela restaurada — essa cobertura evita que o mesmo gap se repita no próximo `event_type` novo.

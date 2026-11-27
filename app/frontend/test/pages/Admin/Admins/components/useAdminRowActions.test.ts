@@ -85,4 +85,31 @@ describe("useAdminRowActions", () => {
 
     expect(routerPostMock).not.toHaveBeenCalled();
   });
+
+  it("não permite excluir sem a permissão delete_admin", () => {
+    mockCurrentAdmin({ permissions: [], currentAdminId: 1 });
+
+    const { result } = renderHook(() => useAdminRowActions(admin));
+
+    expect(result.current.canDelete).toBe(false);
+  });
+
+  it("não permite excluir a própria conta, mesmo com a permissão", () => {
+    mockCurrentAdmin({
+      permissions: ["delete_admin"],
+      currentAdminId: admin.id,
+    });
+
+    const { result } = renderHook(() => useAdminRowActions(admin));
+
+    expect(result.current.canDelete).toBe(false);
+  });
+
+  it("permite excluir outro admin com a permissão", () => {
+    mockCurrentAdmin({ permissions: ["delete_admin"], currentAdminId: 1 });
+
+    const { result } = renderHook(() => useAdminRowActions(admin));
+
+    expect(result.current.canDelete).toBe(true);
+  });
 });

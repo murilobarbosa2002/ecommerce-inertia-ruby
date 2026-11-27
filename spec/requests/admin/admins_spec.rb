@@ -323,4 +323,143 @@ RSpec.describe "Admin::Admins", type: :request do
       expect(flash[:alert]).to eq("Esse admin já está sem 2FA ativo")
     end
   end
+
+  describe "DELETE /admin/admins/:id" do
+    let(:delete_admin) { create(:permission, key: "delete_admin") }
+    let(:role_with_both_permissions) do
+      create(:role).tap { |role| role.permissions << manage_admins << delete_admin }
+    end
+    let(:role_with_only_delete_admin) do
+      create(:role).tap { |role| role.permissions << delete_admin }
+    end
+    let(:owner_role) { create(:role, name: "owner") }
+
+    it "bloqueia pra admin sem manage_admins, mesmo com delete_admin" do
+      admin = create(:admin, :with_two_factor_enabled, role: role_with_only_delete_admin)
+      sign_in(admin)
+      target = create(:admin, role: role_without_permission)
+
+      delete admin_admin_path(target)
+
+      expect(response).to redirect_to(root_path)
+      expect(flash[:alert]).to eq("Você não tem permissão pra acessar essa página")
+      expect(Admin.exists?(target.id)).to be true
+    end
+
+    it "bloqueia pra admin com manage_admins mas sem delete_admin" do
+      admin = create(:admin, :with_two_factor_enabled, role: role_with_permission)
+      sign_in(admin)
+      target = create(:admin, role: role_without_permission)
+
+      delete admin_admin_path(target)
+
+      expect(response).to redirect_to(root_path)
+      expect(flash[:alert]).to eq("Você não tem permissão pra acessar essa página")
+      expect(Admin.exists?(target.id)).to be true
+    end
+
+    it "exclui outro admin informando senha e motivo, registrando quem agiu e quem foi excluído" do
+      admin = create(:admin, :with_two_factor_enabled, role: role_with_both_permissions)
+      sign_in(admin)
+      target = create(:admin, email_address: "alvo@example.com", role: role_without_permission)
+
+      delete admin_admin_path(target), params: {
+        password: AdminCredentials::VALID_PASSWORD, change_reason: "Conta de teste não é mais necessária"
+      }
+
+      expect(response).to redirect_to(admin_admins_path)
+      expect(flash[:notice]).to eq("Admin excluído com sucesso")
+      expect(Admin.exists?(target.id)).to be false
+
+      event = AuditEvent.find_by(event_type: "admin_deleted")
+      expect(event).to be_present
+      expect(event.admin).to be_nil
+      expect(event.performed_by_admin).to eq(admin)
+      expect(event.metadata["deleted_admin_email"]).to eq("alvo@example.com")
+      expect(event.metadata["deleted_admin_role_name"]).to eq(role_without_permission.name)
+    end
+
+    it "não permite excluir a própria conta" do
+      admin = create(:admin, :with_two_factor_enabled, role: role_with_both_permissions)
+      sign_in(admin)
+
+      delete admin_admin_path(admin), params: { password: AdminCredentials::VALID_PASSWORD, change_reason: "Teste" }
+
+      expect(response).to redirect_to(edit_admin_admin_path(admin))
+      expect(flash[:alert]).to eq("Não é possível excluir a própria conta")
+      expect(Admin.exists?(admin.id)).to be true
+    end
+
+    it "não permite excluir o último admin com o papel owner" do
+      admin = create(:admin, :with_two_factor_enabled, role: role_with_both_permissions)
+      sign_in(admin)
+      target = create(:admin, role: owner_role)
+
+      delete admin_admin_path(target), params: {
+        password: AdminCredentials::VALID_PASSWORD, change_reason: "Teste"
+      }
+
+      expect(response).to redirect_to(edit_admin_admin_path(target))
+      expect(flash[:alert]).to eq("Não é possível excluir o último admin com o papel owner")
+      expect(Admin.exists?(target.id)).to be true
+    end
+
+    it "permite excluir um admin com papel owner quando não é o último" do
+      admin = create(:admin, :with_two_factor_enabled, role: role_with_both_permissions)
+      sign_in(admin)
+      create(:admin, role: owner_role)
+      target = create(:admin, role: owner_role)
+
+      delete admin_admin_path(target), params: {
+        password: AdminCredentials::VALID_PASSWORD, change_reason: "Teste"
+      }
+
+      expect(response).to redirect_to(admin_admins_path)
+      expect(Admin.exists?(target.id)).to be false
+    end
+
+    it "não exclui com senha incorreta, e conta pra o limite de tentativas de quem agiu" do
+      admin = create(:admin, :with_two_factor_enabled, role: role_with_both_permissions)
+      sign_in(admin)
+      target = create(:admin, role: role_without_permission)
+
+      expect do
+        delete admin_admin_path(target), params: { password: "senha-errada", change_reason: "Teste" }
+      end.to change { admin.reload.failed_login_attempts }.by(1)
+
+      expect(response).to redirect_to(edit_admin_admin_path(target))
+      expect(flash[:alert]).to eq("Senha incorreta")
+      expect(Admin.exists?(target.id)).to be true
+    end
+
+    it "não exclui sem motivo, e não registra nenhum evento de auditoria" do
+      admin = create(:admin, :with_two_factor_enabled, role: role_with_both_permissions)
+      sign_in(admin)
+      target = create(:admin, role: role_without_permission)
+
+      expect do
+        delete admin_admin_path(target), params: { password: AdminCredentials::VALID_PASSWORD, change_reason: "" }
+      end.not_to change(AuditEvent, :count)
+
+      expect(response).to redirect_to(edit_admin_admin_path(target))
+      expect(flash[:alert]).to eq("Motivo da alteração não pode ficar em branco")
+      expect(Admin.exists?(target.id)).to be true
+    end
+
+    it "preserva o histórico de auditoria da conta excluída, sem admin associado" do
+      admin = create(:admin, :with_two_factor_enabled, role: role_with_both_permissions)
+      sign_in(admin)
+      target = create(:admin, role: role_without_permission)
+      login_event = AuditEvents::RecordAuditEvent.call(
+        event_type: :login_succeeded, admin: target, performed_by_admin: target
+      )
+
+      delete admin_admin_path(target), params: {
+        password: AdminCredentials::VALID_PASSWORD, change_reason: "Teste"
+      }
+
+      expect(login_event.reload.admin).to be_nil
+      expect(login_event.event_type).to eq("login_succeeded")
+    end
+  end
 end

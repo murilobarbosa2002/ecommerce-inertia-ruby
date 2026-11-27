@@ -22,7 +22,7 @@ import { type ActivityFeedProps } from "./ActivityFeed.types";
 
 // Mesma lista de AuditEvents::RecentActivity::RELEVANT_EVENT_TYPES — o
 // backend é quem de fato restringe o que é aceito; esta só desenha o
-// combobox de filtro. Dashboard mostra só um subconjunto curado dos 17
+// combobox de filtro. Dashboard mostra só um subconjunto curado dos 18
 // tipos reais (lib/audit-events/auditEventTypes.ts) — a tela de auditoria
 // completa mostra todos.
 const FILTERABLE_EVENT_TYPES = [

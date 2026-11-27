@@ -116,6 +116,20 @@ describe("getAuditEventDescription", () => {
     ).toBe("owner@example.com alterou as configurações da loja");
   });
 
+  it("admin_deleted cita quem excluiu e o e-mail salvo em metadata (admin_email já vem nulo)", () => {
+    expect(
+      getAuditEventDescription(
+        event({
+          event_type: "admin_deleted",
+          admin_email: null,
+          performed_by_admin_email: "owner@example.com",
+          metadata: { deleted_admin_email: "ana@example.com" },
+        }),
+        t,
+      ),
+    ).toBe("owner@example.com excluiu a conta de ana@example.com");
+  });
+
   it("devolve a chave crua pra um tipo desconhecido", () => {
     expect(
       getAuditEventDescription(event({ event_type: "tipo_que_nao_existe" }), t),

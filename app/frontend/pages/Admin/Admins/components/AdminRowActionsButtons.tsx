@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Link } from "@inertiajs/react";
-import { ShieldOff, SquarePen } from "lucide-react";
+import { ShieldOff, SquarePen, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import Button from "@/components/shared/button/Button";
@@ -7,6 +8,7 @@ import { button } from "@/components/shared/button/Button.variants";
 import { edit_admin_admin_path } from "@/routes";
 
 import { type AdminRow } from "../Index.types";
+import DeleteAdminDialog from "./DeleteAdminDialog";
 import useAdminRowActions from "./useAdminRowActions";
 
 // Drawer (mobile) tem a largura toda do painel — ação atrás de um menu ali
@@ -14,7 +16,9 @@ import useAdminRowActions from "./useAdminRowActions";
 // (achado real testando no navegador, ADR 0037).
 export default function AdminRowActionsButtons({ admin }: { admin: AdminRow }) {
   const { t } = useTranslation();
-  const { canResetTwoFactor, resetTwoFactor } = useAdminRowActions(admin);
+  const { canResetTwoFactor, canDelete, resetTwoFactor } =
+    useAdminRowActions(admin);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   return (
     <>
@@ -35,6 +39,26 @@ export default function AdminRowActionsButtons({ admin }: { admin: AdminRow }) {
           <ShieldOff className="size-4" aria-hidden="true" />
           {t("admin.admins.edit.resetTwoFactorButton")}
         </Button>
+      )}
+      {canDelete && (
+        <Button
+          type="button"
+          intent="danger"
+          fullWidth
+          onClick={() => {
+            setDeleteDialogOpen(true);
+          }}
+        >
+          <Trash2 className="size-4" aria-hidden="true" />
+          {t("admin.admins.destroy.deleteButton")}
+        </Button>
+      )}
+      {canDelete && (
+        <DeleteAdminDialog
+          adminId={admin.id}
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+        />
       )}
     </>
   );
