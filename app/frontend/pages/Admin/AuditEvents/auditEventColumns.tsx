@@ -17,10 +17,6 @@ function formatHappenedAt(iso: string): string {
   }).format(new Date(iso));
 }
 
-// Só exibição — o dado salvo continua sendo o IP real. "::1"/"127.0.0.1"
-// (loopback) é o que todo request em desenvolvimento local mostra, já que
-// servidor e navegador rodam na mesma máquina; "localhost" é mais claro
-// que o endereço cru pra quem está lendo a tela.
 const LOOPBACK_ADDRESSES = new Set(["::1", "127.0.0.1"]);
 
 function formatIpAddress(ipAddress: string): string {
@@ -73,8 +69,6 @@ export default function getAuditEventColumns(
           );
         }
 
-        // Sem Admin identificado (ex. login_failed com e-mail
-        // inexistente): mostra o IP de quem tentou agir, em vez de só "—".
         return event.ip_address ? formatIpAddress(event.ip_address) : "—";
       },
     },

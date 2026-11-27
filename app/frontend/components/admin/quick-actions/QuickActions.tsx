@@ -17,11 +17,6 @@ import { admin_quick_actions_path } from "@/routes";
 
 import { type QuickActionsProps } from "./QuickActions.types";
 
-// Paginação é client-side de propósito: o catálogo inteiro
-// (config/quickActions.ts) já vem pro frontend de qualquer jeito, sem
-// round-trip nenhum — diferente da atividade recente (vem de uma tabela
-// que só cresce, paginada no banco). Prepara o card pra quando o catálogo
-// tiver mais itens do que cabe numa tela sem rolar.
 const PAGE_SIZE = 5;
 
 export default function QuickActions({
@@ -35,8 +30,6 @@ export default function QuickActions({
   const [page, setPage] = useState(1);
 
   const allowed = filterQuickActions(quickActionsCatalog, permissions);
-  // [] (nunca configurado) vira "mostra todas as permitidas" — evita um
-  // dashboard vazio pra quem nunca abriu o diálogo de configurar.
   const effectiveKeys =
     quickActionKeys.length > 0 ? quickActionKeys : allowed.map((a) => a.key);
   const visible = allowed.filter((action) =>
@@ -44,8 +37,6 @@ export default function QuickActions({
   );
 
   const totalPages = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
-  // Clampado aqui (não via efeito): evita ficar preso numa página vazia
-  // depois de desmarcar ações no diálogo e sobrar menos páginas que antes.
   const safePage = Math.min(page, totalPages);
   const pageItems = visible.slice(
     (safePage - 1) * PAGE_SIZE,
