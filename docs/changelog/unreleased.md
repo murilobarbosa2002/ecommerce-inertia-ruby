@@ -77,3 +77,4 @@ Entradas acumuladas aqui até a primeira versão (`v0.1.0`) ser fechada, quando 
 - Linhas das telas de listagem (Admins, Papéis, Log de auditoria) ganham entrada animada em cascata, tanto na tabela (telas largas) quanto nos cartões (celular).
 - Tela de gerenciar admins ganha a opção de excluir a conta de outro admin, restrita a quem tem a permissão `delete_admin` — exige reautenticar com a senha atual e informar o motivo, nunca permite excluir a própria conta nem o último admin com o papel owner. O histórico de auditoria da conta excluída continua existindo, sem a conta associada.
 - O papel owner passa a ter sempre toda permissão existente, automaticamente, incluindo as que antes exigiam concessão manual pela tela de papéis (configurar a loja, excluir admin).
+- Telas de criar/editar admin e criar/editar papel ganham o mesmo cabeçalho de destaque, visual de cartão e entrada animada do resto do painel.

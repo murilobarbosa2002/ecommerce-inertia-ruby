@@ -1,7 +1,10 @@
 import { Head } from "@inertiajs/react";
 import { useTranslation } from "react-i18next";
 
+import PageHeader from "@/components/admin/page-header/PageHeader";
 import PanelLayout from "@/components/admin/panel-layout/PanelLayout";
+import Reveal from "@/components/motion/Reveal";
+import Card from "@/components/shared/card/Card";
 import Link from "@/components/shared/link/Link";
 import { admin_roles_path } from "@/routes";
 
@@ -15,11 +18,13 @@ export default function RolesNew({ permissions }: RolesNewProps) {
     <PanelLayout title={t("admin.roles.new.title")}>
       <Head title={t("admin.roles.new.title")} />
 
-      <h1 className="mb-6 text-xl font-semibold text-gray-900 dark:text-gray-100">
-        {t("admin.roles.new.title")}
-      </h1>
+      <PageHeader title={t("admin.roles.new.title")} />
 
-      <RolesNewForm permissions={permissions} />
+      <Reveal direction="up" duration={0.4}>
+        <Card>
+          <RolesNewForm permissions={permissions} />
+        </Card>
+      </Reveal>
 
       <p className="mt-6 text-sm">
         <Link href={admin_roles_path()}>{t("admin.roles.new.backToList")}</Link>
