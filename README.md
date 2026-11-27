@@ -73,7 +73,7 @@ Veja [`CONTRIBUTING.md`](CONTRIBUTING.md). Reportar vulnerabilidade de seguranç
 
 ## Documentação
 
-- [`CONTRIBUTING.md`](CONTRIBUTING.md) — processo de contribuição, padrões de código, testes.
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — processo de contribuição; linka pra [`docs/contributing/`](docs/contributing/) (convenção de código por área: estilo/arquitetura, backend, frontend, I18n, acessibilidade, testes, segurança).
 - [`docs/adr/`](docs/adr/) — Architecture Decision Records (decisões de arquitetura e seus porquês).
 - [`CHANGELOG.md`](CHANGELOG.md) — o que mudou, versão a versão.
 - [`docs/bugs/`](docs/bugs/) — registro detalhado de bugs reais já encontrados (causa raiz, impacto, correção).

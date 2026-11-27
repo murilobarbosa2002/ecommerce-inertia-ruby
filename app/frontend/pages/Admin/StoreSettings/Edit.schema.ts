@@ -3,7 +3,7 @@ import { z } from "zod";
 // Mesmo valor do backend (StoreSetting::ALLOWED_LOGO_CONTENT_TYPES e
 // ::MAX_LOGO_SIZE) — duplicado aqui porque é o único jeito de validar no
 // cliente sem carregar JSON do servidor só pra isso; o backend continua
-// sendo a autoridade (CONTRIBUTING.md, Segurança).
+// sendo a autoridade (docs/contributing/security.md).
 export const ALLOWED_LOGO_TYPES = ["image/png", "image/jpeg", "image/svg+xml"];
 export const MAX_LOGO_SIZE = 2 * 1024 * 1024;
 

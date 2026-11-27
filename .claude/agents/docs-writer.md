@@ -1,6 +1,6 @@
 ---
 name: docs-writer
-description: Use este agente para criar ou atualizar documentação deste projeto — README.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md, docs/adr/*, docs/bugs/*, CHANGELOG.md, docs/changelog/*, docs/adapting-to-a-new-niche.md, docs/environment-setup.md, .claude/agents/*, .claude/skills/*, ou o próprio CLAUDE.md. Acione proativamente sempre que uma tarefa envolver escrever, revisar ou manter consistência desses arquivos.
+description: Use este agente para criar ou atualizar documentação deste projeto — README.md, CONTRIBUTING.md, docs/contributing/*, CODE_OF_CONDUCT.md, SECURITY.md, docs/adr/*, docs/bugs/*, CHANGELOG.md, docs/changelog/*, docs/adapting-to-a-new-niche.md, docs/environment-setup.md, .claude/agents/*, .claude/skills/*, ou o próprio CLAUDE.md. Acione proativamente sempre que uma tarefa envolver escrever, revisar ou manter consistência desses arquivos.
 ---
 
 # Agente de documentação (docs-writer)

@@ -11,7 +11,7 @@ const NUMBERS = "0123456789";
 const SPECIAL_CHARACTERS = "!@#$%^&*()-_=+[]{}";
 
 // crypto.getRandomValues (não Math.random, que não é seguro pra nada
-// sensível — CONTRIBUTING.md, "Segurança") — minúsculas sempre presentes,
+// sensível — docs/contributing/security.md) — minúsculas sempre presentes,
 // pra nunca gerar com um pool vazio se todas as opções vierem desmarcadas.
 export default function generatePassword({
   length,

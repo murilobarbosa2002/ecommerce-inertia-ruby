@@ -90,7 +90,7 @@ RSpec.describe "Admin::StoreSettings", type: :request do
       expect(event.metadata["change_reason"]).to eq("Atualizando nome da loja")
 
       # change_reason prova o "por quê", whodunnit prova o "quem" — as duas
-      # partes, não só uma (CONTRIBUTING.md, seção Testes).
+      # partes, não só uma (docs/contributing/testing.md).
       version = StoreSetting.instance.versions.last
       expect(version.event).to eq("update")
       expect(version.whodunnit).to eq(admin.id.to_s)

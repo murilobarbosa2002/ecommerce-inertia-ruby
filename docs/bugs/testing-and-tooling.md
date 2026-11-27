@@ -296,7 +296,7 @@ Teste que parecia estar verificando o comportamento de copiar pro clipboard, mas
 
 ### Correção
 
-`userEvent.setup({ writeToClipboard: false })` desliga o stub automático; o `Object.defineProperty` do mock de clipboard passou a ser definido depois do `setup()`, não antes. Regra documentada em `CONTRIBUTING.md`, seção "Testes".
+`userEvent.setup({ writeToClipboard: false })` desliga o stub automático; o `Object.defineProperty` do mock de clipboard passou a ser definido depois do `setup()`, não antes. Regra documentada em `docs/contributing/testing.md`.
 
 ### Verificação
 
@@ -326,7 +326,7 @@ Nenhum em produção — é um falso positivo de lint, mas bloquearia qualquer P
 
 ### Correção
 
-A desestruturação foi renomeada (`const { props: pageProps } = usePage()`), evitando o nome `props` como variável local dentro do componente. Regra documentada em `CONTRIBUTING.md`, seção "Testes".
+A desestruturação foi renomeada (`const { props: pageProps } = usePage()`), evitando o nome `props` como variável local dentro do componente. Regra documentada em `docs/contributing/testing.md`.
 
 ### Verificação
 

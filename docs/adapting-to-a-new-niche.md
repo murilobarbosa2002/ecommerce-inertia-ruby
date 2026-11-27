@@ -30,7 +30,7 @@ Como não há page builder visual (`docs/adr/0003-fully-custom-admin-no-page-bui
 
 1. Implemente o componente/view da página seguindo os padrões já existentes.
 2. Exponha a opção de ativá-la no painel de CMS.
-3. Cubra com testes (ver seção "Testes" do `CONTRIBUTING.md`).
+3. Cubra com testes (ver `docs/contributing/testing.md`).
 4. Se a decisão tiver implicação arquitetural relevante, registre um ADR.
 
 ## 4. Contribuindo essas mudanças de volta
